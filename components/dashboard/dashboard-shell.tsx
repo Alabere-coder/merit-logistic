@@ -24,6 +24,7 @@ import {
 import { cn, initials } from "@/lib/utils";
 import { logOut } from "@/lib/actions/auth";
 import { Button } from "../ui/button";
+import { NotificationBell } from "@/components/dashboard/notification-bell";
 
 export type NavItem = {
   href: string;
@@ -205,18 +206,7 @@ export function DashboardShell({
 
           {/* Notifications Action */}
           <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-10 w-10 rounded-full text-slate-600 transition-all hover:bg-slate-100 hover:text-slate-900 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-              aria-label="Notifications"
-            >
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-2.5 right-2.5 flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-600" />
-              </span>
-            </Button>
+            <NotificationBell />
           </div>
         </header>
 

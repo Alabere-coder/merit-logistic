@@ -3,7 +3,7 @@
 import { requireRole } from "@/lib/auth/require-role";
 import { revalidatePath } from "next/cache";
 
-type OfflinePaymentMethod = "cash" | "pay_on_delivery";
+
 type PaymentMethod = "online" | "cash" | "pay_on_delivery";
 
 export async function initializePayment(

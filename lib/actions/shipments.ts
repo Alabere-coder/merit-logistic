@@ -5,7 +5,13 @@ import { createShipmentSchema } from "@/lib/validations";
 import { estimateShippingCost } from "@/lib/constants";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import {
+  createNotification,
+  type NotificationType,
+  getAdminUserIds,
+} from "@/lib/actions/notifications";
 import type { ShipmentStatus } from "@/types/app";
+
 
 type ActionState = { error?: string; success?: string; trackingNumber?: string };
 
@@ -88,6 +94,30 @@ export async function createShipment(
       error: `Shipment was not created because payment setup failed: ${paymentError.message}`,
     };
   }
+
+  await createNotification({
+  userId: user.id,
+  title: "Shipment created",
+  message: `Your shipment ${shipment.tracking_number} has been created successfully.`,
+  type: "shipment_created",
+  shipmentId: shipment.id,
+});
+
+
+const adminIds = await getAdminUserIds();
+
+await Promise.all(
+  adminIds.map((adminId) =>
+    createNotification({
+      userId: adminId,
+      title: "New shipment created",
+      message: `A new shipment ${shipment.tracking_number} has been created by a customer.`,
+      type: "shipment_created",
+      shipmentId: shipment.id,
+    }),
+  ),
+);
+
 
   revalidatePath("/customer");
   revalidatePath("/customer/payments");
@@ -183,11 +213,11 @@ export async function updateShipmentStatus(
 
   // Make sure this shipment belongs to this driver
   const { data: shipment, error: shipmentError } = await supabase
-    .from("shipments")
-    .select("id, driver_id, status")
-    .eq("id", shipmentId)
-    .eq("driver_id", driver.id)
-    .single();
+  .from("shipments")
+  .select("id, driver_id, customer_id, status, tracking_number")
+  .eq("id", shipmentId)
+  .eq("driver_id", driver.id)
+  .single();
 
   if (shipmentError || !shipment) {
     console.error("SHIPMENT LOOKUP ERROR:", shipmentError);
@@ -233,6 +263,54 @@ export async function updateShipmentStatus(
       error: `Shipment was updated, but tracking history could not be created: ${eventError.message}`,
     };
   }
+
+  const notificationMap: Partial<
+  Record<ShipmentStatus, { title: string; message: string; type: NotificationType }>
+> = {
+  picked_up: {
+    title: "Shipment picked up",
+    message: `Your shipment ${shipment.tracking_number} has been picked up.`,
+    type: "shipment_picked_up",
+  },
+
+  in_transit: {
+    title: "Shipment in transit",
+    message: `Your shipment ${shipment.tracking_number} is now in transit.`,
+    type: "shipment_in_transit",
+  },
+
+  out_for_delivery: {
+    title: "Out for delivery",
+    message: `Your shipment ${shipment.tracking_number} is out for delivery.`,
+    type: "shipment_out_for_delivery",
+  },
+
+  delivered: {
+    title: "Shipment delivered",
+    message: `Your shipment ${shipment.tracking_number} has been delivered.`,
+    type: "shipment_delivered",
+  },
+};
+
+const notification = notificationMap[status];
+
+if (notification) {
+  await createNotification({
+    userId: shipment.customer_id,
+    title: notification.title,
+    message: notification.message,
+    type: notification.type,
+    shipmentId: shipment.id,
+  });
+}
+
+await createNotification({
+  userId: shipment.customer_id,
+  title: "Shipment delivered",
+  message: `Your shipment has been delivered successfully.`,
+  type: "shipment_delivered",
+  shipmentId: shipment.id,
+});
 
   // Refresh pages
   revalidatePath("/driver");
