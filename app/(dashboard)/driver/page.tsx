@@ -4,6 +4,7 @@ import { StatCard, StatusBadge } from "@/components/dashboard/stat-card";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Truck, CheckCircle2, Wallet, PackageX } from "lucide-react";
+import { ShipmentStatus } from "@/types/app";
 
 export default async function DriverOverviewPage() {
   const { user, supabase } = await requireRole(["driver"]);
@@ -168,7 +169,7 @@ export default async function DriverOverviewPage() {
                       {formatDate(s.created_at)}
                     </span>
 
-                    <StatusBadge status={s.status} />
+                    <StatusBadge status={s.status as ShipmentStatus} />
                   </div>
                 </Link>
               ))}

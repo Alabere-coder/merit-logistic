@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/dashboard/stat-card";
 import { formatDate } from "@/lib/utils";
 import { Truck } from "lucide-react";
+import { ShipmentStatus } from "@/types/app";
 
 export default async function DriverDeliveriesPage() {
   const { user, supabase } = await requireRole(["driver"]);
@@ -17,7 +18,7 @@ export default async function DriverDeliveriesPage() {
   const { data: shipments } = await supabase
     .from("shipments")
     .select("*")
-    .eq("driver_id", driver?.id)
+    .eq("driver_id", driver?.id ?? "")
     .order("created_at", { ascending: false });
 
   return (
@@ -61,7 +62,7 @@ export default async function DriverDeliveriesPage() {
                     <span className="text-xs text-navy-400">
                       {formatDate(s.created_at)}
                     </span>
-                    <StatusBadge status={s.status} />
+                    <StatusBadge status={s.status as ShipmentStatus} />
                   </div>
                 </Link>
               ))}

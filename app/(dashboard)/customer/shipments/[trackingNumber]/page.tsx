@@ -15,7 +15,6 @@ import {
   Wallet,
 } from "lucide-react";
 import { CancelShipmentButton } from "./cancel-button";
-import { PayButton } from "@/components/customer/pay-button";
 import { PaymentMethodSelector } from "@/components/customer/payment-method-selector";
 
 type ShipmentPageProps = {
