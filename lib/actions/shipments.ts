@@ -10,6 +10,7 @@ import {
   type NotificationType,
   getAdminUserIds,
 } from "@/lib/actions/notifications";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ShipmentStatus } from "@/types/app";
 
 
@@ -265,29 +266,46 @@ export async function updateShipmentStatus(
   }
 
   const notificationMap: Partial<
-  Record<ShipmentStatus, { title: string; message: string; type: NotificationType }>
+  Record<
+    ShipmentStatus,
+    {
+      customerTitle: string;
+      customerMessage: string;
+      adminTitle: string;
+      adminMessage: string;
+      type: NotificationType;
+    }
+  >
 > = {
   picked_up: {
-    title: "Shipment picked up",
-    message: `Your shipment ${shipment.tracking_number} has been picked up.`,
+    customerTitle: "Shipment picked up",
+    customerMessage: `Your shipment ${shipment.tracking_number} has been picked up.`,
+    adminTitle: "Shipment picked up",
+    adminMessage: `Shipment ${shipment.tracking_number} has been picked up by the driver.`,
     type: "shipment_picked_up",
   },
 
   in_transit: {
-    title: "Shipment in transit",
-    message: `Your shipment ${shipment.tracking_number} is now in transit.`,
+    customerTitle: "Shipment in transit",
+    customerMessage: `Your shipment ${shipment.tracking_number} is now in transit.`,
+    adminTitle: "Shipment in transit",
+    adminMessage: `Shipment ${shipment.tracking_number} is now in transit.`,
     type: "shipment_in_transit",
   },
 
   out_for_delivery: {
-    title: "Out for delivery",
-    message: `Your shipment ${shipment.tracking_number} is out for delivery.`,
+    customerTitle: "Out for delivery",
+    customerMessage: `Your shipment ${shipment.tracking_number} is out for delivery.`,
+    adminTitle: "Shipment out for delivery",
+    adminMessage: `Shipment ${shipment.tracking_number} is out for delivery.`,
     type: "shipment_out_for_delivery",
   },
 
   delivered: {
-    title: "Shipment delivered",
-    message: `Your shipment ${shipment.tracking_number} has been delivered.`,
+    customerTitle: "Shipment delivered",
+    customerMessage: `Your shipment ${shipment.tracking_number} has been delivered.`,
+    adminTitle: "Shipment delivered",
+    adminMessage: `Shipment ${shipment.tracking_number} has been delivered.`,
     type: "shipment_delivered",
   },
 };
@@ -295,22 +313,60 @@ export async function updateShipmentStatus(
 const notification = notificationMap[status];
 
 if (notification) {
-  await createNotification({
+  // =========================
+  // CUSTOMER NOTIFICATION
+  // =========================
+
+  const customerResult = await createNotification({
     userId: shipment.customer_id,
-    title: notification.title,
-    message: notification.message,
+    title: notification.customerTitle,
+    message: notification.customerMessage,
     type: notification.type,
     shipmentId: shipment.id,
   });
+
+  if (customerResult.error) {
+    console.error(
+      "CUSTOMER NOTIFICATION ERROR:",
+      customerResult.error
+    );
+  }
+
+  // =========================
+  // ADMIN NOTIFICATION
+  // =========================
+
+  const adminSupabase = createAdminClient();
+
+  const { data: admins, error: adminsError } = await adminSupabase
+    .from("users")
+    .select("id")
+    .eq("role", "admin")
+    .eq("is_active", true);
+
+  if (adminsError) {
+    console.error("ADMIN LOOKUP ERROR:", adminsError);
+  } else {
+    console.log("ADMINS FOUND:", admins);
+
+    for (const admin of admins ?? []) {
+      const adminResult = await createNotification({
+        userId: admin.id,
+        title: notification.adminTitle,
+        message: notification.adminMessage,
+        type: notification.type,
+        shipmentId: shipment.id,
+      });
+
+      console.log(
+        "ADMIN NOTIFICATION RESULT:",
+        admin.id,
+        adminResult
+      );
+    }
+  }
 }
 
-await createNotification({
-  userId: shipment.customer_id,
-  title: "Shipment delivered",
-  message: `Your shipment has been delivered successfully.`,
-  type: "shipment_delivered",
-  shipmentId: shipment.id,
-});
 
   // Refresh pages
   revalidatePath("/driver");
@@ -324,11 +380,16 @@ await createNotification({
 }
 
 /** Driver uploads proof of delivery (image) and marks the shipment delivered. */
+
 export async function uploadProofOfDelivery(formData: FormData) {
   const { supabase, user } = await requireRole(["driver"]);
 
   const shipmentId = formData.get("shipmentId");
   const file = formData.get("file");
+
+  // --------------------------------------------------
+  // 1. Validate form data
+  // --------------------------------------------------
 
   if (typeof shipmentId !== "string") {
     return {
@@ -348,7 +409,20 @@ export async function uploadProofOfDelivery(formData: FormData) {
     };
   }
 
-  // Find the driver
+  // Optional but recommended:
+  // Prevent very large uploads.
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+  if (file.size > MAX_FILE_SIZE) {
+    return {
+      error: "The proof-of-delivery image must be smaller than 5MB.",
+    };
+  }
+
+  // --------------------------------------------------
+  // 2. Find the driver
+  // --------------------------------------------------
+
   const { data: driver, error: driverError } = await supabase
     .from("drivers")
     .select("id")
@@ -356,26 +430,72 @@ export async function uploadProofOfDelivery(formData: FormData) {
     .single();
 
   if (driverError || !driver) {
+    console.error("DRIVER LOOKUP ERROR:", driverError);
+
     return {
       error: "Driver account not found.",
     };
   }
 
-  // Make sure this shipment belongs to this driver
+  // --------------------------------------------------
+  // 3. Verify shipment belongs to this driver
+  // --------------------------------------------------
+
   const { data: shipment, error: shipmentError } = await supabase
     .from("shipments")
-    .select("id, driver_id, status")
+    .select(
+      "id, driver_id, customer_id, tracking_number, status, proof_of_delivery_url",
+    )
     .eq("id", shipmentId)
     .eq("driver_id", driver.id)
     .single();
 
   if (shipmentError || !shipment) {
+    console.error("SHIPMENT LOOKUP ERROR:", shipmentError);
+
     return {
       error: "Shipment not found or is not assigned to you.",
     };
   }
 
-  const fileExtension = file.name.split(".").pop() || "jpg";
+  // --------------------------------------------------
+  // 4. Make sure shipment isn't already completed
+  // --------------------------------------------------
+
+  if (shipment.status === "delivered") {
+    return {
+      error: "This shipment has already been delivered.",
+    };
+  }
+
+  if (shipment.status === "cancelled") {
+    return {
+      error: "This shipment has been cancelled.",
+    };
+  }
+
+  // --------------------------------------------------
+  // 5. Validate file type
+  // --------------------------------------------------
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      error: "Only JPG, PNG, and WebP images are allowed.",
+    };
+  }
+
+  // --------------------------------------------------
+  // 6. Upload proof of delivery
+  // --------------------------------------------------
+
+  const fileExtension =
+    file.name.split(".").pop()?.toLowerCase() || "jpg";
 
   const path = `${shipmentId}/${Date.now()}.${fileExtension}`;
 
@@ -394,7 +514,10 @@ export async function uploadProofOfDelivery(formData: FormData) {
     };
   }
 
-  // Update shipment
+  // --------------------------------------------------
+  // 7. Update shipment to delivered
+  // --------------------------------------------------
+
   const { error: updateError } = await supabase
     .from("shipments")
     .update({
@@ -407,7 +530,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
   if (updateError) {
     console.error("UPDATE DELIVERY ERROR:", updateError);
 
-    // Optional cleanup
+    // Remove uploaded file if database update failed.
     await supabase.storage
       .from("proof-of-delivery")
       .remove([path]);
@@ -417,7 +540,10 @@ export async function uploadProofOfDelivery(formData: FormData) {
     };
   }
 
-  // Create tracking event
+  // --------------------------------------------------
+  // 8. Create shipment tracking event
+  // --------------------------------------------------
+
   const { error: eventError } = await supabase
     .from("shipment_events")
     .insert({
@@ -435,9 +561,46 @@ export async function uploadProofOfDelivery(formData: FormData) {
     };
   }
 
+  // --------------------------------------------------
+  // 9. Notify customer
+  // --------------------------------------------------
+
+  const { error: notificationError } = await createNotification({
+    userId: shipment.customer_id,
+    title: "Shipment delivered",
+    message: `Your shipment ${shipment.tracking_number} has been delivered successfully.`,
+    type: "shipment_delivered",
+    shipmentId: shipment.id,
+  });
+
+  if (notificationError) {
+    console.error(
+      "DELIVERY NOTIFICATION ERROR:",
+      notificationError,
+    );
+
+    // IMPORTANT:
+    // Do not fail the delivery itself just because
+    // notification creation failed.
+  }
+
+  // --------------------------------------------------
+  // 10. Refresh relevant pages
+  // --------------------------------------------------
+
   revalidatePath("/driver");
+  revalidatePath("/driver/deliveries");
   revalidatePath(`/driver/deliveries/${shipmentId}`);
+
+  revalidatePath("/customer");
+  revalidatePath("/customer/notifications");
+
+  revalidatePath(
+    `/customer/shipments/${shipment.tracking_number}`,
+  );
+
   revalidatePath("/admin/shipments");
+  revalidatePath("/admin/notifications");
 
   return {
     success: true,

@@ -20,6 +20,12 @@ import {
   PackagePlus,
   X,
   AlertTriangle,
+  Shield,
+  ShieldCheck,
+  Headphones,
+  Building2,
+  DollarSign,
+  MapPin,
 } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
 import { logOut } from "@/lib/actions/auth";
@@ -43,6 +49,13 @@ const icons = {
   Settings,
   History,
   PackagePlus,
+  Shield,
+  ShieldCheck,
+  Bell,
+  Headphones,
+  Building2,
+  DollarSign,
+  MapPin,
 };
 
 export function DashboardShell({

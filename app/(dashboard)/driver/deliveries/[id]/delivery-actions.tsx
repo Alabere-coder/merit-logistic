@@ -9,7 +9,7 @@ import {
   uploadProofOfDelivery,
 } from "@/lib/actions/shipments";
 import { SHIPMENT_STATUS_FLOW, STATUS_LABEL } from "@/lib/constants";
-import { Upload, CheckCircle2 } from "lucide-react";
+import { Upload, CheckCircle2, Loader2, ArrowRight } from "lucide-react";
 import type { ShipmentStatus } from "@/types/app";
 
 export function DeliveryActions({
@@ -135,10 +135,25 @@ export function DeliveryActions({
   }
 
   return (
-    <Button type="button" onClick={advanceStatus} disabled={pending}>
-      {pending
-        ? "Updating..."
-        : `Mark as ${nextStatus ? STATUS_LABEL[nextStatus] : "—"}`}
+    <Button
+      type="button"
+      onClick={advanceStatus}
+      disabled={pending || !nextStatus}
+      className="relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 px-5 py-2.5 font-medium text-white shadow-md shadow-indigo-500/20 transition-all duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-indigo-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
+    >
+      {pending ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin text-white" />
+          <span>Updating...</span>
+        </>
+      ) : (
+        <>
+          <span>Mark as {nextStatus ? STATUS_LABEL[nextStatus] : "—"}</span>
+          {nextStatus && (
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          )}
+        </>
+      )}
     </Button>
   );
 }
