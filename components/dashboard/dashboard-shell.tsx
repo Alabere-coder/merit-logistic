@@ -31,6 +31,7 @@ import { cn, initials } from "@/lib/utils";
 import { logOut } from "@/lib/actions/auth";
 import { Button } from "../ui/button";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
+import { useFormStatus } from "react-dom";
 
 export type NavItem = {
   href: string;
@@ -76,6 +77,8 @@ export function DashboardShell({
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const { pending } = useFormStatus();
 
   const SidebarContent = (
     <div className="flex h-full flex-col justify-between">
@@ -267,9 +270,10 @@ export function DashboardShell({
               <form action={logOut}>
                 <Button
                   type="submit"
-                  className="h-10 rounded-xl bg-rose-600 px-4 text-xs font-semibold text-white shadow-md transition-all hover:bg-rose-700 active:scale-95"
+                  disabled={pending}
+                  className="h-10 rounded-xl bg-rose-600 px-4 text-xs font-semibold text-white shadow-md transition-all hover:bg-rose-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  Yes, Log out
+                  {pending ? "Logging out..." : "Yes, Log out"}
                 </Button>
               </form>
             </div>

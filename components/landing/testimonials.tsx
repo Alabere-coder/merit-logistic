@@ -26,22 +26,31 @@ export function Testimonials() {
     <section className="bg-navy-900 py-20">
       <div className="container-lg">
         <div className="mx-auto max-w-xl text-center">
-          <span className="font-mono text-xs font-semibold uppercase tracking-widest text-brand-500">Testimonials</span>
-          <h2 className="mt-3 font-display text-3xl font-700 text-white">Trusted by teams who ship daily</h2>
+          <span className="font-mono text-xs font-semibold uppercase tracking-widest text-brand-500">
+            Testimonials
+          </span>
+          <h2 className="mt-3 font-display text-3xl font-700 text-white">
+            Trusted by teams who ship daily
+          </h2>
         </div>
 
         <div className="mt-12 grid gap-5 lg:grid-cols-3">
           {testimonials.map((t) => (
-            <figure key={t.name} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+            <figure
+              key={t.name}
+              className="rounded-2xl border border-white/10 bg-white/3 p-6"
+            >
               <div className="flex gap-0.5 text-brand-500">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-current" />
                 ))}
               </div>
-              <blockquote className="mt-4 text-sm leading-relaxed text-navy-200">"{t.quote}"</blockquote>
+              <blockquote className="mt-4 text-sm leading-relaxed text-white">
+                "{t.quote}"
+              </blockquote>
               <figcaption className="mt-5 border-t border-white/10 pt-4">
                 <div className="text-sm font-semibold text-white">{t.name}</div>
-                <div className="text-xs text-navy-400">{t.role}</div>
+                <div className="text-xs text-brand-500">{t.role}</div>
               </figcaption>
             </figure>
           ))}
