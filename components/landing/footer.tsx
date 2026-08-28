@@ -44,16 +44,16 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link
               href="/"
-              className="flex items-center gap-2 font-display text-lg font-700 text-navy-900"
+              className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-brand-500">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-cyan-500">
                 <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} />
               </span>
-              Integrity<span className="text-brand-500">Logistics</span>
+              AMANAH<span className="text-cyan-500">PLUS</span>
             </Link>
             <p className="mt-3 max-w-xs text-sm text-navy-500">
-              Real-time logistics and courier management for businesses that
-              ship every day.
+              Real-time PLUS and courier management for businesses that ship
+              every day.
             </p>
           </div>
 
@@ -79,7 +79,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-navy-100 pt-6 sm:flex-row">
-          <p className="text-xs text-navy-400">
+          <p className="text-xs text-cyan-600">
             © {new Date().getFullYear()} AMANAH PLUS. All rights reserved.
           </p>
           <p className="font-mono text-xs text-navy-300">SS-HQ · Ilorin, NG</p>

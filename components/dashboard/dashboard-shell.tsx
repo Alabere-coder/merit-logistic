@@ -93,7 +93,7 @@ export function DashboardShell({
               <PackageSearch className="h-5 w-5" strokeWidth={2.2} />
             </span>
             <span className="tracking-tight">
-              Integrity<span className="text-blue-400">Logistics</span>
+              AMANAH<span className="text-blue-400">PLUS</span>
             </span>
           </Link>
           {/* Mobile Close Button */}

@@ -43,9 +43,9 @@ export function AuthLayout({
             />
           </div>
           <span className="tracking-tight">
-            Integrity
+            AMANAH
             <span className="bg-linear-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">
-              Logistics
+              PLUS
             </span>
           </span>
         </Link>
@@ -55,10 +55,10 @@ export function AuthLayout({
           <div className="space-y-3">
             <span className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-300 backdrop-blur-md">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Enterprise Logistics Platform
+              Enterprise PLUS Platform
             </span>
             <h2 className="max-w-md font-display text-4xl font-extrabold leading-[1.15] text-white tracking-tight text-balance">
-              Logistics that moves as fast as your{" "}
+              PLUS that moves as fast as your{" "}
               <span className="bg-linear-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
                 business.
               </span>
@@ -86,7 +86,7 @@ export function AuthLayout({
         {/* Footer */}
         <div className="relative flex items-center justify-between border-t border-slate-800/80 pt-6">
           <p className="font-mono text-xs text-slate-500">
-            © {new Date().getFullYear()} IntegrityLogistics Inc.
+            © {new Date().getFullYear()} AMANAH PLUS Inc.
           </p>
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -106,7 +106,7 @@ export function AuthLayout({
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-brand-500">
               <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} />
             </span>
-            Integrity<span className="text-brand-500">Logistics</span>
+            AMANAH<span className="text-brand-500">PLUS</span>
           </Link>
           <h1 className="font-display text-2xl font-700 text-navy-900">
             {title}

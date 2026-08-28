@@ -52,7 +52,7 @@ export function FAQ() {
             </span>
           </h2>
           <p className="text-sm text-slate-400">
-            Everything you need to know about our enterprise logistics platform.
+            Everything you need to know about our enterprise PLUS platform.
           </p>
         </div>
 

@@ -150,7 +150,7 @@ function LoginForm() {
       {/* Footer Navigation & Hint */}
       <div className="mt-6 space-y-3.5 text-center">
         <p className="text-xs text-slate-500">
-          New to IntegrityLogistics?{" "}
+          New to AMANAH PLUS?{" "}
           <Link
             href="/signup"
             className="font-bold text-slate-900 underline underline-offset-4 transition-colors hover:text-blue-600"

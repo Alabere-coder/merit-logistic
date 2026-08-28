@@ -1,5 +1,5 @@
 -- =====================================================================
--- SwiftShip Logistics — Supabase schema
+-- SwiftShip PLUS — Supabase schema
 -- Run this in the Supabase SQL editor (or via `supabase db push`).
 -- =====================================================================
 

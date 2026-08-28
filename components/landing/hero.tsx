@@ -15,18 +15,18 @@ export function Hero() {
       <div className="container-lg relative grid gap-16 py-20 lg:grid-cols-2 lg:items-center justify-center lg:py-28 ">
         <div className="animate-fade-up">
           <span className="inline-flex items-center gap-2 rounded-md border border-white/15 bg-white/6 px-3 py-2 font-mono text-[11px] font-medium tracking-[0.12em] text-slate-200 backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse-dot" />
+            <span className="h-2 w-2 rounded-full bg-cyan-500 animate-pulse-dot" />
             Live tracking · 60,000+ shipments/day
           </span>
 
           <h1 className="mt-7 max-w-3xl font-display text-5xl font-bold leading-[1.02] tracking-[-0.04em] text-white text-balance sm:text-6xl lg:text-[4.6rem]">
             Every shipment,
             <br />
-            <span className="text-brand-500">tracked to the door.</span>
+            <span className="text-cyan-400">tracked to the door.</span>
           </h1>
 
-          <p className="mt-7 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">
-            SwiftShip moves parcels, documents, and freight across the city and
+          <p className="mt-7 max-w-xl text-base leading-7 text-slate-100 sm:text-lg">
+            AMANAHPLUS moves parcels, documents, and freight across the city and
             across the country — with a dispatch, driver, and warehouse network
             you can watch move in real time.
           </p>
@@ -35,7 +35,7 @@ export function Hero() {
             <Link href="/signup">
               <Button
                 size="lg"
-                className="group h-12 rounded-md bg-brand-500 px-6 font-semibold text-ink shadow-lg shadow-brand-500/10 hover:bg-brand-400"
+                className="group h-12 rounded-md bg-brand-500 px-6 font-semibold text-white shadow-lg shadow-brand-500/10 hover:bg-brand-400"
               >
                 Ship a package
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -45,7 +45,7 @@ export function Hero() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 rounded-md border-white/20 bg-white/4 px-6 text-white hover:bg-white/10 hover:text-white"
+                className="h-12 rounded-md border-white/20 bg-white/4 px-6 text-cyan-400 hover:bg-white/10 hover:text-white"
               >
                 Track a shipment
               </Button>
@@ -62,7 +62,7 @@ export function Hero() {
                 <div className="font-display text-2xl font-bold tracking-tight text-white">
                   {stat}
                 </div>
-                <div className="mt-1 text-xs uppercase tracking-widest text-slate-400">
+                <div className="mt-1 text-xs uppercase tracking-widest text-cyan-400">
                   {label}
                 </div>
               </div>
@@ -138,7 +138,7 @@ export function Hero() {
                   className="flex items-center gap-3 text-sm"
                 >
                   <span
-                    className={`h-2 w-2 rounded-full ${done ? "bg-brand-500" : "bg-navy-200"}`}
+                    className={`h-2 w-2 rounded-full ${done ? "bg-cyan-400" : "bg-navy-200"}`}
                   />
                   <span
                     className={`flex-1 ${done ? "text-navy-800" : "text-navy-400"}`}

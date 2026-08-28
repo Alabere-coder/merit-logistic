@@ -291,7 +291,7 @@ export function CreateDriverForm() {
                   <div className="flex items-start gap-2.5 rounded-xl border border-blue-200/60 bg-blue-50/50 p-3 text-xs text-blue-900 shadow-2xs">
                     <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
                     <p className="leading-relaxed">
-                      IntegrityLogistics auto-generates temporary passwords for
+                      AMANAH PLUS auto-generates temporary passwords for
                       administrative security.
                     </p>
                   </div>

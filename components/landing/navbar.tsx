@@ -32,10 +32,10 @@ export function Navbar() {
           href="/"
           className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-brand-500">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-cyan-500">
             <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} />
           </span>
-          Integrity<span className="text-brand-500">Logistics</span>
+          AMANAH<span className="text-cyan-500">PLUS</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -43,9 +43,15 @@ export function Navbar() {
             <a
               key={l.href}
               href={l.href}
-              className="text-sm font-medium text-navy-600 transition-colors hover:text-navy-900"
+              className="group relative py-1 text-sm font-medium text-cyan-600 transition-colors duration-200 hover:text-cyan-900"
             >
-              {l.label}
+              <span>{l.label}</span>
+
+              {/* Animated Animated Underline Accent */}
+              <span className="absolute inset-x-0 bottom-0 h-0.5 scale-x-0 rounded-full bg-linear-r from-amber-500 to-amber-300 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+
+              {/* Optional Soft Hover Glow Pill behind text */}
+              <span className="absolute -inset-x-2.5 -inset-y-1 -z-10 rounded-lg bg-white/0 transition-colors duration-200 group-hover:bg-white/4" />
             </a>
           ))}
         </nav>
@@ -53,7 +59,12 @@ export function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           {loading ? null : user ? (
             <Link href={dashboardHref}>
-              <Button size="sm">Dashboard</Button>
+              <Button
+                size="sm"
+                className="text-sm font-medium text-cyan-600 transition-colors duration-200 hover:text-cyan-900"
+              >
+                Dashboard
+              </Button>
             </Link>
           ) : (
             <>
@@ -76,9 +87,9 @@ export function Navbar() {
           aria-label="Toggle menu"
         >
           {open ? (
-            <X className="h-6 w-6 text-navy-800" />
+            <X className="h-6 w-6 text-cyan-500" />
           ) : (
-            <Menu className="h-6 w-6 text-navy-800" />
+            <Menu className="h-6 w-6 text-cyan-500" />
           )}
         </button>
       </div>
@@ -91,7 +102,7 @@ export function Navbar() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-cyan-500 hover:bg-navy-50"
               >
                 {l.label}
               </a>
@@ -99,7 +110,12 @@ export function Navbar() {
             <div className="mt-2 flex flex-col gap-2 border-t border-navy-100 pt-3">
               {loading ? null : user ? (
                 <Link href={dashboardHref} onClick={() => setOpen(false)}>
-                  <Button className="w-full">Dashboard</Button>
+                  <Button
+                    variant="secondary"
+                    className="w-full bg-cyan-700 text-gray-200 transition-colors duration-200 hover:text-white hover:bg-cyan-600"
+                  >
+                    Dashboard
+                  </Button>
                 </Link>
               ) : (
                 <>

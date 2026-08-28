@@ -17,7 +17,7 @@ const testimonials = [
     quote:
       "Driver assignment used to be a spreadsheet nightmare. Now dispatch just watches the map and taps to assign.",
     name: "Grace Adebayo",
-    role: "Logistics Manager, Meridian Retail",
+    role: "PLUS Manager, Meridian Retail",
   },
 ];
 

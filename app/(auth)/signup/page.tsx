@@ -222,8 +222,8 @@ export default function SignupPage() {
             <div className="flex items-start gap-2">
               <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
               <span>
-                By continuing, you agree to IntegrityLogistics&apos;s Terms of
-                Service and Privacy Policy. This form is for{" "}
+                By continuing, you agree to AMANAH PLUS&apos;s Terms of Service
+                and Privacy Policy. This form is for{" "}
                 <strong>customer accounts</strong> only — driver credentials are
                 managed by administrators.
               </span>
