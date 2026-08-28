@@ -80,8 +80,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-navy-100 pt-6 sm:flex-row">
           <p className="text-xs text-navy-400">
-            © {new Date().getFullYear()} Integrity Logistics. All rights
-            reserved.
+            © {new Date().getFullYear()} AMANAH PLUS. All rights reserved.
           </p>
           <p className="font-mono text-xs text-navy-300">SS-HQ · Ilorin, NG</p>
         </div>

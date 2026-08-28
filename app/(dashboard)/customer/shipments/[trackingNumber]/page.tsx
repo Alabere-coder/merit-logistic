@@ -301,6 +301,17 @@ export default async function ShipmentDetailPage({
         {["pending", "approved"].includes(shipment.status) && (
           <CancelShipmentButton shipmentId={shipment.id} />
         )}
+
+        {shipment.status === "cancelled" && (
+          <Button
+            type="button"
+            variant="outline"
+            disabled
+            className="border-rose-200 bg-rose-50 text-rose-600"
+          >
+            Cancelled
+          </Button>
+        )}
       </div>
     </div>
   );

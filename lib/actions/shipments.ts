@@ -127,33 +127,66 @@ await Promise.all(
     `/customer/shipments/${shipment.tracking_number}?created=true`,
   );
 }
+
+
+ // --------------------------------------------------
+// CANCEL SHIPMENT ACTIONS
+ // --------------------------------------------------
+
 export async function cancelShipment(shipmentId: string) {
   const { user, supabase } = await requireRole(["customer"]);
 
-  // Find the shipment belonging to the logged-in customer
+  // --------------------------------------------------
+  // 1. Find shipment
+  // --------------------------------------------------
+
   const { data: shipment, error: fetchError } = await supabase
     .from("shipments")
-    .select("id, status, tracking_number")
+    .select("id, status, tracking_number, customer_id")
     .eq("id", shipmentId)
-    .eq("customer_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (fetchError || !shipment) {
-    console.error("Find shipment error:", fetchError);
+    console.error("FIND SHIPMENT ERROR:", {
+      shipmentId,
+      userId: user.id,
+      error: fetchError,
+    });
 
     return {
       error: "Shipment not found.",
     };
   }
 
-  // Only pending and approved shipments can be cancelled
+  // --------------------------------------------------
+  // 2. Verify ownership
+  // --------------------------------------------------
+
+  if (shipment.customer_id !== user.id) {
+    console.error("SHIPMENT OWNERSHIP ERROR:", {
+      shipmentCustomerId: shipment.customer_id,
+      currentUserId: user.id,
+    });
+
+    return {
+      error: "You are not authorized to cancel this shipment.",
+    };
+  }
+
+  // --------------------------------------------------
+  // 3. Check cancellation status
+  // --------------------------------------------------
+
   if (!["pending", "approved"].includes(shipment.status)) {
     return {
       error: "This shipment can no longer be cancelled.",
     };
   }
 
-  // Cancel the shipment
+  // --------------------------------------------------
+  // 4. Cancel shipment
+  // --------------------------------------------------
+
   const { data: updatedShipment, error: updateError } = await supabase
     .from("shipments")
     .update({
@@ -162,26 +195,105 @@ export async function cancelShipment(shipmentId: string) {
     .eq("id", shipmentId)
     .eq("customer_id", user.id)
     .select("id, status, tracking_number")
-    .single();
+    .maybeSingle();
 
-  if (updateError) {
-    console.error("Cancel shipment error:", updateError);
+  if (updateError || !updatedShipment) {
+    console.error("CANCEL SHIPMENT ERROR:", {
+      shipmentId,
+      userId: user.id,
+      error: updateError,
+    });
 
     return {
-      error: updateError.message,
+      error:
+        updateError?.message ??
+        "Unable to cancel shipment. The shipment may have already been updated.",
     };
   }
 
-  console.log("Shipment cancelled:", updatedShipment);
+  console.log("SHIPMENT CANCELLED:", updatedShipment);
 
-  // Refresh customer pages
+  // --------------------------------------------------
+  // 5. Create tracking event
+  // --------------------------------------------------
+
+  const { error: eventError } = await supabase
+    .from("shipment_events")
+    .insert({
+      shipment_id: shipmentId,
+      status: "cancelled",
+      note: "Shipment was cancelled by the customer.",
+      created_by: user.id,
+    });
+
+  if (eventError) {
+    console.error("CREATE CANCELLATION EVENT ERROR:", eventError);
+
+    return {
+      error:
+        "Shipment was cancelled, but the tracking history could not be updated.",
+    };
+  }
+
+  // --------------------------------------------------
+  // 6. Notify customer
+  // --------------------------------------------------
+
+  const customerNotification = await createNotification({
+    userId: user.id,
+    title: "Shipment cancelled",
+    message: `Your shipment ${updatedShipment.tracking_number} has been cancelled.`,
+    type: "shipment_cancelled",
+    shipmentId: updatedShipment.id,
+  });
+
+  if (customerNotification.error) {
+    console.error(
+      "CUSTOMER CANCELLATION NOTIFICATION ERROR:",
+      customerNotification.error,
+    );
+  }
+
+  // --------------------------------------------------
+  // 7. Notify all active admins
+  // --------------------------------------------------
+
+  const adminIds = await getAdminUserIds();
+
+  await Promise.all(
+    adminIds.map(async (adminId) => {
+      const adminNotification = await createNotification({
+        userId: adminId,
+        title: "Shipment cancelled",
+        message: `Shipment ${updatedShipment.tracking_number} has been cancelled by the customer.`,
+        type: "shipment_cancelled",
+        shipmentId: updatedShipment.id,
+      });
+
+      if (adminNotification.error) {
+        console.error(
+          `ADMIN CANCELLATION NOTIFICATION ERROR (${adminId}):`,
+          adminNotification.error,
+        );
+      }
+    }),
+  );
+
+  // --------------------------------------------------
+  // 8. Refresh pages
+  // --------------------------------------------------
+
   revalidatePath("/customer");
   revalidatePath("/customer/history");
+  revalidatePath("/customer/notifications");
 
-  // Your actual detail URL uses tracking_number
   revalidatePath(
-    `/customer/shipments/${updatedShipment.tracking_number}`
+    `/customer/shipments/${updatedShipment.tracking_number}`,
   );
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/shipments");
+  revalidatePath("/admin/notifications");
 
   return {
     success: true,
@@ -565,44 +677,68 @@ export async function uploadProofOfDelivery(formData: FormData) {
   // 9. Notify customer
   // --------------------------------------------------
 
-  const { error: notificationError } = await createNotification({
-    userId: shipment.customer_id,
-    title: "Shipment delivered",
-    message: `Your shipment ${shipment.tracking_number} has been delivered successfully.`,
-    type: "shipment_delivered",
-    shipmentId: shipment.id,
-  });
+  
 
-  if (notificationError) {
-    console.error(
-      "DELIVERY NOTIFICATION ERROR:",
-      notificationError,
-    );
+const customerNotification = await createNotification({
+  userId: shipment.customer_id,
+  title: "Shipment delivered",
+  message: `Your shipment ${shipment.tracking_number} has been delivered successfully.`,
+  type: "shipment_delivered",
+  shipmentId: shipment.id,
+});
 
-    // IMPORTANT:
-    // Do not fail the delivery itself just because
-    // notification creation failed.
-  }
-
-  // --------------------------------------------------
-  // 10. Refresh relevant pages
-  // --------------------------------------------------
-
-  revalidatePath("/driver");
-  revalidatePath("/driver/deliveries");
-  revalidatePath(`/driver/deliveries/${shipmentId}`);
-
-  revalidatePath("/customer");
-  revalidatePath("/customer/notifications");
-
-  revalidatePath(
-    `/customer/shipments/${shipment.tracking_number}`,
+if (customerNotification.error) {
+  console.error(
+    "CUSTOMER DELIVERY NOTIFICATION ERROR:",
+    customerNotification.error,
   );
+}
 
-  revalidatePath("/admin/shipments");
-  revalidatePath("/admin/notifications");
+  // --------------------------------------------------
+  // 10. Notify all active admins
+  // --------------------------------------------------
 
-  return {
-    success: true,
-  };
+const adminIds = await getAdminUserIds();
+
+await Promise.all(
+  adminIds.map(async (adminId) => {
+    const adminNotification = await createNotification({
+      userId: adminId,
+      title: "Shipment delivered",
+      message: `Shipment ${shipment.tracking_number} has been delivered successfully.`,
+      type: "shipment_delivered",
+      shipmentId: shipment.id,
+    });
+
+    if (adminNotification.error) {
+      console.error(
+        `ADMIN DELIVERY NOTIFICATION ERROR (${adminId}):`,
+        adminNotification.error,
+      );
+    }
+  }),
+);
+
+  // --------------------------------------------------
+  // 11. Refresh relevant pages
+  // --------------------------------------------------
+
+revalidatePath("/driver");
+revalidatePath("/driver/deliveries");
+revalidatePath(`/driver/deliveries/${shipmentId}`);
+
+revalidatePath("/customer");
+revalidatePath("/customer/notifications");
+
+revalidatePath(
+  `/customer/shipments/${shipment.tracking_number}`,
+);
+
+revalidatePath("/admin");
+revalidatePath("/admin/shipments");
+revalidatePath("/admin/notifications");
+
+return {
+  success: true,
+}
 }
