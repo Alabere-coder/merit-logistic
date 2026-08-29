@@ -120,13 +120,21 @@ export function Navbar() {
               ) : (
                 <>
                   <Link href="/login" onClick={() => setOpen(false)}>
-                    <Button variant="outline" className="w-full">
+                    <Button
+                      variant="outline"
+                      className="w-full bg-cyan-700 text-gray-200 transition-colors duration-200 hover:text-white hover:bg-cyan-600"
+                    >
                       Log in
                     </Button>
                   </Link>
 
                   <Link href="/signup" onClick={() => setOpen(false)}>
-                    <Button className="w-full">Ship now</Button>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-cyan-700 text-gray-200 transition-colors duration-200 hover:text-white hover:bg-cyan-600"
+                    >
+                      Ship now
+                    </Button>
                   </Link>
                 </>
               )}

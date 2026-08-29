@@ -28,7 +28,7 @@ function SubmitButton() {
     <Button
       type="submit"
       disabled={pending}
-      className="h-10 w-full rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
+      className="h-10 w-full rounded-xl bg-linear-to-r from-cyan-600 to-cyan-600 font-semibold text-white shadow-md transition-all hover:from-cyan-700 hover:to-cyan-800 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
     >
       {pending ? (
         <>
@@ -103,7 +103,7 @@ function LoginForm() {
             </Label>
             <Link
               href="/forgot-password"
-              className="text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 hover:underline"
+              className="text-xs font-semibold text-cyan-600 transition-colors hover:text-cyan-700 hover:underline"
             >
               Forgot password?
             </Link>
@@ -148,7 +148,7 @@ function LoginForm() {
       </form>
 
       {/* Footer Navigation & Hint */}
-      <div className="mt-6 space-y-3.5 text-center">
+      <div className="mt-6 space-y-5 text-center">
         <p className="text-xs text-slate-500">
           New to AMANAH PLUS?{" "}
           <Link
@@ -159,7 +159,7 @@ function LoginForm() {
           </Link>
         </p>
 
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-slate-100/70 px-3.5 py-1.5 text-[11px] font-medium text-slate-500 shadow-2xs">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-slate-100/70 px-3.5 py-1.5 text-[11px] font-medium text-cyan-500 shadow-2xs">
           <KeyRound className="h-3 w-3 text-slate-400" />
           <span>Drivers: use administrator-issued credentials</span>
         </div>

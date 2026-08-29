@@ -27,7 +27,7 @@ function SubmitButton() {
     <Button
       type="submit"
       disabled={pending}
-      className="h-10 w-full rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
+      className="h-10 w-full rounded-xl bg-linear-to-r from-cyan-600 to-cyan-600 font-semibold text-white shadow-md transition-all hover:from-cyan-700 hover:to-cyan-800 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
     >
       {pending ? (
         <>
@@ -201,7 +201,7 @@ export default function SignupPage() {
                 }
               >
                 {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-4 w-4" color="cyan" />
                 ) : (
                   <Eye className="h-4 w-4" />
                 )}
@@ -220,7 +220,7 @@ export default function SignupPage() {
           {/* Terms & Account Type Note */}
           <div className="rounded-xl border border-slate-200/80 bg-slate-100/70 p-3 text-[11px] leading-relaxed text-slate-500 shadow-2xs">
             <div className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
+              <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyan-400" />
               <span>
                 By continuing, you agree to AMANAH PLUS&apos;s Terms of Service
                 and Privacy Policy. This form is for{" "}

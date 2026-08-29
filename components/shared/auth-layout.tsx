@@ -101,12 +101,12 @@ export function AuthLayout({
         <div className="w-full max-w-sm">
           <Link
             href="/"
-            className="mb-8 flex items-center gap-2 font-display text-lg font-700 text-navy-900 lg:hidden"
+            className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-brand-500">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-cyan-500">
               <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} />
             </span>
-            AMANAH<span className="text-brand-500">PLUS</span>
+            AMANAH<span className="text-cyan-500">PLUS</span>
           </Link>
           <h1 className="font-display text-2xl font-700 text-navy-900">
             {title}
