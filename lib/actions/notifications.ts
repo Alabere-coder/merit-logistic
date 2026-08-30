@@ -15,7 +15,13 @@ export type NotificationType =
   | "shipment_cancelled"
   | "payment_success"
   | "payment_confirmed"
-  | "payment_failed";
+  | "payment_failed"
+  | "support_reply"
+  | "support_assignment"
+  | "support_priority"
+  | "support_status"
+  | "support_message"
+  | "support_ticket";
 
 type CreateNotificationInput = {
   userId: string;

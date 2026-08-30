@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/auth/require-role";
+
 import {
   DashboardShell,
   type NavItem,
@@ -12,18 +13,23 @@ const navItems: NavItem[] = [
   },
   {
     href: "/customer/shipments/new",
-    label: "New shipment",
+    label: "New Shipment",
     icon: "PackagePlus",
   },
   {
     href: "/customer/history",
-    label: "Delivery history",
+    label: "Delivery History",
     icon: "History",
   },
   {
     href: "/customer/payments",
     label: "Payments",
     icon: "CreditCard",
+  },
+  {
+    href: "/customer/support",
+    label: "Support",
+    icon: "LifeBuoy",
   },
   {
     href: "/customer/settings",

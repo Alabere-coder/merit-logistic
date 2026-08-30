@@ -66,11 +66,11 @@ const navItems: NavItem[] = [
   //   label: "Notifications",
   //   icon: "Bell",
   // },
-  // {
-  //   href: "/admin/support",
-  //   label: "Support",
-  //   icon: "Headphones",
-  // },
+  {
+    href: "/admin/support",
+    label: "Support",
+    icon: "Headphones",
+  },
 
   // Administration
   {

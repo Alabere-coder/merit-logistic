@@ -26,6 +26,7 @@ import {
   Building2,
   DollarSign,
   MapPin,
+  LifeBuoy,
 } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
 import { logOut } from "@/lib/actions/auth";
@@ -57,6 +58,7 @@ const icons = {
   Building2,
   DollarSign,
   MapPin,
+  LifeBuoy,
 };
 
 export function DashboardShell({

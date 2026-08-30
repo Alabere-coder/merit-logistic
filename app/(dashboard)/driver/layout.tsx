@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/auth/require-role";
+
 import {
   DashboardShell,
   type NavItem,
@@ -19,6 +20,11 @@ const navItems: NavItem[] = [
     href: "/driver/earnings",
     label: "Earnings",
     icon: "Wallet",
+  },
+  {
+    href: "/driver/support",
+    label: "Support",
+    icon: "LifeBuoy",
   },
   {
     href: "/driver/settings",
