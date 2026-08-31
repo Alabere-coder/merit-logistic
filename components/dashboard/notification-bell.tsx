@@ -413,14 +413,14 @@ export function NotificationBell() {
             ) : (
               <div className="divide-y divide-slate-100">
                 {visibleNotifications.map((notification) => {
-                  console.log("NOTIFICATION CLICK DEBUG:", {
-                    id: notification.id,
-                    type: notification.type,
-                    supportTicketId: notification.support_ticket_id,
-                    shipmentId: notification.shipment_id,
-                    trackingNumber: notification.shipments?.tracking_number,
-                    role,
-                  });
+                  // console.log("NOTIFICATION CLICK DEBUG:", {
+                  //   id: notification.id,
+                  //   type: notification.type,
+                  //   supportTicketId: notification.support_ticket_id,
+                  //   shipmentId: notification.shipment_id,
+                  //   trackingNumber: notification.shipments?.tracking_number,
+                  //   role,
+                  // });
 
                   const Icon = getNotificationIcon(notification.type);
                   const href = getNotificationHref(notification, role);

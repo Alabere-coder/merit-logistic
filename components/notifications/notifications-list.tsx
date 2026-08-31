@@ -23,10 +23,18 @@ type Notification = {
   type: string;
   shipment_id: string | null;
   payment_id: string | null;
+  support_ticket_id: string | null;
   is_read: boolean;
   created_at: string;
+
   shipments?: {
     tracking_number: string;
+  } | null;
+
+  support_tickets?: {
+    id: string;
+    subject: string;
+    ticket_number: string;
   } | null;
 };
 
@@ -69,11 +77,38 @@ function getNotificationHref(
   notification: Notification,
   role: "admin" | "driver" | "customer",
 ) {
+  // ─────────────────────────────────────────────
+  // SUPPORT NOTIFICATIONS
+  // ─────────────────────────────────────────────
+  if (notification.support_ticket_id) {
+    console.log("SUPPORT NOTIFICATION LINK DEBUG:", {
+      supportTicketId: notification.support_ticket_id,
+      ticketNumber: notification.support_tickets?.ticket_number,
+      type: notification.type,
+      role,
+    });
+
+    if (role === "customer") {
+      return `/customer/support/${notification.support_ticket_id}`;
+    }
+
+    if (role === "driver") {
+      return `/driver/support/${notification.support_ticket_id}`;
+    }
+
+    if (role === "admin") {
+      return `/admin/support/${notification.support_ticket_id}`;
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // SHIPMENT NOTIFICATIONS
+  // ─────────────────────────────────────────────
   if (notification.shipment_id) {
     if (role === "customer") {
       const trackingNumber = notification.shipments?.tracking_number;
 
-      console.log("NOTIFICATION LINK DEBUG:", {
+      console.log("SHIPMENT NOTIFICATION LINK DEBUG:", {
         shipmentId: notification.shipment_id,
         trackingNumber,
         role,
@@ -95,6 +130,9 @@ function getNotificationHref(
     }
   }
 
+  // ─────────────────────────────────────────────
+  // PAYMENT NOTIFICATIONS
+  // ─────────────────────────────────────────────
   if (notification.payment_id) {
     if (role === "customer") {
       return "/customer/payments";
