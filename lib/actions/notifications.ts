@@ -30,9 +30,8 @@ type CreateNotificationInput = {
   type?: NotificationType;
   shipmentId?: string | null;
   paymentId?: string | null;
+  supportTicketId?: string | null;
 };
-
-
 
 /**
  * Create a notification for another user.
@@ -42,6 +41,53 @@ type CreateNotificationInput = {
  * The service-role client is then used only for the insert
  * because the recipient is usually a different user.
  */
+// export async function createNotification({
+//   userId,
+//   title,
+//   message,
+//   type = "general",
+//   shipmentId = null,
+//   paymentId = null,
+//   supportTicketId = null,
+// }: CreateNotificationInput) {
+//   try {
+//     await requireRole(["admin", "driver", "customer"]);
+
+//     const adminSupabase = createAdminClient();
+
+//     const { error } = await adminSupabase.from("notifications").insert({
+//       user_id: userId,
+//       title,
+//       message,
+//       type,
+//       shipment_id: shipmentId,
+//       payment_id: paymentId,
+//       support_ticket_id: supportTicketId,
+//       is_read: false,
+//     });
+
+//     if (error) {
+//       console.error("CREATE NOTIFICATION ERROR:", error);
+
+//       return {
+//         error: error.message,
+//       };
+//     }
+
+//     revalidatePath("/notifications");
+
+//     return {
+//       success: true,
+//     };
+//   } catch (error) {
+//     console.error("CREATE NOTIFICATION ERROR:", error);
+
+//     return {
+//       error: "Unable to create notification.",
+//     };
+//   }
+// }
+
 export async function createNotification({
   userId,
   title,
@@ -49,13 +95,33 @@ export async function createNotification({
   type = "general",
   shipmentId = null,
   paymentId = null,
+  supportTicketId = null,
 }: CreateNotificationInput) {
   try {
     await requireRole(["admin", "driver", "customer"]);
 
+    console.log("CREATE NOTIFICATION DEBUG:", {
+      userId,
+      title,
+      type,
+      shipmentId,
+      paymentId,
+      supportTicketId,
+    });
+
     const adminSupabase = createAdminClient();
 
-    const { error } = await adminSupabase
+    console.log("ABOUT TO INSERT NOTIFICATION:", {
+      user_id: userId,
+      title,
+      message,
+      type,
+      shipment_id: shipmentId,
+      payment_id: paymentId,
+      support_ticket_id: supportTicketId,
+    });
+
+    const { data, error } = await adminSupabase
       .from("notifications")
       .insert({
         user_id: userId,
@@ -64,8 +130,11 @@ export async function createNotification({
         type,
         shipment_id: shipmentId,
         payment_id: paymentId,
+        support_ticket_id: supportTicketId,
         is_read: false,
-      });
+      })
+      .select()
+      .single();
 
     if (error) {
       console.error("CREATE NOTIFICATION ERROR:", error);
@@ -75,12 +144,13 @@ export async function createNotification({
       };
     }
 
-    revalidatePath("/customer/notifications");
-    revalidatePath("/driver/notifications");
-    revalidatePath("/admin/notifications");
+    console.log("CREATED NOTIFICATION:", data);
+
+    revalidatePath("/notifications");
 
     return {
       success: true,
+      notification: data,
     };
   } catch (error) {
     console.error("CREATE NOTIFICATION ERROR:", error);
@@ -105,19 +175,29 @@ export async function getNotifications() {
 
     const { data, error } = await supabase
       .from("notifications")
-      .select(`
-        id,
-        title,
-        message,
-        type,
-        shipment_id,
-        payment_id,
-        is_read,
-        created_at,
-        shipments:shipment_id (
-          tracking_number
-        )
-      `)
+      .select(
+        `
+    id,
+    title,
+    message,
+    type,
+    shipment_id,
+    payment_id,
+    support_ticket_id,
+    is_read,
+    created_at,
+
+    shipments:shipment_id (
+      tracking_number
+    ),
+
+    support_tickets:support_ticket_id (
+      id,
+      ticket_number,
+      subject
+    )
+  `,
+      )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(50);
@@ -145,7 +225,6 @@ export async function getNotifications() {
     };
   }
 }
-
 
 /**
  * Get unread notification count for the current user.
@@ -190,9 +269,7 @@ export async function getUnreadNotificationCount() {
 /**
  * Mark one notification as read.
  */
-export async function markNotificationAsRead(
-  notificationId: string,
-) {
+export async function markNotificationAsRead(notificationId: string) {
   try {
     const { user, supabase } = await requireRole([
       "admin",
@@ -216,9 +293,7 @@ export async function markNotificationAsRead(
       };
     }
 
-    revalidatePath("/customer/notifications");
-    revalidatePath("/driver/notifications");
-    revalidatePath("/admin/notifications");
+    revalidatePath("/notifications");
 
     return {
       success: true,
@@ -259,9 +334,7 @@ export async function markAllNotificationsAsRead() {
       };
     }
 
-    revalidatePath("/customer/notifications");
-    revalidatePath("/driver/notifications");
-    revalidatePath("/admin/notifications");
+    revalidatePath("/notifications");
 
     return {
       success: true,

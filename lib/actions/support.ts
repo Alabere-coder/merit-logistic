@@ -16,11 +16,7 @@ export type SupportTicketStatus =
   | "resolved"
   | "closed";
 
-export type SupportTicketPriority =
-  | "low"
-  | "medium"
-  | "high"
-  | "urgent";
+export type SupportTicketPriority = "low" | "medium" | "high" | "urgent";
 
 export type SupportAdmin = {
   id: string;
@@ -39,11 +35,7 @@ export async function createSupportTicket(input: {
   shipmentId?: string | null;
   message: string;
 }) {
-  const { user } = await requireRole([
-    "customer",
-    "driver",
-    "admin",
-  ]);
+  const { user } = await requireRole(["customer", "driver", "admin"]);
 
   const supabase = await createClient();
 
@@ -85,24 +77,21 @@ export async function createSupportTicket(input: {
      Create ticket
   ------------------------------------------------------- */
 
-  const ticketNumber = `SUP-${Date.now()
-    .toString(36)
-    .toUpperCase()}`;
+  const ticketNumber = `SUP-${Date.now().toString(36).toUpperCase()}`;
 
-  const { data: ticket, error: ticketError } =
-    await supabase
-      .from("support_tickets")
-      .insert({
-        ticket_number: ticketNumber,
-        user_id: user.id,
-        shipment_id: input.shipmentId ?? null,
-        subject,
-        category,
-        priority: input.priority ?? "medium",
-        status: "open",
-      })
-      .select(
-        `
+  const { data: ticket, error: ticketError } = await supabase
+    .from("support_tickets")
+    .insert({
+      ticket_number: ticketNumber,
+      user_id: user.id,
+      shipment_id: input.shipmentId ?? null,
+      subject,
+      category,
+      priority: input.priority ?? "medium",
+      status: "open",
+    })
+    .select(
+      `
           id,
           ticket_number,
           user_id,
@@ -116,19 +105,14 @@ export async function createSupportTicket(input: {
           updated_at,
           resolved_at
         `,
-      )
-      .single();
+    )
+    .single();
 
   if (ticketError || !ticket) {
-    console.error(
-      "CREATE SUPPORT TICKET ERROR:",
-      ticketError,
-    );
+    console.error("CREATE SUPPORT TICKET ERROR:", ticketError);
 
     return {
-      error:
-        ticketError?.message ??
-        "Unable to create support ticket.",
+      error: ticketError?.message ?? "Unable to create support ticket.",
     };
   }
 
@@ -145,10 +129,7 @@ export async function createSupportTicket(input: {
     });
 
   if (messageError) {
-    console.error(
-      "CREATE SUPPORT MESSAGE ERROR:",
-      messageError,
-    );
+    console.error("CREATE SUPPORT MESSAGE ERROR:", messageError);
 
     return {
       success: true,
@@ -176,6 +157,7 @@ export async function createSupportTicket(input: {
           title: "New support ticket",
           message: `${ticket.ticket_number}: ${ticket.subject}`,
           type: "support_ticket",
+          supportTicketId: ticket.id,
         }),
       ),
     );
@@ -200,11 +182,7 @@ export async function createSupportMessage(input: {
   ticketId: string;
   message: string;
 }) {
-  const { user } = await requireRole([
-    "customer",
-    "driver",
-    "admin",
-  ]);
+  const { user } = await requireRole(["customer", "driver", "admin"]);
 
   const supabase = await createClient();
 
@@ -233,20 +211,14 @@ export async function createSupportMessage(input: {
      Verify ticket exists and is accessible through RLS
   ------------------------------------------------------- */
 
-  const { data: ticket, error: ticketError } =
-    await supabase
-      .from("support_tickets")
-      .select(
-        "id, user_id, ticket_number, subject, status",
-      )
-      .eq("id", ticketId)
-      .single();
+  const { data: ticket, error: ticketError } = await supabase
+    .from("support_tickets")
+    .select("id, user_id, ticket_number, subject, status")
+    .eq("id", ticketId)
+    .single();
 
   if (ticketError || !ticket) {
-    console.error(
-      "SUPPORT TICKET LOOKUP ERROR:",
-      ticketError,
-    );
+    console.error("SUPPORT TICKET LOOKUP ERROR:", ticketError);
 
     return {
       error: "Support ticket not found.",
@@ -282,15 +254,10 @@ export async function createSupportMessage(input: {
     .single();
 
   if (error || !data) {
-    console.error(
-      "CREATE SUPPORT MESSAGE ERROR:",
-      error,
-    );
+    console.error("CREATE SUPPORT MESSAGE ERROR:", error);
 
     return {
-      error:
-        error?.message ??
-        "Unable to send support message.",
+      error: error?.message ?? "Unable to send support message.",
     };
   }
 
@@ -306,10 +273,7 @@ export async function createSupportMessage(input: {
     .eq("id", ticketId);
 
   if (updateError) {
-    console.error(
-      "UPDATE SUPPORT TICKET TIMESTAMP ERROR:",
-      updateError,
-    );
+    console.error("UPDATE SUPPORT TICKET TIMESTAMP ERROR:", updateError);
   }
 
   /* -------------------------------------------------------
@@ -325,6 +289,7 @@ export async function createSupportMessage(input: {
       title: "Support replied",
       message: `Support has replied to ticket ${ticket.ticket_number}.`,
       type: "support_reply",
+      supportTicketId: ticket.id,
     });
   } else {
     const { data: admins } = await supabase
@@ -341,6 +306,7 @@ export async function createSupportMessage(input: {
             title: "New support message",
             message: `New message on ticket ${ticket.ticket_number}.`,
             type: "support_message",
+            supportTicketId: ticket.id,
           }),
         ),
       );
@@ -351,15 +317,9 @@ export async function createSupportMessage(input: {
   revalidatePath("/driver/support");
   revalidatePath("/admin/support");
 
-  revalidatePath(
-    `/customer/support/${ticketId}`,
-  );
-  revalidatePath(
-    `/driver/support/${ticketId}`,
-  );
-  revalidatePath(
-    `/admin/support/${ticketId}`,
-  );
+  revalidatePath(`/customer/support/${ticketId}`);
+  revalidatePath(`/driver/support/${ticketId}`);
+  revalidatePath(`/admin/support/${ticketId}`);
 
   return {
     success: true,
@@ -387,18 +347,13 @@ export async function updateSupportTicketStatus(
     "closed",
   ];
 
-  if (
-    !allowedStatuses.includes(
-      status as SupportTicketStatus,
-    )
-  ) {
+  if (!allowedStatuses.includes(status as SupportTicketStatus)) {
     return {
       error: "Invalid support ticket status.",
     };
   }
 
-  const nextStatus =
-    status as SupportTicketStatus;
+  const nextStatus = status as SupportTicketStatus;
 
   const now = new Date().toISOString();
 
@@ -411,10 +366,7 @@ export async function updateSupportTicketStatus(
     updated_at: now,
   };
 
-  if (
-    nextStatus === "resolved" ||
-    nextStatus === "closed"
-  ) {
+  if (nextStatus === "resolved" || nextStatus === "closed") {
     updateData.resolved_at = now;
   } else {
     updateData.resolved_at = null;
@@ -439,20 +391,15 @@ export async function updateSupportTicketStatus(
     .single();
 
   if (error || !data) {
-    console.error(
-      "UPDATE SUPPORT TICKET STATUS ERROR:",
-      {
-        ticketId,
-        status,
-        userId: user.id,
-        error,
-      },
-    );
+    console.error("UPDATE SUPPORT TICKET STATUS ERROR:", {
+      ticketId,
+      status,
+      userId: user.id,
+      error,
+    });
 
     return {
-      error:
-        error?.message ??
-        "Unable to update ticket status.",
+      error: error?.message ?? "Unable to update ticket status.",
     };
   }
 
@@ -466,22 +413,17 @@ export async function updateSupportTicketStatus(
       " ",
     )}.`,
     type: "support_status",
+    supportTicketId: data.id,
   });
 
   revalidatePath("/admin/support");
-  revalidatePath(
-    `/admin/support/${ticketId}`,
-  );
+  revalidatePath(`/admin/support/${ticketId}`);
 
   revalidatePath("/customer/support");
   revalidatePath("/driver/support");
 
-  revalidatePath(
-    `/customer/support/${ticketId}`,
-  );
-  revalidatePath(
-    `/driver/support/${ticketId}`,
-  );
+  revalidatePath(`/customer/support/${ticketId}`);
+  revalidatePath(`/driver/support/${ticketId}`);
 
   return {
     success: true,
@@ -509,11 +451,7 @@ export async function updateSupportTicketPriority(
     "urgent",
   ];
 
-  if (
-    !allowedPriorities.includes(
-      priority as SupportTicketPriority,
-    )
-  ) {
+  if (!allowedPriorities.includes(priority as SupportTicketPriority)) {
     return {
       error: "Invalid support ticket priority.",
     };
@@ -522,8 +460,7 @@ export async function updateSupportTicketPriority(
   const { data, error } = await supabase
     .from("support_tickets")
     .update({
-      priority:
-        priority as SupportTicketPriority,
+      priority: priority as SupportTicketPriority,
       updated_at: new Date().toISOString(),
     })
     .eq("id", ticketId)
@@ -542,20 +479,15 @@ export async function updateSupportTicketPriority(
     .single();
 
   if (error || !data) {
-    console.error(
-      "UPDATE SUPPORT TICKET PRIORITY ERROR:",
-      {
-        ticketId,
-        priority,
-        userId: user.id,
-        error,
-      },
-    );
+    console.error("UPDATE SUPPORT TICKET PRIORITY ERROR:", {
+      ticketId,
+      priority,
+      userId: user.id,
+      error,
+    });
 
     return {
-      error:
-        error?.message ??
-        "Unable to update ticket priority.",
+      error: error?.message ?? "Unable to update ticket priority.",
     };
   }
 
@@ -564,12 +496,11 @@ export async function updateSupportTicketPriority(
     title: "Support ticket priority updated",
     message: `Ticket ${data.ticket_number} priority is now ${priority}.`,
     type: "support_priority",
+    supportTicketId: data.id,
   });
 
   revalidatePath("/admin/support");
-  revalidatePath(
-    `/admin/support/${ticketId}`,
-  );
+  revalidatePath(`/admin/support/${ticketId}`);
 
   revalidatePath("/customer/support");
   revalidatePath("/driver/support");
@@ -604,34 +535,24 @@ export async function assignSupportTicket(
   ------------------------------------------------------- */
 
   if (adminId) {
-    const {
-      data: admin,
-      error: adminError,
-    } = await supabase
+    const { data: admin, error: adminError } = await supabase
       .from("users")
-      .select(
-        "id, role, is_active",
-      )
+      .select("id, role, is_active")
       .eq("id", adminId)
       .eq("role", "admin")
       .single();
 
     if (adminError || !admin) {
-      console.error(
-        "SUPPORT ADMIN LOOKUP ERROR:",
-        adminError,
-      );
+      console.error("SUPPORT ADMIN LOOKUP ERROR:", adminError);
 
       return {
-        error:
-          "Selected user is not a valid admin.",
+        error: "Selected user is not a valid admin.",
       };
     }
 
     if (admin.is_active === false) {
       return {
-        error:
-          "You cannot assign a ticket to an inactive admin.",
+        error: "You cannot assign a ticket to an inactive admin.",
       };
     }
   }
@@ -662,20 +583,15 @@ export async function assignSupportTicket(
     .single();
 
   if (error || !data) {
-    console.error(
-      "ASSIGN SUPPORT TICKET ERROR:",
-      {
-        ticketId,
-        adminId,
-        userId: user.id,
-        error,
-      },
-    );
+    console.error("ASSIGN SUPPORT TICKET ERROR:", {
+      ticketId,
+      adminId,
+      userId: user.id,
+      error,
+    });
 
     return {
-      error:
-        error?.message ??
-        "Unable to assign support ticket.",
+      error: error?.message ?? "Unable to assign support ticket.",
     };
   }
 
@@ -687,20 +603,18 @@ export async function assignSupportTicket(
       title: "Support ticket assigned",
       message: `Ticket ${data.ticket_number} has been assigned to you.`,
       type: "support_assignment",
+      supportTicketId: data.id,
     });
   }
 
   revalidatePath("/admin/support");
-  revalidatePath(
-    `/admin/support/${ticketId}`,
-  );
+  revalidatePath(`/admin/support/${ticketId}`);
 
   return {
     success: true,
     ticket: data,
   };
 }
-
 
 /* =========================================================
    UPDATE SUPPORT TICKET
@@ -723,12 +637,7 @@ export async function updateSupportTicket(input: {
   const { user } = await requireRole(["admin"]);
   const supabase = await createClient();
 
-  const {
-    ticketId,
-    status,
-    priority,
-    assignedTo,
-  } = input;
+  const { ticketId, status, priority, assignedTo } = input;
 
   if (!ticketId) {
     return {
@@ -778,10 +687,7 @@ export async function updateSupportTicket(input: {
      - notify the correct people
   ------------------------------------------------------- */
 
-  const {
-    data: currentTicket,
-    error: currentTicketError,
-  } = await supabase
+  const { data: currentTicket, error: currentTicketError } = await supabase
     .from("support_tickets")
     .select(
       `
@@ -814,24 +720,17 @@ export async function updateSupportTicket(input: {
      the status to open/in_progress/resolved.
   ------------------------------------------------------- */
 
-  const statusChanged =
-    currentTicket.status !== status;
+  const statusChanged = currentTicket.status !== status;
 
-  const priorityChanged =
-    currentTicket.priority !== priority;
+  const priorityChanged = currentTicket.priority !== priority;
 
-  const assignmentChanged =
-    currentTicket.assigned_to !== assignedTo;
+  const assignmentChanged = currentTicket.assigned_to !== assignedTo;
 
   /* -------------------------------------------------------
      Nothing changed
   ------------------------------------------------------- */
 
-  if (
-    !statusChanged &&
-    !priorityChanged &&
-    !assignmentChanged
-  ) {
+  if (!statusChanged && !priorityChanged && !assignmentChanged) {
     return {
       success: true,
       ticket: currentTicket,
@@ -844,34 +743,24 @@ export async function updateSupportTicket(input: {
   ------------------------------------------------------- */
 
   if (assignedTo) {
-    const {
-      data: admin,
-      error: adminError,
-    } = await supabase
+    const { data: admin, error: adminError } = await supabase
       .from("users")
-      .select(
-        "id, role, is_active",
-      )
+      .select("id, role, is_active")
       .eq("id", assignedTo)
       .eq("role", "admin")
       .single();
 
     if (adminError || !admin) {
-      console.error(
-        "SUPPORT ADMIN LOOKUP ERROR:",
-        adminError,
-      );
+      console.error("SUPPORT ADMIN LOOKUP ERROR:", adminError);
 
       return {
-        error:
-          "Selected user is not a valid admin.",
+        error: "Selected user is not a valid admin.",
       };
     }
 
     if (admin.is_active === false) {
       return {
-        error:
-          "You cannot assign a ticket to an inactive admin.",
+        error: "You cannot assign a ticket to an inactive admin.",
       };
     }
   }
@@ -893,21 +782,14 @@ export async function updateSupportTicket(input: {
     priority,
     assigned_to: assignedTo,
     updated_at: now,
-    resolved_at:
-      status === "resolved" ||
-      status === "closed"
-        ? now
-        : null,
+    resolved_at: status === "resolved" || status === "closed" ? now : null,
   };
 
   /* -------------------------------------------------------
      Update ticket
   ------------------------------------------------------- */
 
-  const {
-    data: updatedTicket,
-    error: updateError,
-  } = await supabase
+  const { data: updatedTicket, error: updateError } = await supabase
     .from("support_tickets")
     .update(updateData)
     .eq("id", ticketId)
@@ -926,22 +808,17 @@ export async function updateSupportTicket(input: {
     .single();
 
   if (updateError || !updatedTicket) {
-    console.error(
-      "UPDATE SUPPORT TICKET ERROR:",
-      {
-        ticketId,
-        status,
-        priority,
-        assignedTo,
-        userId: user.id,
-        error: updateError,
-      },
-    );
+    console.error("UPDATE SUPPORT TICKET ERROR:", {
+      ticketId,
+      status,
+      priority,
+      assignedTo,
+      userId: user.id,
+      error: updateError,
+    });
 
     return {
-      error:
-        updateError?.message ??
-        "Unable to update support ticket.",
+      error: updateError?.message ?? "Unable to update support ticket.",
     };
   }
 
@@ -961,17 +838,14 @@ export async function updateSupportTicket(input: {
      - assignment did not change
   ------------------------------------------------------- */
 
-  if (
-    assignmentChanged &&
-    assignedTo &&
-    assignedTo !== user.id
-  ) {
+  if (assignmentChanged && assignedTo && assignedTo !== user.id) {
     notificationPromises.push(
       createNotification({
         userId: assignedTo,
         title: "Support ticket assigned",
         message: `Ticket ${updatedTicket.ticket_number} has been assigned to you.`,
         type: "support_assignment",
+        supportTicketId: updatedTicket.id,
       }),
     );
   }
@@ -985,10 +859,7 @@ export async function updateSupportTicket(input: {
   ------------------------------------------------------- */
 
   if (statusChanged) {
-    const statusLabel = status.replace(
-      /_/g,
-      " ",
-    );
+    const statusLabel = status.replace(/_/g, " ");
 
     notificationPromises.push(
       createNotification({
@@ -996,6 +867,7 @@ export async function updateSupportTicket(input: {
         title: "Support ticket status updated",
         message: `Your ticket ${updatedTicket.ticket_number} is now ${statusLabel}.`,
         type: "support_status",
+        supportTicketId: updatedTicket.id,
       }),
     );
   }
@@ -1012,6 +884,7 @@ export async function updateSupportTicket(input: {
         title: "Support ticket priority updated",
         message: `Ticket ${updatedTicket.ticket_number} priority is now ${priority}.`,
         type: "support_priority",
+        supportTicketId: updatedTicket.id,
       }),
     );
   }
@@ -1022,16 +895,11 @@ export async function updateSupportTicket(input: {
   ------------------------------------------------------- */
 
   if (notificationPromises.length > 0) {
-    const results = await Promise.allSettled(
-      notificationPromises,
-    );
+    const results = await Promise.allSettled(notificationPromises);
 
     results.forEach((result) => {
       if (result.status === "rejected") {
-        console.error(
-          "SUPPORT TICKET NOTIFICATION ERROR:",
-          result.reason,
-        );
+        console.error("SUPPORT TICKET NOTIFICATION ERROR:", result.reason);
       }
     });
   }
@@ -1041,19 +909,13 @@ export async function updateSupportTicket(input: {
   ------------------------------------------------------- */
 
   revalidatePath("/admin/support");
-  revalidatePath(
-    `/admin/support/${ticketId}`,
-  );
+  revalidatePath(`/admin/support/${ticketId}`);
 
   revalidatePath("/customer/support");
   revalidatePath("/driver/support");
 
-  revalidatePath(
-    `/customer/support/${ticketId}`,
-  );
-  revalidatePath(
-    `/driver/support/${ticketId}`,
-  );
+  revalidatePath(`/customer/support/${ticketId}`);
+  revalidatePath(`/driver/support/${ticketId}`);
 
   revalidatePath("/admin/notifications");
   revalidatePath("/customer/notifications");
@@ -1071,14 +933,14 @@ Customer / Driver
 ========================================================= */
 
 export async function getMySupportTickets() {
-const { user } = await requireRole(["customer", "driver"]);
+  const { user } = await requireRole(["customer", "driver"]);
 
-const supabase = await createClient();
+  const supabase = await createClient();
 
-const { data, error } = await supabase
-.from("support_tickets")
-.select(
-`         id,
+  const { data, error } = await supabase
+    .from("support_tickets")
+    .select(
+      `         id,
         ticket_number,
         user_id,
         shipment_id,
@@ -1091,61 +953,45 @@ const { data, error } = await supabase
         updated_at,
         resolved_at
       `,
-)
-.eq("user_id", user.id)
-.order("updated_at", {
-ascending: false,
-});
+    )
+    .eq("user_id", user.id)
+    .order("updated_at", {
+      ascending: false,
+    });
 
-if (error) {
-console.error("GET MY SUPPORT TICKETS ERROR:", error);
+  if (error) {
+    console.error("GET MY SUPPORT TICKETS ERROR:", error);
 
+    return {
+      success: false,
+      tickets: [],
+      error: error.message,
+    };
+  }
 
-return {
-  success: false,
-  tickets: [],
-  error: error.message,
-};
-
-
+  return {
+    success: true,
+    tickets: data ?? [],
+  };
 }
-
-return {
-success: true,
-tickets: data ?? [],
-};
-}
-
-
-
 
 /* =========================================================
    GET SUPPORT TICKET
    Customer / Driver / Admin
 ========================================================= */
 
-export async function getSupportTicket(
-ticketId: string,
-) {
-await requireRole([
-"customer",
-"driver",
-"admin",
-]);
+export async function getSupportTicket(ticketId: string) {
+  await requireRole(["customer", "driver", "admin"]);
 
-if (!ticketId || typeof ticketId !== "string") {
-return {
-error: "Invalid support ticket ID.",
-};
-}
+  if (!ticketId || typeof ticketId !== "string") {
+    return {
+      error: "Invalid support ticket ID.",
+    };
+  }
 
-const supabase = await createClient();
+  const supabase = await createClient();
 
-
-  const {
-    data: ticket,
-    error,
-  } = await supabase
+  const { data: ticket, error } = await supabase
     .from("support_tickets")
     .select(
       `
@@ -1167,20 +1013,14 @@ const supabase = await createClient();
     .single();
 
   if (error || !ticket) {
-    console.error(
-      "GET SUPPORT TICKET ERROR:",
-      error,
-    );
+    console.error("GET SUPPORT TICKET ERROR:", error);
 
     return {
       error: "Support ticket not found.",
     };
   }
 
-  const {
-    data: messages,
-    error: messagesError,
-  } = await supabase
+  const { data: messages, error: messagesError } = await supabase
     .from("support_messages")
     .select(
       `
@@ -1197,10 +1037,7 @@ const supabase = await createClient();
     });
 
   if (messagesError) {
-    console.error(
-      "GET SUPPORT MESSAGES ERROR:",
-      messagesError,
-    );
+    console.error("GET SUPPORT MESSAGES ERROR:", messagesError);
 
     return {
       error: messagesError.message,
@@ -1224,10 +1061,7 @@ export async function getAdminSupportTickets() {
 
   const supabase = await createClient();
 
-  const {
-    data: tickets,
-    error,
-  } = await supabase
+  const { data: tickets, error } = await supabase
     .from("support_tickets")
     .select(
       `
@@ -1250,10 +1084,7 @@ export async function getAdminSupportTickets() {
     });
 
   if (error) {
-    console.error(
-      "GET ADMIN SUPPORT TICKETS ERROR:",
-      error,
-    );
+    console.error("GET ADMIN SUPPORT TICKETS ERROR:", error);
 
     return {
       error: error.message,
@@ -1272,22 +1103,22 @@ export async function getAdminSupportTickets() {
    Used by SupportTicketActions
 ========================================================= */
 
-export async function getSupportAdmins(): Promise<{
-  success: true;
-  admins: SupportAdmin[];
-} | {
-  success: false;
-  admins: SupportAdmin[];
-  error: string;
-}> {
+export async function getSupportAdmins(): Promise<
+  | {
+      success: true;
+      admins: SupportAdmin[];
+    }
+  | {
+      success: false;
+      admins: SupportAdmin[];
+      error: string;
+    }
+> {
   await requireRole(["admin"]);
 
   const supabase = await createClient();
 
-  const {
-    data: admins,
-    error,
-  } = await supabase
+  const { data: admins, error } = await supabase
     .from("users")
     .select(
       `
@@ -1304,10 +1135,7 @@ export async function getSupportAdmins(): Promise<{
     });
 
   if (error) {
-    console.error(
-      "GET SUPPORT ADMINS ERROR:",
-      error,
-    );
+    console.error("GET SUPPORT ADMINS ERROR:", error);
 
     return {
       success: false,
@@ -1322,9 +1150,7 @@ export async function getSupportAdmins(): Promise<{
       (admin): SupportAdmin => ({
         id: admin.id,
         name:
-          `${admin.first_name ?? ""} ${
-            admin.last_name ?? ""
-          }`.trim() ||
+          `${admin.first_name ?? ""} ${admin.last_name ?? ""}`.trim() ||
           admin.email ||
           "Admin",
       }),
@@ -1337,11 +1163,8 @@ export async function getSupportAdmins(): Promise<{
    Admin only
 ========================================================= */
 
-export async function replyToSupportTicket(
-  formData: FormData,
-) {
-  const { supabase, user } =
-    await requireRole(["admin"]);
+export async function replyToSupportTicket(formData: FormData) {
+  const { supabase, user } = await requireRole(["admin"]);
 
   const ticketId = formData.get("ticketId");
   const message = formData.get("message");
@@ -1368,8 +1191,7 @@ export async function replyToSupportTicket(
 
   if (cleanMessage.length > 5000) {
     return {
-      error:
-        "Message must be 5000 characters or less.",
+      error: "Message must be 5000 characters or less.",
     };
   }
 
@@ -1377,10 +1199,7 @@ export async function replyToSupportTicket(
      Get ticket
   ------------------------------------------------------- */
 
-  const {
-    data: ticket,
-    error: ticketError,
-  } = await supabase
+  const { data: ticket, error: ticketError } = await supabase
     .from("support_tickets")
     .select(
       `
@@ -1394,10 +1213,7 @@ export async function replyToSupportTicket(
     .single();
 
   if (ticketError || !ticket) {
-    console.error(
-      "SUPPORT TICKET LOOKUP ERROR:",
-      ticketError,
-    );
+    console.error("SUPPORT TICKET LOOKUP ERROR:", ticketError);
 
     return {
       error: "Support ticket not found.",
@@ -1414,9 +1230,7 @@ export async function replyToSupportTicket(
      Insert reply
   ------------------------------------------------------- */
 
-  const {
-    error: messageError,
-  } = await supabase
+  const { error: messageError } = await supabase
     .from("support_messages")
     .insert({
       ticket_id: ticket.id,
@@ -1425,10 +1239,7 @@ export async function replyToSupportTicket(
     });
 
   if (messageError) {
-    console.error(
-      "SUPPORT REPLY ERROR:",
-      messageError,
-    );
+    console.error("SUPPORT REPLY ERROR:", messageError);
 
     return {
       error: messageError.message,
@@ -1460,24 +1271,19 @@ export async function replyToSupportTicket(
      Notify ticket owner
   ------------------------------------------------------- */
 
-  const notification =
-    await createNotification({
-      userId: ticket.user_id,
-      title: "Support replied",
-      message: `Support has replied to ticket ${ticket.ticket_number}.`,
-      type: "support_reply",
-    });
+  const notification = await createNotification({
+    userId: ticket.user_id,
+    title: "Support replied",
+    message: `Support has replied to ticket ${ticket.ticket_number}.`,
+    type: "support_reply",
+    supportTicketId: ticket.id,
+  });
 
   if (notification.error) {
-    console.error(
-      "SUPPORT REPLY NOTIFICATION ERROR:",
-      notification.error,
-    );
+    console.error("SUPPORT REPLY NOTIFICATION ERROR:", notification.error);
   }
 
-  revalidatePath(
-    `/admin/support/${ticket.id}`,
-  );
+  revalidatePath(`/admin/support/${ticket.id}`);
 
   revalidatePath("/admin/support");
 
@@ -1485,13 +1291,9 @@ export async function replyToSupportTicket(
 
   revalidatePath("/driver/support");
 
-  revalidatePath(
-    `/customer/support/${ticket.id}`,
-  );
+  revalidatePath(`/customer/support/${ticket.id}`);
 
-  revalidatePath(
-    `/driver/support/${ticket.id}`,
-  );
+  revalidatePath(`/driver/support/${ticket.id}`);
 
   return {
     success: true,
