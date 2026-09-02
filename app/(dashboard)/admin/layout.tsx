@@ -40,11 +40,11 @@ const navItems: NavItem[] = [
     label: "Payments",
     icon: "CreditCard",
   },
-  // {
-  //   href: "/admin/pricing",
-  //   label: "Pricing",
-  //   icon: "DollarSign",
-  // },
+  {
+    href: "/admin/pricing",
+    label: "Pricing",
+    icon: "DollarSign",
+  },
 
   // Business
   // {

@@ -2,7 +2,8 @@
 
 import { requireRole } from "@/lib/auth/require-role";
 import { createShipmentSchema } from "@/lib/validations";
-import { estimateShippingCost } from "@/lib/constants";
+// import { estimateShippingCost } from "@/lib/constants";
+import { calculateShipmentPrice } from "@/lib/pricing/calculate-shipment-price";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -13,8 +14,11 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ShipmentStatus } from "@/types/app";
 
-
-type ActionState = { error?: string; success?: string; trackingNumber?: string };
+type ActionState = {
+  error?: string;
+  success?: string;
+  trackingNumber?: string;
+};
 
 export async function createShipment(
   _prev: ActionState,
@@ -39,10 +43,24 @@ export async function createShipment(
     };
   }
 
-  const price = estimateShippingCost(
-    parsed.data.weightKg,
-    parsed.data.packageType,
-  );
+  // const price = estimateShippingCost(
+  //   parsed.data.weightKg,
+  //   parsed.data.packageType,
+  // );
+
+  const pricingResult = await calculateShipmentPrice({
+    weightKg: parsed.data.weightKg,
+    isFragile: parsed.data.packageType === "fragile",
+    isExpress: false,
+  });
+
+  if (!pricingResult.success) {
+    return {
+      error: pricingResult.error,
+    };
+  }
+
+  const price = pricingResult.pricing.deliveryFee;
 
   // 1. Create shipment
   const { data: shipment, error: shipmentError } = await supabase
@@ -71,9 +89,7 @@ export async function createShipment(
   }
 
   // 2. Create pending payment
-  const { error: paymentError } = await supabase
-  .from("payments")
-  .insert({
+  const { error: paymentError } = await supabase.from("payments").insert({
     customer_id: user.id,
     shipment_id: shipment.id,
     amount: price,
@@ -97,41 +113,36 @@ export async function createShipment(
   }
 
   await createNotification({
-  userId: user.id,
-  title: "Shipment created",
-  message: `Your shipment ${shipment.tracking_number} has been created successfully.`,
-  type: "shipment_created",
-  shipmentId: shipment.id,
-});
+    userId: user.id,
+    title: "Shipment created",
+    message: `Your shipment ${shipment.tracking_number} has been created successfully.`,
+    type: "shipment_created",
+    shipmentId: shipment.id,
+  });
 
+  const adminIds = await getAdminUserIds();
 
-const adminIds = await getAdminUserIds();
-
-await Promise.all(
-  adminIds.map((adminId) =>
-    createNotification({
-      userId: adminId,
-      title: "New shipment created",
-      message: `A new shipment ${shipment.tracking_number} has been created by a customer.`,
-      type: "shipment_created",
-      shipmentId: shipment.id,
-    }),
-  ),
-);
-
+  await Promise.all(
+    adminIds.map((adminId) =>
+      createNotification({
+        userId: adminId,
+        title: "New shipment created",
+        message: `A new shipment ${shipment.tracking_number} has been created by a customer.`,
+        type: "shipment_created",
+        shipmentId: shipment.id,
+      }),
+    ),
+  );
 
   revalidatePath("/customer");
   revalidatePath("/customer/payments");
 
-  redirect(
-    `/customer/shipments/${shipment.tracking_number}?created=true`,
-  );
+  redirect(`/customer/shipments/${shipment.tracking_number}?created=true`);
 }
 
-
- // --------------------------------------------------
+// --------------------------------------------------
 // CANCEL SHIPMENT ACTIONS
- // --------------------------------------------------
+// --------------------------------------------------
 
 export async function cancelShipment(shipmentId: string) {
   const { user, supabase } = await requireRole(["customer"]);
@@ -217,14 +228,12 @@ export async function cancelShipment(shipmentId: string) {
   // 5. Create tracking event
   // --------------------------------------------------
 
-  const { error: eventError } = await supabase
-    .from("shipment_events")
-    .insert({
-      shipment_id: shipmentId,
-      status: "cancelled",
-      note: "Shipment was cancelled by the customer.",
-      created_by: user.id,
-    });
+  const { error: eventError } = await supabase.from("shipment_events").insert({
+    shipment_id: shipmentId,
+    status: "cancelled",
+    note: "Shipment was cancelled by the customer.",
+    created_by: user.id,
+  });
 
   if (eventError) {
     console.error("CREATE CANCELLATION EVENT ERROR:", eventError);
@@ -287,9 +296,7 @@ export async function cancelShipment(shipmentId: string) {
   revalidatePath("/customer/history");
   revalidatePath("/customer/notifications");
 
-  revalidatePath(
-    `/customer/shipments/${updatedShipment.tracking_number}`,
-  );
+  revalidatePath(`/customer/shipments/${updatedShipment.tracking_number}`);
 
   revalidatePath("/admin");
   revalidatePath("/admin/shipments");
@@ -326,11 +333,11 @@ export async function updateShipmentStatus(
 
   // Make sure this shipment belongs to this driver
   const { data: shipment, error: shipmentError } = await supabase
-  .from("shipments")
-  .select("id, driver_id, customer_id, status, tracking_number")
-  .eq("id", shipmentId)
-  .eq("driver_id", driver.id)
-  .single();
+    .from("shipments")
+    .select("id, driver_id, customer_id, status, tracking_number")
+    .eq("id", shipmentId)
+    .eq("driver_id", driver.id)
+    .single();
 
   if (shipmentError || !shipment) {
     console.error("SHIPMENT LOOKUP ERROR:", shipmentError);
@@ -358,16 +365,12 @@ export async function updateShipmentStatus(
   }
 
   // ALWAYS create a tracking event
-  const { error: eventError } = await supabase
-    .from("shipment_events")
-    .insert({
-      shipment_id: shipmentId,
-      status,
-      note:
-        note ??
-        `Shipment status changed to ${status.replaceAll("_", " ")}`,
-      created_by: user.id,
-    });
+  const { error: eventError } = await supabase.from("shipment_events").insert({
+    shipment_id: shipmentId,
+    status,
+    note: note ?? `Shipment status changed to ${status.replaceAll("_", " ")}`,
+    created_by: user.id,
+  });
 
   if (eventError) {
     console.error("CREATE SHIPMENT EVENT ERROR:", eventError);
@@ -378,107 +381,99 @@ export async function updateShipmentStatus(
   }
 
   const notificationMap: Partial<
-  Record<
-    ShipmentStatus,
-    {
-      customerTitle: string;
-      customerMessage: string;
-      adminTitle: string;
-      adminMessage: string;
-      type: NotificationType;
+    Record<
+      ShipmentStatus,
+      {
+        customerTitle: string;
+        customerMessage: string;
+        adminTitle: string;
+        adminMessage: string;
+        type: NotificationType;
+      }
+    >
+  > = {
+    picked_up: {
+      customerTitle: "Shipment picked up",
+      customerMessage: `Your shipment ${shipment.tracking_number} has been picked up.`,
+      adminTitle: "Shipment picked up",
+      adminMessage: `Shipment ${shipment.tracking_number} has been picked up by the driver.`,
+      type: "shipment_picked_up",
+    },
+
+    in_transit: {
+      customerTitle: "Shipment in transit",
+      customerMessage: `Your shipment ${shipment.tracking_number} is now in transit.`,
+      adminTitle: "Shipment in transit",
+      adminMessage: `Shipment ${shipment.tracking_number} is now in transit.`,
+      type: "shipment_in_transit",
+    },
+
+    out_for_delivery: {
+      customerTitle: "Out for delivery",
+      customerMessage: `Your shipment ${shipment.tracking_number} is out for delivery.`,
+      adminTitle: "Shipment out for delivery",
+      adminMessage: `Shipment ${shipment.tracking_number} is out for delivery.`,
+      type: "shipment_out_for_delivery",
+    },
+
+    delivered: {
+      customerTitle: "Shipment delivered",
+      customerMessage: `Your shipment ${shipment.tracking_number} has been delivered.`,
+      adminTitle: "Shipment delivered",
+      adminMessage: `Shipment ${shipment.tracking_number} has been delivered.`,
+      type: "shipment_delivered",
+    },
+  };
+
+  const notification = notificationMap[status];
+
+  if (notification) {
+    // =========================
+    // CUSTOMER NOTIFICATION
+    // =========================
+
+    const customerResult = await createNotification({
+      userId: shipment.customer_id,
+      title: notification.customerTitle,
+      message: notification.customerMessage,
+      type: notification.type,
+      shipmentId: shipment.id,
+    });
+
+    if (customerResult.error) {
+      console.error("CUSTOMER NOTIFICATION ERROR:", customerResult.error);
     }
-  >
-> = {
-  picked_up: {
-    customerTitle: "Shipment picked up",
-    customerMessage: `Your shipment ${shipment.tracking_number} has been picked up.`,
-    adminTitle: "Shipment picked up",
-    adminMessage: `Shipment ${shipment.tracking_number} has been picked up by the driver.`,
-    type: "shipment_picked_up",
-  },
 
-  in_transit: {
-    customerTitle: "Shipment in transit",
-    customerMessage: `Your shipment ${shipment.tracking_number} is now in transit.`,
-    adminTitle: "Shipment in transit",
-    adminMessage: `Shipment ${shipment.tracking_number} is now in transit.`,
-    type: "shipment_in_transit",
-  },
+    // =========================
+    // ADMIN NOTIFICATION
+    // =========================
 
-  out_for_delivery: {
-    customerTitle: "Out for delivery",
-    customerMessage: `Your shipment ${shipment.tracking_number} is out for delivery.`,
-    adminTitle: "Shipment out for delivery",
-    adminMessage: `Shipment ${shipment.tracking_number} is out for delivery.`,
-    type: "shipment_out_for_delivery",
-  },
+    const adminSupabase = createAdminClient();
 
-  delivered: {
-    customerTitle: "Shipment delivered",
-    customerMessage: `Your shipment ${shipment.tracking_number} has been delivered.`,
-    adminTitle: "Shipment delivered",
-    adminMessage: `Shipment ${shipment.tracking_number} has been delivered.`,
-    type: "shipment_delivered",
-  },
-};
+    const { data: admins, error: adminsError } = await adminSupabase
+      .from("users")
+      .select("id")
+      .eq("role", "admin")
+      .eq("is_active", true);
 
-const notification = notificationMap[status];
+    if (adminsError) {
+      console.error("ADMIN LOOKUP ERROR:", adminsError);
+    } else {
+      console.log("ADMINS FOUND:", admins);
 
-if (notification) {
-  // =========================
-  // CUSTOMER NOTIFICATION
-  // =========================
+      for (const admin of admins ?? []) {
+        const adminResult = await createNotification({
+          userId: admin.id,
+          title: notification.adminTitle,
+          message: notification.adminMessage,
+          type: notification.type,
+          shipmentId: shipment.id,
+        });
 
-  const customerResult = await createNotification({
-    userId: shipment.customer_id,
-    title: notification.customerTitle,
-    message: notification.customerMessage,
-    type: notification.type,
-    shipmentId: shipment.id,
-  });
-
-  if (customerResult.error) {
-    console.error(
-      "CUSTOMER NOTIFICATION ERROR:",
-      customerResult.error
-    );
-  }
-
-  // =========================
-  // ADMIN NOTIFICATION
-  // =========================
-
-  const adminSupabase = createAdminClient();
-
-  const { data: admins, error: adminsError } = await adminSupabase
-    .from("users")
-    .select("id")
-    .eq("role", "admin")
-    .eq("is_active", true);
-
-  if (adminsError) {
-    console.error("ADMIN LOOKUP ERROR:", adminsError);
-  } else {
-    console.log("ADMINS FOUND:", admins);
-
-    for (const admin of admins ?? []) {
-      const adminResult = await createNotification({
-        userId: admin.id,
-        title: notification.adminTitle,
-        message: notification.adminMessage,
-        type: notification.type,
-        shipmentId: shipment.id,
-      });
-
-      console.log(
-        "ADMIN NOTIFICATION RESULT:",
-        admin.id,
-        adminResult
-      );
+        console.log("ADMIN NOTIFICATION RESULT:", admin.id, adminResult);
+      }
     }
   }
-}
-
 
   // Refresh pages
   revalidatePath("/driver");
@@ -590,11 +585,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
   // 5. Validate file type
   // --------------------------------------------------
 
-  const allowedTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-  ];
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
   if (!allowedTypes.includes(file.type)) {
     return {
@@ -606,8 +597,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
   // 6. Upload proof of delivery
   // --------------------------------------------------
 
-  const fileExtension =
-    file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const fileExtension = file.name.split(".").pop()?.toLowerCase() || "jpg";
 
   const path = `${shipmentId}/${Date.now()}.${fileExtension}`;
 
@@ -643,9 +633,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
     console.error("UPDATE DELIVERY ERROR:", updateError);
 
     // Remove uploaded file if database update failed.
-    await supabase.storage
-      .from("proof-of-delivery")
-      .remove([path]);
+    await supabase.storage.from("proof-of-delivery").remove([path]);
 
     return {
       error: updateError.message,
@@ -656,14 +644,12 @@ export async function uploadProofOfDelivery(formData: FormData) {
   // 8. Create shipment tracking event
   // --------------------------------------------------
 
-  const { error: eventError } = await supabase
-    .from("shipment_events")
-    .insert({
-      shipment_id: shipmentId,
-      status: "delivered",
-      note: "Proof of delivery uploaded.",
-      created_by: user.id,
-    });
+  const { error: eventError } = await supabase.from("shipment_events").insert({
+    shipment_id: shipmentId,
+    status: "delivered",
+    note: "Proof of delivery uploaded.",
+    created_by: user.id,
+  });
 
   if (eventError) {
     console.error("DELIVERY EVENT ERROR:", eventError);
@@ -677,68 +663,64 @@ export async function uploadProofOfDelivery(formData: FormData) {
   // 9. Notify customer
   // --------------------------------------------------
 
-  
+  const customerNotification = await createNotification({
+    userId: shipment.customer_id,
+    title: "Shipment delivered",
+    message: `Your shipment ${shipment.tracking_number} has been delivered successfully.`,
+    type: "shipment_delivered",
+    shipmentId: shipment.id,
+  });
 
-const customerNotification = await createNotification({
-  userId: shipment.customer_id,
-  title: "Shipment delivered",
-  message: `Your shipment ${shipment.tracking_number} has been delivered successfully.`,
-  type: "shipment_delivered",
-  shipmentId: shipment.id,
-});
-
-if (customerNotification.error) {
-  console.error(
-    "CUSTOMER DELIVERY NOTIFICATION ERROR:",
-    customerNotification.error,
-  );
-}
+  if (customerNotification.error) {
+    console.error(
+      "CUSTOMER DELIVERY NOTIFICATION ERROR:",
+      customerNotification.error,
+    );
+  }
 
   // --------------------------------------------------
   // 10. Notify all active admins
   // --------------------------------------------------
 
-const adminIds = await getAdminUserIds();
+  const adminIds = await getAdminUserIds();
 
-await Promise.all(
-  adminIds.map(async (adminId) => {
-    const adminNotification = await createNotification({
-      userId: adminId,
-      title: "Shipment delivered",
-      message: `Shipment ${shipment.tracking_number} has been delivered successfully.`,
-      type: "shipment_delivered",
-      shipmentId: shipment.id,
-    });
+  await Promise.all(
+    adminIds.map(async (adminId) => {
+      const adminNotification = await createNotification({
+        userId: adminId,
+        title: "Shipment delivered",
+        message: `Shipment ${shipment.tracking_number} has been delivered successfully.`,
+        type: "shipment_delivered",
+        shipmentId: shipment.id,
+      });
 
-    if (adminNotification.error) {
-      console.error(
-        `ADMIN DELIVERY NOTIFICATION ERROR (${adminId}):`,
-        adminNotification.error,
-      );
-    }
-  }),
-);
+      if (adminNotification.error) {
+        console.error(
+          `ADMIN DELIVERY NOTIFICATION ERROR (${adminId}):`,
+          adminNotification.error,
+        );
+      }
+    }),
+  );
 
   // --------------------------------------------------
   // 11. Refresh relevant pages
   // --------------------------------------------------
 
-revalidatePath("/driver");
-revalidatePath("/driver/deliveries");
-revalidatePath(`/driver/deliveries/${shipmentId}`);
+  revalidatePath("/driver");
+  revalidatePath("/driver/deliveries");
+  revalidatePath(`/driver/deliveries/${shipmentId}`);
 
-revalidatePath("/customer");
-revalidatePath("/customer/notifications");
+  revalidatePath("/customer");
+  revalidatePath("/customer/notifications");
 
-revalidatePath(
-  `/customer/shipments/${shipment.tracking_number}`,
-);
+  revalidatePath(`/customer/shipments/${shipment.tracking_number}`);
 
-revalidatePath("/admin");
-revalidatePath("/admin/shipments");
-revalidatePath("/admin/notifications");
+  revalidatePath("/admin");
+  revalidatePath("/admin/shipments");
+  revalidatePath("/admin/notifications");
 
-return {
-  success: true,
-}
+  return {
+    success: true,
+  };
 }
