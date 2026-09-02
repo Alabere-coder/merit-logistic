@@ -41,6 +41,7 @@ type CreateNotificationInput = {
  * The service-role client is then used only for the insert
  * because the recipient is usually a different user.
  */
+
 // export async function createNotification({
 //   userId,
 //   title,
@@ -53,9 +54,18 @@ type CreateNotificationInput = {
 //   try {
 //     await requireRole(["admin", "driver", "customer"]);
 
+//     console.log("CREATE NOTIFICATION DEBUG:", {
+//       userId,
+//       title,
+//       type,
+//       shipmentId,
+//       paymentId,
+//       supportTicketId,
+//     });
+
 //     const adminSupabase = createAdminClient();
 
-//     const { error } = await adminSupabase.from("notifications").insert({
+//     console.log("ABOUT TO INSERT NOTIFICATION:", {
 //       user_id: userId,
 //       title,
 //       message,
@@ -63,8 +73,22 @@ type CreateNotificationInput = {
 //       shipment_id: shipmentId,
 //       payment_id: paymentId,
 //       support_ticket_id: supportTicketId,
-//       is_read: false,
 //     });
+
+//     const { data, error } = await adminSupabase
+//       .from("notifications")
+//       .insert({
+//         user_id: userId,
+//         title,
+//         message,
+//         type,
+//         shipment_id: shipmentId,
+//         payment_id: paymentId,
+//         support_ticket_id: supportTicketId,
+//         is_read: false,
+//       })
+//       .select()
+//       .single();
 
 //     if (error) {
 //       console.error("CREATE NOTIFICATION ERROR:", error);
@@ -74,10 +98,13 @@ type CreateNotificationInput = {
 //       };
 //     }
 
+//     console.log("CREATED NOTIFICATION:", data);
+
 //     revalidatePath("/notifications");
 
 //     return {
 //       success: true,
+//       notification: data,
 //     };
 //   } catch (error) {
 //     console.error("CREATE NOTIFICATION ERROR:", error);
@@ -98,27 +125,129 @@ export async function createNotification({
   supportTicketId = null,
 }: CreateNotificationInput) {
   try {
+    console.log("🔥 CREATE NOTIFICATION FUNCTION CALLED", {
+      userId,
+      type,
+      title,
+      shipmentId,
+      paymentId,
+      supportTicketId,
+    });
     await requireRole(["admin", "driver", "customer"]);
+
+    /*
+     * =======================================================
+     * CHECK RECIPIENT NOTIFICATION PREFERENCE
+     *
+     * Notification preferences belong to the recipient,
+     * not the person creating the notification.
+     *
+     * Example:
+     * Admin A disables shipment_delivered
+     * Admin B enables shipment_delivered
+     *
+     * A will not receive it.
+     * B will receive it.
+     * =======================================================
+     */
+
+    const adminSupabase = createAdminClient();
+
+    const { data: recipient, error: recipientError } = await adminSupabase
+      .from("users")
+      .select("id, role")
+      .eq("id", userId)
+      .single();
+
+    if (recipientError || !recipient) {
+      console.error("GET NOTIFICATION RECIPIENT ERROR:", recipientError);
+
+      return {
+        error: "Notification recipient not found.",
+      };
+    }
+
+    /*
+     * =======================================================
+     * GENERAL NOTIFICATIONS
+     *
+     * "general" does not have a corresponding preference
+     * column, so it should always be allowed.
+     * =======================================================
+     */
+
+    if (type !== "general") {
+      const { data: settings, error: settingsError } = await adminSupabase
+        .from("notification_settings")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      /*
+       * If the recipient has no settings row yet, use the
+       * default behavior: notifications are enabled.
+       *
+       * This is important because existing customers,
+       * drivers, or admins may not have a settings row.
+       */
+      if (settingsError) {
+        console.error("GET NOTIFICATION SETTINGS ERROR:", {
+          userId,
+          type,
+          error: settingsError,
+        });
+
+        /*
+         * Do not break the actual business operation just
+         * because notification preferences could not be read.
+         *
+         * Fall through and create the notification.
+         */
+      } else if (settings) {
+        const preference = settings[type];
+
+        /*
+         * Only explicitly false disables a notification.
+         *
+         * This means:
+         *   true      -> send
+         *   false     -> don't send
+         *   undefined -> send
+         *
+         * The undefined case protects us if a new notification
+         * type is introduced before the settings table is
+         * updated.
+         */
+        if (preference === false) {
+          console.log("NOTIFICATION SKIPPED BY USER PREFERENCE:", {
+            userId,
+            role: recipient.role,
+            type,
+          });
+
+          return {
+            success: true,
+            skipped: true,
+            reason: "disabled_by_user_preference",
+          };
+        }
+      }
+    }
+
+    /*
+     * =======================================================
+     * CREATE NOTIFICATION
+     * =======================================================
+     */
 
     console.log("CREATE NOTIFICATION DEBUG:", {
       userId,
+      role: recipient.role,
       title,
       type,
       shipmentId,
       paymentId,
       supportTicketId,
-    });
-
-    const adminSupabase = createAdminClient();
-
-    console.log("ABOUT TO INSERT NOTIFICATION:", {
-      user_id: userId,
-      title,
-      message,
-      type,
-      shipment_id: shipmentId,
-      payment_id: paymentId,
-      support_ticket_id: supportTicketId,
     });
 
     const { data, error } = await adminSupabase
@@ -146,7 +275,15 @@ export async function createNotification({
 
     console.log("CREATED NOTIFICATION:", data);
 
-    revalidatePath("/notifications");
+    /*
+     * Revalidate all role notification pages.
+     *
+     * The notification belongs to the recipient, so we
+     * don't need to know the caller's role here.
+     */
+    revalidatePath("/admin/notifications");
+    revalidatePath("/driver/notifications");
+    revalidatePath("/customer/notifications");
 
     return {
       success: true,
