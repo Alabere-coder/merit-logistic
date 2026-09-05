@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { CreditCard, ExternalLink, Receipt, ArrowUpRight } from "lucide-react";
+import { getLocalizationSettings } from "@/lib/localization/get-localization-settings";
+import { formatLocalizedCurrency } from "@/lib/localization/format-localized";
 
 const STATUS_VARIANT = {
   paid: "default",
@@ -14,6 +16,8 @@ const STATUS_VARIANT = {
 
 export default async function CustomerPaymentsPage() {
   const { user, supabase } = await requireRole(["customer"]);
+
+  const localization = await getLocalizationSettings();
 
   const { data: payments, error } = await supabase
     .from("payments")
@@ -130,7 +134,12 @@ export default async function CustomerPaymentsPage() {
 
                     <div className="flex items-center justify-between gap-4 sm:justify-end">
                       <span className="font-display text-base font-bold text-slate-900">
-                        {formatCurrency(Number(payment.amount))}
+                        {/* {formatCurrency(Number(payment.amount))} */}
+                        {formatLocalizedCurrency(
+                          Number(payment.amount),
+                          localization,
+                        )}
+                        {/* {formatLocalizedCurrency(payment.amount, localization)} */}
                       </span>
 
                       <Badge

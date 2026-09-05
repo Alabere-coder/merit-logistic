@@ -11,6 +11,9 @@ import { NotificationSettingsForm } from "@/components/admin/notification-settin
 import { AdminSecuritySettings } from "@/components/admin/security-settings";
 
 import { OperationsSettingsForm } from "@/components/admin/operations-settings-form";
+import { BrandingSettingsForm } from "@/components/admin/branding-settings-form";
+import { LocalizationSettingsForm } from "@/components/admin/localization-settings-form";
+import { getLocalizationSettings } from "@/lib/localization/get-localization-settings";
 
 import {
   Building2,
@@ -24,10 +27,14 @@ import {
   User,
   Bell,
   Truck,
+  Palette,
+  Globe2,
 } from "lucide-react";
 
 export default async function AdminSettingsPage() {
   const { profile } = await requireRole(["admin"]);
+
+  const localization = await getLocalizationSettings();
 
   const supabase = await createClient();
 
@@ -114,6 +121,53 @@ export default async function AdminSettingsPage() {
     company_logo_url: null,
   };
 
+  ///////////////////////////////////////////
+  //   BRANDING SETTINGS
+  ///////////////////////////////////////////
+
+  const { data: brandingSettings, error: brandingSettingsError } =
+    await supabase.from("branding_settings").select("*").limit(1).maybeSingle();
+
+  if (brandingSettingsError) {
+    console.error("GET BRANDING SETTINGS ERROR:", brandingSettingsError);
+  }
+
+  const adminBrandingSettings = brandingSettings ?? {
+    id: "",
+    tagline: null,
+    primary_color: "#2563EB",
+    secondary_color: "#4F46E5",
+    favicon_url: null,
+  };
+
+  ///////////////////////////////////////////
+  //   Localization SETTINGS
+  ///////////////////////////////////////////
+
+  const { data: localizationSettings, error: localizationSettingsError } =
+    await supabase
+      .from("localization_settings")
+      .select("*")
+      .limit(1)
+      .maybeSingle();
+
+  if (localizationSettingsError) {
+    console.error(
+      "GET LOCALIZATION SETTINGS ERROR:",
+      localizationSettingsError,
+    );
+  }
+
+  const adminLocalizationSettings = localizationSettings ?? {
+    id: "",
+    default_country: "Nigeria",
+    default_currency: "NGN",
+    timezone: "Africa/Lagos",
+    date_format: "DD/MM/YYYY",
+    time_format: "12-hour",
+    language: "en",
+  };
+
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-8">
       {/* =====================================================
@@ -163,6 +217,62 @@ export default async function AdminSettingsPage() {
 
         <CardContent className="pt-6">
           <CompanySettingsForm settings={companySettings} />
+        </CardContent>
+      </Card>
+
+      {/* =====================================================
+    BRANDING
+====================================================== */}
+
+      <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+        <CardHeader className="border-b border-slate-100 bg-linear-to-r from-indigo-50/60 to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-indigo-100 p-2.5 text-indigo-600">
+              <Palette className="h-4 w-4" />
+            </div>
+
+            <div>
+              <h2 className="font-display text-base font-semibold text-slate-900">
+                Branding
+              </h2>
+
+              <p className="text-xs text-slate-500">
+                Customize the visual identity of your logistics platform.
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="pt-6">
+          <BrandingSettingsForm settings={adminBrandingSettings} />
+        </CardContent>
+      </Card>
+
+      {/* =====================================================
+    LOCALIZATION
+====================================================== */}
+
+      <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+        <CardHeader className="border-b border-slate-100 bg-linear-to-r from-cyan-50/60 to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-cyan-100 p-2.5 text-cyan-600">
+              <Globe2 className="h-4 w-4" />
+            </div>
+
+            <div>
+              <h2 className="font-display text-base font-semibold text-slate-900">
+                Localization
+              </h2>
+
+              <p className="text-xs text-slate-500">
+                Configure the regional defaults used across the platform.
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="pt-6">
+          <LocalizationSettingsForm settings={adminLocalizationSettings} />
         </CardContent>
       </Card>
 

@@ -4,6 +4,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+:root {
+  --brand-primary: #2563eb;
+  --brand-secondary: #4f46e5;
+}
+
 
 @theme {
   --color-surface: #f8fafc;
@@ -20,6 +25,13 @@
   --font-body: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 }
+
+@theme inline {
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+}
+
+
 
 
 @layer base {

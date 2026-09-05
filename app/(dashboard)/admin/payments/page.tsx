@@ -5,6 +5,11 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Wallet, CheckCircle2, Clock, XCircle, CreditCard } from "lucide-react";
 import { MarkPaymentPaidButton } from "@/components/admin/mark-payment-paid-button";
+import { getLocalizationSettings } from "@/lib/localization/get-localization-settings";
+import {
+  formatLocalizedCurrency,
+  formatLocalizedDateTime,
+} from "@/lib/localization/format-localized";
 
 const statusStyles = {
   paid: "border-emerald-200 bg-emerald-50 text-emerald-700 shadow-2xs",
@@ -15,6 +20,8 @@ const statusStyles = {
 
 export default async function AdminPaymentsPage() {
   const { supabase } = await requireRole(["admin"]);
+
+  const localization = await getLocalizationSettings();
 
   const { data: payments, error } = await supabase
     .from("payments")
@@ -122,7 +129,8 @@ export default async function AdminPaymentsPage() {
                           : "Customer"}
                       </td>
                       <td className="px-6 py-4 font-display font-bold text-slate-900">
-                        {formatCurrency(Number(p.amount))}
+                        {/* {formatLocalizedCurrency(Number(p.amount), localization)} */}
+                        {formatLocalizedCurrency(p.amount, localization)}
                       </td>
                       <td className="px-6 py-4 text-xs capitalize text-slate-600">
                         {p.payment_method
@@ -142,7 +150,8 @@ export default async function AdminPaymentsPage() {
                         </Badge>
                       </td>
                       <td className="px-6 py-4 text-xs text-slate-500">
-                        {formatDate(p.created_at)}
+                        {/* {formatDate(p.created_at)} */}
+                        {formatLocalizedDateTime(p.created_at, localization)}
                       </td>
                       <td className="px-6 py-4 text-right">
                         {p.payment_status === "pending" ? (
