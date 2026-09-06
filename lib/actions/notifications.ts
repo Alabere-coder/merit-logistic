@@ -4,12 +4,32 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/require-role";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+// export type NotificationType =
+//   | "general"
+//   | "shipment_created"
+//   | "shipment_assigned"
+//   | "shipment_picked_up"
+//   | "shipment_in_transit"
+//   | "shipment_out_for_delivery"
+//   | "shipment_delivered"
+//   | "shipment_cancelled"
+//   | "payment_success"
+//   | "payment_confirmed"
+//   | "payment_failed"
+//   | "support_reply"
+//   | "support_assignment"
+//   | "support_priority"
+//   | "support_status"
+//   | "support_message"
+//   | "support_ticket";
+
 export type NotificationType =
   | "general"
   | "shipment_created"
   | "shipment_assigned"
   | "shipment_picked_up"
   | "shipment_in_transit"
+  | "shipment_arrived_at_warehouse"
   | "shipment_out_for_delivery"
   | "shipment_delivered"
   | "shipment_cancelled"
@@ -41,79 +61,6 @@ type CreateNotificationInput = {
  * The service-role client is then used only for the insert
  * because the recipient is usually a different user.
  */
-
-// export async function createNotification({
-//   userId,
-//   title,
-//   message,
-//   type = "general",
-//   shipmentId = null,
-//   paymentId = null,
-//   supportTicketId = null,
-// }: CreateNotificationInput) {
-//   try {
-//     await requireRole(["admin", "driver", "customer"]);
-
-//     console.log("CREATE NOTIFICATION DEBUG:", {
-//       userId,
-//       title,
-//       type,
-//       shipmentId,
-//       paymentId,
-//       supportTicketId,
-//     });
-
-//     const adminSupabase = createAdminClient();
-
-//     console.log("ABOUT TO INSERT NOTIFICATION:", {
-//       user_id: userId,
-//       title,
-//       message,
-//       type,
-//       shipment_id: shipmentId,
-//       payment_id: paymentId,
-//       support_ticket_id: supportTicketId,
-//     });
-
-//     const { data, error } = await adminSupabase
-//       .from("notifications")
-//       .insert({
-//         user_id: userId,
-//         title,
-//         message,
-//         type,
-//         shipment_id: shipmentId,
-//         payment_id: paymentId,
-//         support_ticket_id: supportTicketId,
-//         is_read: false,
-//       })
-//       .select()
-//       .single();
-
-//     if (error) {
-//       console.error("CREATE NOTIFICATION ERROR:", error);
-
-//       return {
-//         error: error.message,
-//       };
-//     }
-
-//     console.log("CREATED NOTIFICATION:", data);
-
-//     revalidatePath("/notifications");
-
-//     return {
-//       success: true,
-//       notification: data,
-//     };
-//   } catch (error) {
-//     console.error("CREATE NOTIFICATION ERROR:", error);
-
-//     return {
-//       error: "Unable to create notification.",
-//     };
-//   }
-// }
 
 export async function createNotification({
   userId,

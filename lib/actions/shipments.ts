@@ -408,6 +408,14 @@ export async function updateShipmentStatus(
       type: "shipment_in_transit",
     },
 
+    arrived_at_warehouse: {
+      customerTitle: "Shipment arrived at warehouse",
+      customerMessage: `Your shipment ${shipment.tracking_number} has arrived at the warehouse.`,
+      adminTitle: "Shipment arrived at warehouse",
+      adminMessage: `Shipment ${shipment.tracking_number} has arrived at the warehouse.`,
+      type: "shipment_arrived_at_warehouse",
+    },
+
     out_for_delivery: {
       customerTitle: "Out for delivery",
       customerMessage: `Your shipment ${shipment.tracking_number} is out for delivery.`,
