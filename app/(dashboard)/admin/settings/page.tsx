@@ -14,6 +14,7 @@ import { OperationsSettingsForm } from "@/components/admin/operations-settings-f
 import { BrandingSettingsForm } from "@/components/admin/branding-settings-form";
 import { LocalizationSettingsForm } from "@/components/admin/localization-settings-form";
 import { getLocalizationSettings } from "@/lib/localization/get-localization-settings";
+import { CommunicationSettingsForm } from "@/components/admin/communication-settings-form";
 
 import {
   Building2,
@@ -37,6 +38,48 @@ export default async function AdminSettingsPage() {
   const localization = await getLocalizationSettings();
 
   const supabase = await createClient();
+
+  const { data: communicationSettings } = await supabase
+    .from("communication_settings")
+    .select(
+      `
+    id,
+    email_enabled,
+    sender_name,
+    sender_email,
+    reply_to_email,
+    welcome_email_enabled,
+    shipment_created_email_enabled,
+    shipment_status_email_enabled,
+    payment_email_enabled,
+    password_reset_email_enabled,
+    sms_enabled,
+    whatsapp_enabled,
+    customer_notifications_enabled,
+    driver_notifications_enabled,
+    admin_notifications_enabled
+  `,
+    )
+    .limit(1)
+    .maybeSingle();
+
+  const adminCommunicationSettings = communicationSettings ?? {
+    id: "",
+    email_enabled: true,
+    sender_name: "Swiftway Shipping",
+    sender_email: null,
+    reply_to_email: null,
+    welcome_email_enabled: true,
+    shipment_created_email_enabled: true,
+    shipment_status_email_enabled: true,
+    payment_email_enabled: true,
+    password_reset_email_enabled: true,
+    sms_enabled: false,
+    whatsapp_enabled: false,
+    customer_notifications_enabled: true,
+    driver_notifications_enabled: true,
+    admin_notifications_enabled: true,
+  };
 
   ///////////////////////////////////////////
   //   NOTIFICATION
@@ -273,6 +316,35 @@ export default async function AdminSettingsPage() {
 
         <CardContent className="pt-6">
           <LocalizationSettingsForm settings={adminLocalizationSettings} />
+        </CardContent>
+      </Card>
+
+      {/* =====================================================
+    EMAIL & COMMUNICATION
+====================================================== */}
+
+      <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+        <CardHeader className="border-b border-slate-100 bg-linear-to-r from-blue-50/60 to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-blue-100 p-2.5 text-blue-600">
+              <Mail className="h-4 w-4" />
+            </div>
+
+            <div>
+              <h2 className="font-display text-base font-semibold text-slate-900">
+                Email & communication
+              </h2>
+
+              <p className="text-xs text-slate-500">
+                Configure how the platform communicates with customers, drivers,
+                and administrators.
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="pt-6">
+          <CommunicationSettingsForm settings={adminCommunicationSettings} />
         </CardContent>
       </Card>
 
