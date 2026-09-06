@@ -34,6 +34,12 @@ const navItems: NavItem[] = [
   //   icon: "MapPin",
   // },
 
+  {
+    href: "/admin/vehicles",
+    label: "Vehicles",
+    icon: "Truck",
+  },
+
   // Finance
   {
     href: "/admin/payments",
