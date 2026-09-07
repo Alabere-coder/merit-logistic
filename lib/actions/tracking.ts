@@ -562,8 +562,16 @@ export async function getAdminTracking() {
     ...new Set(rows.map((shipment) => shipment.customer_id).filter(Boolean)),
   ];
 
+  //   const driverIds = [
+  //     ...new Set(rows.map((shipment) => shipment.driver_id).filter(Boolean)),
+  //   ];
+
   const driverIds = [
-    ...new Set(rows.map((shipment) => shipment.driver_id).filter(Boolean)),
+    ...new Set(
+      rows
+        .map((shipment) => shipment.driver_id)
+        .filter((driverId): driverId is string => driverId !== null),
+    ),
   ];
 
   /* -------------------------------------------------------
@@ -674,6 +682,7 @@ export async function getAdminTracking() {
       status,
       created_at,
       note,
+      created_by,
       lat,
       lng
     `,

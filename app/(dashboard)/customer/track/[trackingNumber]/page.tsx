@@ -16,6 +16,7 @@ import {
   formatLocalizedCurrency,
   formatLocalizedDateTime,
 } from "@/lib/localization/format-localized";
+import { TrackingMap } from "@/components/tracking/tracking-map";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "Pending",
@@ -213,6 +214,35 @@ export default async function CustomerTrackingResultPage({
           </div>
         </div>
       </div>
+
+      {shipment.driver && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+          <div className="mb-5">
+            <h2 className="text-base font-bold text-slate-900">
+              Live Tracking
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              View the driver's current location and shipment route.
+            </p>
+          </div>
+
+          <TrackingMap
+            driverId={shipment.driver.id}
+            currentLocation={
+              hasCurrentLocation
+                ? {
+                    lat: shipment.driver.current_lat!,
+                    lng: shipment.driver.current_lng!,
+                  }
+                : null
+            }
+            events={shipment.events}
+            settings={settings}
+            height="420px"
+          />
+        </div>
+      )}
 
       {/* =================================================
           MAIN CONTENT
