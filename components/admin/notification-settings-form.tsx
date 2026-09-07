@@ -15,6 +15,7 @@ type NotificationSettings = {
   shipment_picked_up: boolean;
   shipment_in_transit: boolean;
   shipment_out_for_delivery: boolean;
+  shipment_arrived_at_delivery_destination: boolean;
   shipment_delivered: boolean;
   shipment_cancelled: boolean;
 
@@ -85,6 +86,12 @@ const notificationGroups = [
         label: "Out for delivery",
         description: "A shipment is out for delivery.",
       },
+      {
+        name: "shipment_arrived_at_delivery_destination",
+        label: "Out for delivery",
+        description: "A shipment has arrived at delivery destination.",
+      },
+
       {
         name: "shipment_delivered",
         label: "Shipment delivered",

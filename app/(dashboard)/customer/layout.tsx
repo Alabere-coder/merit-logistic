@@ -22,6 +22,11 @@ const navItems: NavItem[] = [
     icon: "History",
   },
   {
+    href: "/customer/track",
+    label: "Track Shipment",
+    icon: "MapPin",
+  },
+  {
     href: "/customer/payments",
     label: "Payments",
     icon: "CreditCard",

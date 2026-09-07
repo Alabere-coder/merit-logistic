@@ -4,25 +4,6 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/require-role";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// export type NotificationType =
-//   | "general"
-//   | "shipment_created"
-//   | "shipment_assigned"
-//   | "shipment_picked_up"
-//   | "shipment_in_transit"
-//   | "shipment_out_for_delivery"
-//   | "shipment_delivered"
-//   | "shipment_cancelled"
-//   | "payment_success"
-//   | "payment_confirmed"
-//   | "payment_failed"
-//   | "support_reply"
-//   | "support_assignment"
-//   | "support_priority"
-//   | "support_status"
-//   | "support_message"
-//   | "support_ticket";
-
 export type NotificationType =
   | "general"
   | "shipment_created"
@@ -31,6 +12,7 @@ export type NotificationType =
   | "shipment_in_transit"
   | "shipment_arrived_at_warehouse"
   | "shipment_out_for_delivery"
+  | "shipment_arrived_at_delivery_destination"
   | "shipment_delivered"
   | "shipment_cancelled"
   | "payment_success"

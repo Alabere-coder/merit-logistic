@@ -28,11 +28,11 @@ const navItems: NavItem[] = [
     label: "Customers",
     icon: "Users",
   },
-  // {
-  //   href: "/admin/tracking",
-  //   label: "Tracking",
-  //   icon: "MapPin",
-  // },
+  {
+    href: "/admin/tracking",
+    label: "Tracking",
+    icon: "MapPin",
+  },
 
   {
     href: "/admin/vehicles",

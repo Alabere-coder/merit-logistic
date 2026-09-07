@@ -2,7 +2,6 @@
 
 import { requireRole } from "@/lib/auth/require-role";
 import { createShipmentSchema } from "@/lib/validations";
-// import { estimateShippingCost } from "@/lib/constants";
 import { calculateShipmentPrice } from "@/lib/pricing/calculate-shipment-price";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -11,14 +10,58 @@ import {
   type NotificationType,
   getAdminUserIds,
 } from "@/lib/actions/notifications";
-import { createAdminClient } from "@/lib/supabase/admin";
 import type { ShipmentStatus } from "@/types/app";
+
+/* =========================================================
+   TYPES
+========================================================= */
 
 type ActionState = {
   error?: string;
   success?: string;
   trackingNumber?: string;
 };
+
+/* =========================================================
+   DRIVER STATUS TRANSITIONS
+=========================================================
+
+   Driver-controlled lifecycle:
+
+   approved
+      ↓
+   picked_up
+      ↓
+   in_transit
+      ↓
+   arrived_at_warehouse
+      ↓
+   out_for_delivery
+      ↓ 
+    arrived_at_delivery_destination
+      ↓
+   delivered (POD only)
+
+   "pending" -> "approved" is admin-controlled.
+
+   "cancelled" is not driver-controlled.
+
+========================================================= */
+
+const DRIVER_STATUS_TRANSITIONS: Partial<
+  Record<ShipmentStatus, ShipmentStatus>
+> = {
+  approved: "picked_up",
+  picked_up: "in_transit",
+  in_transit: "arrived_at_warehouse",
+  arrived_at_warehouse: "out_for_delivery",
+  out_for_delivery: "arrived_at_delivery_destination",
+};
+
+/* =========================================================
+   CREATE SHIPMENT
+   Customer only
+========================================================= */
 
 export async function createShipment(
   _prev: ActionState,
@@ -43,10 +86,9 @@ export async function createShipment(
     };
   }
 
-  // const price = estimateShippingCost(
-  //   parsed.data.weightKg,
-  //   parsed.data.packageType,
-  // );
+  /* -------------------------------------------------------
+     Calculate shipment price
+  ------------------------------------------------------- */
 
   const pricingResult = await calculateShipmentPrice({
     weightKg: parsed.data.weightKg,
@@ -62,7 +104,10 @@ export async function createShipment(
 
   const price = pricingResult.pricing.deliveryFee;
 
-  // 1. Create shipment
+  /* -------------------------------------------------------
+     1. Create shipment
+  ------------------------------------------------------- */
+
   const { data: shipment, error: shipmentError } = await supabase
     .from("shipments")
     .insert({
@@ -77,7 +122,7 @@ export async function createShipment(
       weight_kg: parsed.data.weightKg,
       price,
     })
-    .select("id, tracking_number, price")
+    .select("id, tracking_number, price, status")
     .single();
 
   if (shipmentError || !shipment) {
@@ -88,7 +133,10 @@ export async function createShipment(
     };
   }
 
-  // 2. Create pending payment
+  /* -------------------------------------------------------
+     2. Create pending payment
+  ------------------------------------------------------- */
+
   const { error: paymentError } = await supabase.from("payments").insert({
     customer_id: user.id,
     shipment_id: shipment.id,
@@ -100,7 +148,6 @@ export async function createShipment(
   if (paymentError) {
     console.error("CREATE PAYMENT ERROR:", paymentError);
 
-    // Optional cleanup so we don't leave an unpaid shipment
     await supabase
       .from("shipments")
       .delete()
@@ -112,7 +159,47 @@ export async function createShipment(
     };
   }
 
-  await createNotification({
+  /* -------------------------------------------------------
+     3. Create initial tracking event
+  ------------------------------------------------------- */
+
+  const { error: eventError } = await supabase.from("shipment_events").insert({
+    shipment_id: shipment.id,
+    status: "pending",
+    note: "Shipment created and is waiting for admin approval.",
+    created_by: user.id,
+  });
+
+  if (eventError) {
+    console.error("CREATE INITIAL SHIPMENT EVENT ERROR:", eventError);
+
+    /*
+     * Avoid leaving an apparently valid shipment without
+     * its initial tracking history.
+     */
+    await supabase
+      .from("payments")
+      .delete()
+      .eq("shipment_id", shipment.id)
+      .eq("customer_id", user.id);
+
+    await supabase
+      .from("shipments")
+      .delete()
+      .eq("id", shipment.id)
+      .eq("customer_id", user.id);
+
+    return {
+      error:
+        "Shipment could not be created because its tracking history could not be initialized.",
+    };
+  }
+
+  /* -------------------------------------------------------
+     4. Notify customer
+  ------------------------------------------------------- */
+
+  const customerNotification = await createNotification({
     userId: user.id,
     title: "Shipment created",
     message: `Your shipment ${shipment.tracking_number} has been created successfully.`,
@@ -120,36 +207,64 @@ export async function createShipment(
     shipmentId: shipment.id,
   });
 
+  if (customerNotification.error) {
+    console.error(
+      "CUSTOMER SHIPMENT CREATED NOTIFICATION ERROR:",
+      customerNotification.error,
+    );
+  }
+
+  /* -------------------------------------------------------
+     5. Notify all active admins
+  ------------------------------------------------------- */
+
   const adminIds = await getAdminUserIds();
 
   await Promise.all(
-    adminIds.map((adminId) =>
-      createNotification({
+    adminIds.map(async (adminId) => {
+      const adminNotification = await createNotification({
         userId: adminId,
         title: "New shipment created",
         message: `A new shipment ${shipment.tracking_number} has been created by a customer.`,
         type: "shipment_created",
         shipmentId: shipment.id,
-      }),
-    ),
+      });
+
+      if (adminNotification.error) {
+        console.error(
+          `ADMIN SHIPMENT CREATED NOTIFICATION ERROR (${adminId}):`,
+          adminNotification.error,
+        );
+      }
+    }),
   );
+
+  /* -------------------------------------------------------
+     6. Refresh pages
+  ------------------------------------------------------- */
 
   revalidatePath("/customer");
   revalidatePath("/customer/payments");
+  revalidatePath("/customer/history");
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/shipments");
+  revalidatePath("/admin/notifications");
 
   redirect(`/customer/shipments/${shipment.tracking_number}?created=true`);
 }
 
-// --------------------------------------------------
-// CANCEL SHIPMENT ACTIONS
-// --------------------------------------------------
+/* =========================================================
+   CANCEL SHIPMENT
+   Customer only
+========================================================= */
 
 export async function cancelShipment(shipmentId: string) {
   const { user, supabase } = await requireRole(["customer"]);
 
-  // --------------------------------------------------
-  // 1. Find shipment
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     1. Find shipment
+  ------------------------------------------------------- */
 
   const { data: shipment, error: fetchError } = await supabase
     .from("shipments")
@@ -169,9 +284,9 @@ export async function cancelShipment(shipmentId: string) {
     };
   }
 
-  // --------------------------------------------------
-  // 2. Verify ownership
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     2. Verify ownership
+  ------------------------------------------------------- */
 
   if (shipment.customer_id !== user.id) {
     console.error("SHIPMENT OWNERSHIP ERROR:", {
@@ -184,19 +299,19 @@ export async function cancelShipment(shipmentId: string) {
     };
   }
 
-  // --------------------------------------------------
-  // 3. Check cancellation status
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     3. Only pending/approved can be cancelled
+  ------------------------------------------------------- */
 
-  if (!["pending", "approved"].includes(shipment.status)) {
+  if (shipment.status !== "pending" && shipment.status !== "approved") {
     return {
       error: "This shipment can no longer be cancelled.",
     };
   }
 
-  // --------------------------------------------------
-  // 4. Cancel shipment
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     4. Cancel shipment
+  ------------------------------------------------------- */
 
   const { data: updatedShipment, error: updateError } = await supabase
     .from("shipments")
@@ -205,6 +320,7 @@ export async function cancelShipment(shipmentId: string) {
     })
     .eq("id", shipmentId)
     .eq("customer_id", user.id)
+    .in("status", ["pending", "approved"])
     .select("id, status, tracking_number")
     .maybeSingle();
 
@@ -222,11 +338,9 @@ export async function cancelShipment(shipmentId: string) {
     };
   }
 
-  console.log("SHIPMENT CANCELLED:", updatedShipment);
-
-  // --------------------------------------------------
-  // 5. Create tracking event
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     5. Create cancellation tracking event
+  ------------------------------------------------------- */
 
   const { error: eventError } = await supabase.from("shipment_events").insert({
     shipment_id: shipmentId,
@@ -238,15 +352,20 @@ export async function cancelShipment(shipmentId: string) {
   if (eventError) {
     console.error("CREATE CANCELLATION EVENT ERROR:", eventError);
 
+    /*
+     * The shipment is already cancelled. Do not tell the
+     * customer that cancellation failed.
+     */
     return {
-      error:
+      success: true,
+      warning:
         "Shipment was cancelled, but the tracking history could not be updated.",
     };
   }
 
-  // --------------------------------------------------
-  // 6. Notify customer
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     6. Notify customer
+  ------------------------------------------------------- */
 
   const customerNotification = await createNotification({
     userId: user.id,
@@ -263,9 +382,9 @@ export async function cancelShipment(shipmentId: string) {
     );
   }
 
-  // --------------------------------------------------
-  // 7. Notify all active admins
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     7. Notify admins
+  ------------------------------------------------------- */
 
   const adminIds = await getAdminUserIds();
 
@@ -288,9 +407,9 @@ export async function cancelShipment(shipmentId: string) {
     }),
   );
 
-  // --------------------------------------------------
-  // 8. Refresh pages
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     8. Refresh pages
+  ------------------------------------------------------- */
 
   revalidatePath("/customer");
   revalidatePath("/customer/history");
@@ -307,8 +426,11 @@ export async function cancelShipment(shipmentId: string) {
   };
 }
 
-/** Driver updates the status of a shipment assigned to them. */
-/** Driver updates the status of a shipment assigned to them. */
+/* =========================================================
+   UPDATE SHIPMENT STATUS
+   Driver only
+========================================================= */
+
 export async function updateShipmentStatus(
   shipmentId: string,
   status: ShipmentStatus,
@@ -316,10 +438,38 @@ export async function updateShipmentStatus(
 ) {
   const { supabase, user } = await requireRole(["driver"]);
 
-  // Get the driver's database ID
+  /* -------------------------------------------------------
+     1. Validate requested status
+  ------------------------------------------------------- */
+
+  const allowedDriverStatuses: ShipmentStatus[] = [
+    "picked_up",
+    "in_transit",
+    "arrived_at_warehouse",
+    "out_for_delivery",
+    "arrived_at_delivery_destination",
+  ];
+
+  if (!allowedDriverStatuses.includes(status)) {
+    return {
+      error: "This shipment status cannot be changed by the driver.",
+    };
+  }
+
+  /* -------------------------------------------------------
+     2. Find driver and current location
+  ------------------------------------------------------- */
+
   const { data: driver, error: driverError } = await supabase
     .from("drivers")
-    .select("id")
+    .select(
+      `
+        id,
+        current_lat,
+        current_lng,
+        last_location_update
+      `,
+    )
     .eq("user_id", user.id)
     .single();
 
@@ -331,10 +481,21 @@ export async function updateShipmentStatus(
     };
   }
 
-  // Make sure this shipment belongs to this driver
+  /* -------------------------------------------------------
+     3. Find assigned shipment
+  ------------------------------------------------------- */
+
   const { data: shipment, error: shipmentError } = await supabase
     .from("shipments")
-    .select("id, driver_id, customer_id, status, tracking_number")
+    .select(
+      `
+          id,
+          driver_id,
+          customer_id,
+          status,
+          tracking_number
+        `,
+    )
     .eq("id", shipmentId)
     .eq("driver_id", driver.id)
     .single();
@@ -347,38 +508,117 @@ export async function updateShipmentStatus(
     };
   }
 
-  // Update shipment status
-  const { error: updateError } = await supabase
+  /* -------------------------------------------------------
+     4. Validate transition
+  ------------------------------------------------------- */
+
+  const expectedNextStatus =
+    DRIVER_STATUS_TRANSITIONS[shipment.status as ShipmentStatus];
+
+  if (!expectedNextStatus) {
+    return {
+      error: `Shipment cannot be moved forward from "${shipment.status.replaceAll(
+        "_",
+        " ",
+      )}".`,
+    };
+  }
+
+  if (status !== expectedNextStatus) {
+    return {
+      error: `Invalid shipment status transition. The next status should be "${expectedNextStatus.replaceAll(
+        "_",
+        " ",
+      )}".`,
+    };
+  }
+
+  /* -------------------------------------------------------
+     5. Capture driver coordinates
+  ------------------------------------------------------- */
+
+  const latitude =
+    driver.current_lat != null ? Number(driver.current_lat) : null;
+
+  const longitude =
+    driver.current_lng != null ? Number(driver.current_lng) : null;
+
+  const hasLocation =
+    latitude != null &&
+    longitude != null &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude);
+
+  /* -------------------------------------------------------
+     6. Update shipment using current status guard
+  ------------------------------------------------------- */
+
+  const { data: updatedShipment, error: updateError } = await supabase
     .from("shipments")
     .update({
       status,
+      updated_at: new Date().toISOString(),
     })
     .eq("id", shipmentId)
-    .eq("driver_id", driver.id);
+    .eq("driver_id", driver.id)
+    .eq("status", shipment.status)
+    .select(
+      `
+          id,
+          status,
+          tracking_number,
+          customer_id
+        `,
+    )
+    .single();
 
-  if (updateError) {
-    console.error("UPDATE SHIPMENT STATUS ERROR:", updateError);
+  if (updateError || !updatedShipment) {
+    console.error("UPDATE SHIPMENT STATUS ERROR:", {
+      shipmentId,
+      requestedStatus: status,
+      currentStatus: shipment.status,
+      driverId: driver.id,
+      error: updateError,
+    });
 
     return {
-      error: updateError.message,
+      error:
+        updateError?.message ??
+        "Unable to update shipment status. The shipment may have already been updated.",
     };
   }
 
-  // ALWAYS create a tracking event
+  /* -------------------------------------------------------
+     7. Create tracking event
+  ------------------------------------------------------- */
+
   const { error: eventError } = await supabase.from("shipment_events").insert({
     shipment_id: shipmentId,
     status,
-    note: note ?? `Shipment status changed to ${status.replaceAll("_", " ")}`,
+    note:
+      note?.trim() ||
+      `Shipment status changed to ${status.replaceAll("_", " ")}.`,
     created_by: user.id,
+    lat: hasLocation ? latitude : null,
+    lng: hasLocation ? longitude : null,
   });
 
   if (eventError) {
-    console.error("CREATE SHIPMENT EVENT ERROR:", eventError);
+    console.error("CREATE SHIPMENT EVENT ERROR:", {
+      shipmentId,
+      status,
+      error: eventError,
+    });
 
-    return {
-      error: `Shipment was updated, but tracking history could not be created: ${eventError.message}`,
-    };
+    /*
+     * Shipment status was successfully updated.
+     * Do not tell the driver that the status update failed.
+     */
   }
+
+  /* -------------------------------------------------------
+     8. Notification configuration
+  ------------------------------------------------------- */
 
   const notificationMap: Partial<
     Record<
@@ -423,22 +663,21 @@ export async function updateShipmentStatus(
       adminMessage: `Shipment ${shipment.tracking_number} is out for delivery.`,
       type: "shipment_out_for_delivery",
     },
-
-    delivered: {
-      customerTitle: "Shipment delivered",
-      customerMessage: `Your shipment ${shipment.tracking_number} has been delivered.`,
-      adminTitle: "Shipment delivered",
-      adminMessage: `Shipment ${shipment.tracking_number} has been delivered.`,
-      type: "shipment_delivered",
+    arrived_at_delivery_destination: {
+      customerTitle: "Out for delivery",
+      customerMessage: `Your shipment ${shipment.tracking_number} has arrived at delivery destination.`,
+      adminTitle: "Shipment arrived at delivery destination",
+      adminMessage: `Shipment ${shipment.tracking_number} has arrived at delivery destination.`,
+      type: "shipment_arrived_at_delivery_destination",
     },
   };
 
   const notification = notificationMap[status];
 
   if (notification) {
-    // =========================
-    // CUSTOMER NOTIFICATION
-    // =========================
+    /* -----------------------------------------------------
+       Customer notification
+    ----------------------------------------------------- */
 
     const customerResult = await createNotification({
       userId: shipment.customer_id,
@@ -452,49 +691,59 @@ export async function updateShipmentStatus(
       console.error("CUSTOMER NOTIFICATION ERROR:", customerResult.error);
     }
 
-    // =========================
-    // ADMIN NOTIFICATION
-    // =========================
+    /* -----------------------------------------------------
+       Admin notifications
+    ----------------------------------------------------- */
 
-    const adminSupabase = createAdminClient();
+    const adminIds = await getAdminUserIds();
 
-    const { data: admins, error: adminsError } = await adminSupabase
-      .from("users")
-      .select("id")
-      .eq("role", "admin")
-      .eq("is_active", true);
-
-    if (adminsError) {
-      console.error("ADMIN LOOKUP ERROR:", adminsError);
-    } else {
-      console.log("ADMINS FOUND:", admins);
-
-      for (const admin of admins ?? []) {
+    await Promise.all(
+      adminIds.map(async (adminId) => {
         const adminResult = await createNotification({
-          userId: admin.id,
+          userId: adminId,
           title: notification.adminTitle,
           message: notification.adminMessage,
           type: notification.type,
           shipmentId: shipment.id,
         });
 
-        console.log("ADMIN NOTIFICATION RESULT:", admin.id, adminResult);
-      }
-    }
+        if (adminResult.error) {
+          console.error(
+            `ADMIN NOTIFICATION ERROR (${adminId}):`,
+            adminResult.error,
+          );
+        }
+      }),
+    );
   }
 
-  // Refresh pages
+  /* -------------------------------------------------------
+     9. Refresh pages
+  ------------------------------------------------------- */
+
   revalidatePath("/driver");
   revalidatePath("/driver/deliveries");
   revalidatePath(`/driver/deliveries/${shipmentId}`);
+
+  revalidatePath("/admin");
   revalidatePath("/admin/shipments");
+  revalidatePath("/admin/tracking");
+  revalidatePath("/admin/notifications");
+
+  revalidatePath("/customer");
+  revalidatePath("/customer/track");
+  revalidatePath(`/customer/shipments/${shipment.tracking_number}`);
+  revalidatePath("/customer/notifications");
 
   return {
     success: true,
   };
 }
 
-/** Driver uploads proof of delivery (image) and marks the shipment delivered. */
+/* =========================================================
+   UPLOAD PROOF OF DELIVERY
+   Driver only
+========================================================= */
 
 export async function uploadProofOfDelivery(formData: FormData) {
   const { supabase, user } = await requireRole(["driver"]);
@@ -502,11 +751,11 @@ export async function uploadProofOfDelivery(formData: FormData) {
   const shipmentId = formData.get("shipmentId");
   const file = formData.get("file");
 
-  // --------------------------------------------------
-  // 1. Validate form data
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     1. Validate form data
+  ------------------------------------------------------- */
 
-  if (typeof shipmentId !== "string") {
+  if (typeof shipmentId !== "string" || !shipmentId.trim()) {
     return {
       error: "Invalid shipment ID.",
     };
@@ -524,9 +773,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
     };
   }
 
-  // Optional but recommended:
-  // Prevent very large uploads.
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
   if (file.size > MAX_FILE_SIZE) {
     return {
@@ -534,13 +781,31 @@ export async function uploadProofOfDelivery(formData: FormData) {
     };
   }
 
-  // --------------------------------------------------
-  // 2. Find the driver
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     2. Validate file type
+  ------------------------------------------------------- */
+
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      error: "Only JPG, PNG, and WebP images are allowed.",
+    };
+  }
+
+  /* -------------------------------------------------------
+     3. Find driver and current location
+  ------------------------------------------------------- */
 
   const { data: driver, error: driverError } = await supabase
     .from("drivers")
-    .select("id")
+    .select(
+      `
+        id,
+        current_lat,
+        current_lng
+      `,
+    )
     .eq("user_id", user.id)
     .single();
 
@@ -552,16 +817,23 @@ export async function uploadProofOfDelivery(formData: FormData) {
     };
   }
 
-  // --------------------------------------------------
-  // 3. Verify shipment belongs to this driver
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     4. Find assigned shipment
+  ------------------------------------------------------- */
 
   const { data: shipment, error: shipmentError } = await supabase
     .from("shipments")
     .select(
-      "id, driver_id, customer_id, tracking_number, status, proof_of_delivery_url",
+      `
+          id,
+          driver_id,
+          customer_id,
+          tracking_number,
+          status,
+          proof_of_delivery_url
+        `,
     )
-    .eq("id", shipmentId)
+    .eq("id", shipmentId.trim())
     .eq("driver_id", driver.id)
     .single();
 
@@ -573,9 +845,9 @@ export async function uploadProofOfDelivery(formData: FormData) {
     };
   }
 
-  // --------------------------------------------------
-  // 4. Make sure shipment isn't already completed
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     5. POD is only allowed for out_for_delivery
+  ------------------------------------------------------- */
 
   if (shipment.status === "delivered") {
     return {
@@ -589,30 +861,49 @@ export async function uploadProofOfDelivery(formData: FormData) {
     };
   }
 
-  // --------------------------------------------------
-  // 5. Validate file type
-  // --------------------------------------------------
-
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-
-  if (!allowedTypes.includes(file.type)) {
+  if (shipment.status !== "arrived_at_delivery_destination") {
     return {
-      error: "Only JPG, PNG, and WebP images are allowed.",
+      error:
+        "Proof of delivery can only be uploaded when the shipment is out for delivery.",
     };
   }
 
-  // --------------------------------------------------
-  // 6. Upload proof of delivery
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     6. Capture driver coordinates
+  ------------------------------------------------------- */
+
+  const latitude =
+    driver.current_lat != null ? Number(driver.current_lat) : null;
+
+  const longitude =
+    driver.current_lng != null ? Number(driver.current_lng) : null;
+
+  const hasLocation =
+    latitude != null &&
+    longitude != null &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude);
+
+  /* -------------------------------------------------------
+     7. Generate unique storage path
+  ------------------------------------------------------- */
 
   const fileExtension = file.name.split(".").pop()?.toLowerCase() || "jpg";
 
-  const path = `${shipmentId}/${Date.now()}.${fileExtension}`;
+  const safeExtension = ["jpg", "jpeg", "png", "webp"].includes(fileExtension)
+    ? fileExtension
+    : "jpg";
+
+  const path = `${shipmentId.trim()}/${crypto.randomUUID()}.${safeExtension}`;
+
+  /* -------------------------------------------------------
+     8. Upload proof
+  ------------------------------------------------------- */
 
   const { error: uploadError } = await supabase.storage
     .from("proof-of-delivery")
     .upload(path, file, {
-      upsert: true,
+      upsert: false,
       contentType: file.type,
     });
 
@@ -624,52 +915,78 @@ export async function uploadProofOfDelivery(formData: FormData) {
     };
   }
 
-  // --------------------------------------------------
-  // 7. Update shipment to delivered
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     9. Mark shipment delivered
+     
+     The status condition prevents two simultaneous requests
+     from both successfully completing the shipment.
+  ------------------------------------------------------- */
 
-  const { error: updateError } = await supabase
+  const { data: updatedShipment, error: updateError } = await supabase
     .from("shipments")
     .update({
       proof_of_delivery_url: path,
       status: "delivered",
+      updated_at: new Date().toISOString(),
     })
-    .eq("id", shipmentId)
-    .eq("driver_id", driver.id);
+    .eq("id", shipmentId.trim())
+    .eq("driver_id", driver.id)
+    .eq("status", "arrived_at_delivery_destination")
+    .select(
+      `
+          id,
+          status,
+          tracking_number,
+          customer_id
+        `,
+    )
+    .maybeSingle();
 
-  if (updateError) {
-    console.error("UPDATE DELIVERY ERROR:", updateError);
+  if (updateError || !updatedShipment) {
+    console.error("UPDATE DELIVERY ERROR:", {
+      shipmentId,
+      driverId: driver.id,
+      error: updateError,
+    });
 
-    // Remove uploaded file if database update failed.
+    /* Remove uploaded file if delivery update failed. */
     await supabase.storage.from("proof-of-delivery").remove([path]);
 
     return {
-      error: updateError.message,
+      error:
+        updateError?.message ??
+        "Unable to complete delivery. The shipment may have already been updated.",
     };
   }
 
-  // --------------------------------------------------
-  // 8. Create shipment tracking event
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     10. Create delivered tracking event
+  ------------------------------------------------------- */
 
   const { error: eventError } = await supabase.from("shipment_events").insert({
-    shipment_id: shipmentId,
+    shipment_id: shipmentId.trim(),
     status: "delivered",
     note: "Proof of delivery uploaded.",
     created_by: user.id,
+    lat: hasLocation ? latitude : null,
+    lng: hasLocation ? longitude : null,
   });
 
   if (eventError) {
-    console.error("DELIVERY EVENT ERROR:", eventError);
+    console.error("DELIVERY EVENT ERROR:", {
+      shipmentId,
+      error: eventError,
+    });
 
-    return {
-      error: `Delivery was completed, but tracking history could not be updated: ${eventError.message}`,
-    };
+    /*
+     * Delivery is already complete.
+     * Do not report delivery itself as failed.
+     */
   }
 
-  // --------------------------------------------------
-  // 9. Notify customer
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     11. Notify customer
+  ------------------------------------------------------- */
 
   const customerNotification = await createNotification({
     userId: shipment.customer_id,
@@ -686,9 +1003,9 @@ export async function uploadProofOfDelivery(formData: FormData) {
     );
   }
 
-  // --------------------------------------------------
-  // 10. Notify all active admins
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     12. Notify admins
+  ------------------------------------------------------- */
 
   const adminIds = await getAdminUserIds();
 
@@ -711,21 +1028,23 @@ export async function uploadProofOfDelivery(formData: FormData) {
     }),
   );
 
-  // --------------------------------------------------
-  // 11. Refresh relevant pages
-  // --------------------------------------------------
+  /* -------------------------------------------------------
+     13. Refresh relevant pages
+  ------------------------------------------------------- */
 
   revalidatePath("/driver");
   revalidatePath("/driver/deliveries");
   revalidatePath(`/driver/deliveries/${shipmentId}`);
 
   revalidatePath("/customer");
+  revalidatePath("/customer/track");
   revalidatePath("/customer/notifications");
 
   revalidatePath(`/customer/shipments/${shipment.tracking_number}`);
 
   revalidatePath("/admin");
   revalidatePath("/admin/shipments");
+  revalidatePath("/admin/tracking");
   revalidatePath("/admin/notifications");
 
   return {

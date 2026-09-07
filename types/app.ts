@@ -7,16 +7,13 @@ export type ShipmentStatus =
   | "in_transit"
   | "arrived_at_warehouse"
   | "out_for_delivery"
+  | "arrived_at_delivery_destination"
   | "delivered"
   | "cancelled";
 
 export type DriverStatus = "active" | "inactive" | "suspended";
 
-export type PaymentStatus =
-  | "pending"
-  | "paid"
-  | "failed"
-  | "refunded";
+export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
 export type PaymentMethod =
   | "card"

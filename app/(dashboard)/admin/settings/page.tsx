@@ -105,6 +105,7 @@ export default async function AdminSettingsPage() {
     shipment_picked_up: true,
     shipment_in_transit: true,
     shipment_out_for_delivery: true,
+    shipment_arrived_at_delivery_destination: true,
     shipment_delivered: true,
     shipment_cancelled: true,
 

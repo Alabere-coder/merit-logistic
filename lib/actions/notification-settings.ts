@@ -34,6 +34,10 @@ export async function updateNotificationSettings(
 
       shipment_out_for_delivery: getBoolean("shipment_out_for_delivery"),
 
+      shipment_arrived_at_delivery_destination: getBoolean(
+        "shipment_arrived_at_delivery_destination",
+      ),
+
       shipment_delivered: getBoolean("shipment_delivered"),
 
       shipment_cancelled: getBoolean("shipment_cancelled"),

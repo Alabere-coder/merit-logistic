@@ -6,6 +6,8 @@ import {
   Space_Grotesk,
 } from "next/font/google";
 
+import "leaflet/dist/leaflet.css";
+
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/toast";

@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/dashboard/stat-card";
 import { formatDate } from "@/lib/utils";
 import { Truck } from "lucide-react";
 import { ShipmentStatus } from "@/types/app";
+import { TrackingMap } from "@/components/tracking/tracking-map";
 
 export default async function DriverDeliveriesPage() {
   const { user, supabase } = await requireRole(["driver"]);
