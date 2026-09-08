@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import { MapPin, Navigation, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -12,16 +13,24 @@ export function DriverLocationUpdater() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const watchIdRef = useRef<number | null>(null);
+
   const lastSentRef = useRef<{
     lat: number;
     lng: number;
     timestamp: number;
   } | null>(null);
 
+  /*
+   * Prevent multiple server actions from running at
+   * the same time when watchPosition fires rapidly.
+   */
+  const isSendingRef = useRef(false);
+
   useEffect(() => {
     return () => {
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
       }
     };
   }, []);
@@ -29,29 +38,31 @@ export function DriverLocationUpdater() {
   function stopTracking() {
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
-
       watchIdRef.current = null;
     }
 
+    isSendingRef.current = false;
+    setUpdating(false);
     setEnabled(false);
   }
 
   async function sendLocation(position: GeolocationPosition) {
+    /*
+     * Ignore GPS callbacks while another location
+     * update is already being sent.
+     */
+    if (isSendingRef.current) {
+      return;
+    }
+
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
 
     const previous = lastSentRef.current;
+    const now = Date.now();
 
-    /*
-     * Avoid sending unnecessarily frequent updates.
-     *
-     * We send if:
-     * - this is the first update
-     * - at least 30 seconds have passed
-     * - the driver moved roughly 20 meters or more
-     */
     if (previous) {
-      const elapsed = Date.now() - previous.timestamp;
+      const elapsed = now - previous.timestamp;
 
       const distance = getDistanceInMeters(
         previous.lat,
@@ -60,12 +71,38 @@ export function DriverLocationUpdater() {
         lng,
       );
 
+      /*
+       * Send only when:
+       *
+       * - at least 30 seconds have passed
+       *   OR
+       *
+       * - the driver moved at least 20 meters.
+       */
       if (elapsed < 30_000 && distance < 20) {
         return;
       }
     }
 
+    /*
+     * Lock immediately BEFORE calling the server action.
+     *
+     * This is important because watchPosition can fire
+     * again while updateDriverLocation() is still waiting.
+     */
+    isSendingRef.current = true;
     setUpdating(true);
+
+    /*
+     * Reserve this location immediately so another
+     * callback cannot treat the previous location as
+     * still being the latest sent location.
+     */
+    lastSentRef.current = {
+      lat,
+      lng,
+      timestamp: now,
+    };
 
     try {
       const result = await updateDriverLocation({
@@ -76,20 +113,27 @@ export function DriverLocationUpdater() {
       if (result.error) {
         console.error("DRIVER LOCATION UPDATE ERROR:", result.error);
 
+        /*
+         * If the server update failed, allow the next
+         * GPS callback to retry.
+         */
+        lastSentRef.current = previous;
+
         toast.error(result.error);
         return;
       }
 
-      lastSentRef.current = {
-        lat,
-        lng,
-        timestamp: Date.now(),
-      };
-
       setLastUpdated(new Date());
     } catch (error) {
       console.error("DRIVER LOCATION UPDATE ERROR:", error);
+
+      /*
+       * Restore the previous successful location so
+       * the failed update does not become the baseline.
+       */
+      lastSentRef.current = previous;
     } finally {
+      isSendingRef.current = false;
       setUpdating(false);
     }
   }
@@ -97,7 +141,6 @@ export function DriverLocationUpdater() {
   function startTracking() {
     if (!navigator.geolocation) {
       toast.error("Location services are not supported by this browser.");
-
       return;
     }
 
