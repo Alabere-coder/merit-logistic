@@ -227,7 +227,7 @@ export function DriverLocationUpdater() {
           <button
             type="button"
             onClick={startTracking}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white transition hover:bg-brand-700"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-green-200 px-4 text-sm border border-green-400 font-semibold text-slate-500 transition hover:bg-brand-700"
           >
             <Navigation className="h-4 w-4" />
             Share Location

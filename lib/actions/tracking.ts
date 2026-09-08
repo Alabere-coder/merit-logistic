@@ -229,17 +229,39 @@ export async function getShipmentTracking(shipmentId: string) {
     }
 
     if (driverRow) {
-      const { data: driverUser } = await supabase
-        .from("users")
-        .select(
-          `
-          first_name,
-          last_name,
-          phone_number
-        `,
-        )
-        .eq("id", driverRow.user_id)
-        .single();
+      // const { data: driverUser } = await supabase
+      //   .from("users")
+      //   .select(
+      //     `
+      //     first_name,
+      //     last_name,
+      //     phone_number
+      //   `,
+      //   )
+      //   .eq("id", driverRow.user_id)
+      //   .single();
+
+      // driver = {
+      //   id: driverRow.id,
+      //   user_id: driverRow.user_id,
+      //   first_name: driverUser?.first_name ?? null,
+      //   last_name: driverUser?.last_name ?? null,
+      //   phone_number: driverUser?.phone_number ?? null,
+      //   current_lat: driverRow.current_lat ?? null,
+      //   current_lng: driverRow.current_lng ?? null,
+      //   last_location_update: driverRow.last_location_update ?? null,
+      // };
+
+      const { data: driverProfile, error: driverProfileError } =
+        await supabase.rpc("get_assigned_driver_profile", {
+          target_driver_id: driverRow.id,
+        });
+
+      if (driverProfileError) {
+        console.error("GET ASSIGNED DRIVER PROFILE ERROR:", driverProfileError);
+      }
+
+      const driverUser = driverProfile?.[0] ?? null;
 
       driver = {
         id: driverRow.id,
@@ -481,6 +503,7 @@ export async function updateDriverLocation(input: {
     .select(
       `
       id,
+      user_id,
       current_lat,
       current_lng,
       last_location_update
@@ -489,7 +512,12 @@ export async function updateDriverLocation(input: {
     .single();
 
   if (error || !data) {
-    console.error("UPDATE DRIVER LOCATION ERROR:", error);
+    console.error("UPDATE DRIVER LOCATION ERROR:", {
+      userId: user.id,
+      lat,
+      lng,
+      error,
+    });
 
     return {
       error: error?.message ?? "Unable to update driver location.",
