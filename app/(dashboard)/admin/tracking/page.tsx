@@ -12,7 +12,7 @@ const STATUS_LABEL: Record<string, string> = {
   in_transit: "In Transit",
   arrived_at_warehouse: "At Warehouse",
   out_for_delivery: "Out for Delivery",
-  arrived_at_delivery_destination: "Arrived at delivery destination",
+  arrived_at_delivery_destination: "Arrived at destination",
   delivered: "Delivered",
   cancelled: "Cancelled",
 };
@@ -473,7 +473,8 @@ export default async function AdminTrackingPage() {
                       {/* Actions */}
                       <td className="px-6 py-4 text-right">
                         <Link
-                          href={`/admin/shipments/${shipment.id}`}
+                          // href={`/admin/shipments/${shipment.id}`}
+                          href={`/admin/tracking/${shipment.id}`}
                           className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900"
                         >
                           <Eye className="h-3.5 w-3.5" />

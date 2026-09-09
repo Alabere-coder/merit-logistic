@@ -58,25 +58,17 @@ export default async function AdminOverviewPage() {
   return (
     <div className="relative space-y-8">
       {/* Soft Ambient Background Mesh Blends */}
-      <div className="pointer-events-none absolute -top-12 -left-12 -z-10 h-72 w-72 rounded-full bg-linear-to-tr from-blue-500/15 via-indigo-500/10 to-purple-500/15 blur-3xl" />
-      <div className="pointer-events-none absolute top-1/3 -right-12 -z-10 h-80 w-80 rounded-full bg-linear-to-br from-cyan-400/15 via-blue-500/10 to-indigo-600/15 blur-3xl" />
 
       {/* Page Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-extrabold tracking-tight bg-linear-to-r from-slate-900 via-indigo-950 to-blue-900 bg-clip-text text-transparent">
+          <h1 className="font-display text-2xl font-extrabold tracking-tight bg-slate-900 bg-clip-text text-transparent">
             System Overview
           </h1>
           <p className="text-xs font-medium text-slate-500">
             Real-time metric monitoring across customers, drivers, and active
             deliveries.
           </p>
-        </div>
-        <div className="mt-1 sm:mt-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/60 bg-linear-to-r from-blue-50/80 via-indigo-50/80 to-purple-50/80 px-3.5 py-1 text-[11px] font-bold text-indigo-700 shadow-xs backdrop-blur-md">
-            <Sparkles className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-            Live Database Sync
-          </span>
         </div>
       </div>
 
@@ -169,7 +161,7 @@ export default async function AdminOverviewPage() {
         {/* Action Needed Card */}
         <Card className="h-fit rounded-2xl border border-amber-200/50 bg-linear-to-b from-white via-amber-50/20 to-white shadow-sm backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center gap-3 border-b border-amber-100/60 bg-linear-to-r from-amber-50/60 via-orange-50/30 to-transparent px-6 py-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-amber-400 to-orange-500 text-white shadow-sm ring-2 ring-amber-200/50">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm ring-2 ring-amber-200/50">
               <Clock className="h-4 w-4" />
             </div>
             <div>
@@ -184,7 +176,7 @@ export default async function AdminOverviewPage() {
 
           <CardContent className="space-y-4 p-6">
             {/* Metric Alert Block with Rich linear Blend */}
-            <div className="relative overflow-hidden rounded-xl border border-amber-300/60 bg-linear-to-r from-amber-500 via-orange-500 to-amber-600 p-4 text-white shadow-md">
+            <div className="relative overflow-hidden rounded-xl border border-amber-300/60 bg-amber-500 p-4 text-white shadow-md">
               <div className="pointer-events-none absolute -right-6 -bottom-6 h-24 w-24 rounded-full bg-white/10 blur-xl" />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
