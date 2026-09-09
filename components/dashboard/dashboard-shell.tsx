@@ -91,7 +91,7 @@ export function DashboardShell({
             href="/"
             className="flex items-center gap-3 font-display text-lg font-bold text-white"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-tr from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-500/20">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-tr from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20">
               <PackageSearch className="h-5 w-5" strokeWidth={2.2} />
             </span>
             <span className="tracking-tight">
@@ -103,7 +103,7 @@ export function DashboardShell({
             variant="ghost"
             size="icon"
             onClick={() => setMobileOpen(false)}
-            className="text-slate-400 hover:bg-slate-800 hover:text-white lg:hidden"
+            className="text-slate-200 hover:bg-slate-800 hover:text-white lg:hidden"
             aria-label="Close menu"
           >
             <X className="h-5 w-5" />
@@ -111,11 +111,11 @@ export function DashboardShell({
         </div>
 
         {/* Role Badge */}
-        <div className="px-6">
+        {/* <div className="px-6">
           <span className="inline-block rounded-full bg-blue-500/10 px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-blue-400 ring-1 ring-inset ring-blue-400/20">
             {roleLabel}
           </span>
-        </div>
+        </div> */}
 
         {/* Navigation Links */}
         <nav className="space-y-1.5 px-3">
@@ -130,7 +130,7 @@ export function DashboardShell({
                 className={cn(
                   "group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150",
                   active
-                    ? "bg-linear-to-r from-blue-600 to-indigo-600 font-semibold text-white shadow-md shadow-blue-600/20"
+                    ? "bg-blue-500 font-semibold text-white shadow-md shadow-blue-600/20"
                     : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200",
                 )}
               >
@@ -152,7 +152,7 @@ export function DashboardShell({
       {/* User Footer */}
       <div className="border-t border-slate-800/80 p-4">
         <div className="flex items-center gap-3 rounded-xl border border-slate-700/40 bg-slate-800/40 p-2.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-linear-to-tr from-blue-500 to-indigo-500 text-xs font-bold text-white shadow-2xs">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-xs font-bold text-white shadow-2xs">
             {initials(user.firstName, user.lastName)}
           </span>
           <div className="min-w-0 flex-1">
@@ -192,7 +192,7 @@ export function DashboardShell({
             onClick={() => setMobileOpen(false)}
           />
           {/* Drawer */}
-          <aside className="relative flex h-full w-72 flex-col bg-slate-900 shadow-2xl">
+          <aside className="relative flex h-full w-72 flex-col rounded-r-xl bg-slate-800 shadow-2xl">
             {SidebarContent}
           </aside>
         </div>
@@ -216,12 +216,17 @@ export function DashboardShell({
           </div>
 
           {/* Role Badge Indicator */}
-          <div className="flex items-center justify-center">
-            <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-blue-700 shadow-2xs ring-1 ring-inset ring-blue-500/20">
+          <div className="flex items-center justify-start">
+            {/* <span>
+              {user.firstName} {user.lastName}
+            </span> */}
+            <h1 className="inline-flex px-3 py-1 font-mono text-md sm:text-xl font-bold uppercase tracking-wider text-blue-700">
               {roleLabel}
-            </span>
+            </h1>
           </div>
 
+          {/* Profile Action */}
+          <div></div>
           {/* Notifications Action */}
           <div className="flex items-center justify-end gap-2">
             <NotificationBell />
