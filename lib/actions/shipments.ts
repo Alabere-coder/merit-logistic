@@ -608,6 +608,10 @@ export async function updateShipmentStatus(
       shipmentId,
       status,
       error: eventError,
+      code: eventError.code,
+      message: eventError.message,
+      details: eventError.details,
+      hint: eventError.hint,
     });
 
     /*

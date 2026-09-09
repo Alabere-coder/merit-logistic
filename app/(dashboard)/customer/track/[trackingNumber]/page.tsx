@@ -284,7 +284,7 @@ export default async function CustomerTrackingResultPage({
                   return (
                     <div key={event.id} className="relative flex gap-4">
                       {!isLast && (
-                        <div className="absolute left-3.75 top-8 h-[calc(100%+8px)] w-px bg-slate-200" />
+                        <div className="absolute left-3.75 top-8 h-[calc(100%+8px)] w-px bg-slate-400" />
                       )}
 
                       <div
@@ -297,9 +297,9 @@ export default async function CustomerTrackingResultPage({
                         }`}
                       >
                         {event.status === "delivered" ? (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                          <CheckCircle2 className="h-4 w-4 text-brand-500" />
                         ) : (
-                          <Package className="h-4 w-4 text-brand-600" />
+                          <Package className="h-4 w-4 text-emerald-600" />
                         )}
                       </div>
 
