@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { CancelShipmentButton } from "./cancel-button";
 import { PaymentMethodSelector } from "@/components/customer/payment-method-selector";
+import { CopyButton } from "@/components/shared/copy-button";
 
 type ShipmentPageProps = {
   params: Promise<{
@@ -91,7 +92,7 @@ export default async function ShipmentDetailPage({
             Tracking number
           </p>
           <h1 className="font-mono text-3xl font-extrabold tracking-tight text-slate-900">
-            {shipment.tracking_number}
+            <CopyButton value={shipment.tracking_number} />
           </h1>
         </div>
 

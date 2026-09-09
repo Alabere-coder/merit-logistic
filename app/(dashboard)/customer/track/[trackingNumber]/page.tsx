@@ -18,6 +18,8 @@ import {
 } from "@/lib/localization/format-localized";
 import { TrackingMap } from "@/components/tracking/tracking-map";
 
+import { CopyButton } from "@/components/shared/copy-button";
+
 const STATUS_LABEL: Record<string, string> = {
   pending: "Pending",
   approved: "Approved",
@@ -362,7 +364,7 @@ export default async function CustomerTrackingResultPage({
 
                 {shipment.driver.phone_number && (
                   <div className="text-sm text-slate-600">
-                    {shipment.driver.phone_number}
+                    <CopyButton value={shipment.driver.phone_number} />
                   </div>
                 )}
 
