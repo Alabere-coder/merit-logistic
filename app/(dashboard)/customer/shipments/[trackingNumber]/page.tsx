@@ -59,6 +59,8 @@ export default async function ShipmentDetailPage({
     notFound();
   }
 
+  const payment = shipment.payments ?? null;
+
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
       {/* Back Button */}
@@ -279,6 +281,7 @@ export default async function ShipmentDetailPage({
               <PaymentMethodSelector
                 shipmentId={shipment.id}
                 amount={Number(shipment.price)}
+                payment={payment}
               />
             </div>
           </CardContent>

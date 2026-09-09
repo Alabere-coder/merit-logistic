@@ -1,29 +1,71 @@
 "use client";
 
 import { useState } from "react";
+
 import {
   Banknote,
   CreditCard,
   Truck,
   Loader2,
   CheckCircle2,
+  RotateCcw,
+  AlertCircle,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { initializePayment } from "@/lib/actions/payments";
 import { formatCurrency } from "@/lib/utils";
 
 type PaymentMethod = "online" | "cash" | "pay_on_delivery";
 
+type Payment = {
+  id: string;
+  amount: number;
+  payment_status: string;
+  payment_method: string | null;
+  transaction_reference: string | null;
+  created_at: string;
+};
+
 type PaymentMethodSelectorProps = {
   shipmentId: string;
   amount: number;
+  payment: Payment | null;
 };
+
+function isPaymentMethod(value: string | null): value is PaymentMethod {
+  return value === "online" || value === "cash" || value === "pay_on_delivery";
+}
+
+function getPaymentMethodLabel(method: string | null) {
+  switch (method) {
+    case "online":
+      return "Online payment";
+
+    case "cash":
+      return "Cash";
+
+    case "pay_on_delivery":
+      return "Pay on delivery";
+
+    default:
+      return "Payment";
+  }
+}
 
 export function PaymentMethodSelector({
   shipmentId,
   amount,
+  payment,
 }: PaymentMethodSelectorProps) {
-  const [method, setMethod] = useState<PaymentMethod>("online");
+  const savedMethod = payment?.payment_method ?? null;
+
+  const initialMethod: PaymentMethod = isPaymentMethod(savedMethod)
+    ? savedMethod
+    : "online";
+
+  const [method, setMethod] = useState<PaymentMethod>(initialMethod);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -40,32 +82,178 @@ export function PaymentMethodSelector({
         return;
       }
 
-      // Online payment → redirect to Paystack
+      /*
+       * Online payment redirects to Paystack.
+       */
       if (method === "online" && result.authorizationUrl) {
         window.location.href = result.authorizationUrl;
         return;
       }
 
-      // Cash / Pay on delivery → refresh the page
+      /*
+       * Cash / Pay on delivery.
+       *
+       * Reload so the newly-created payment record
+       * is displayed immediately.
+       */
       window.location.reload();
     } catch (error) {
       console.error("Payment selection error:", error);
+
       setError("Something went wrong. Please try again.");
+
       setLoading(false);
     }
   }
 
+  /* =======================================================
+     PAYMENT COMPLETED
+  ======================================================= */
+
+  if (payment?.payment_status === "paid") {
+    return (
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+          </div>
+
+          <div className="min-w-0">
+            <h3 className="font-semibold text-emerald-900">
+              Payment completed
+            </h3>
+
+            <p className="mt-1 text-sm text-emerald-700">
+              Your payment of{" "}
+              <span className="font-semibold">
+                {formatCurrency(Number(payment.amount ?? amount))}
+              </span>{" "}
+              has been confirmed.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-2 rounded-xl border border-emerald-200 bg-white/70 p-4 text-sm">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-slate-500">Payment method</span>
+
+            <span className="font-medium text-slate-900">
+              {getPaymentMethodLabel(payment.payment_method)}
+            </span>
+          </div>
+
+          {payment.transaction_reference && (
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-slate-500">Reference</span>
+
+              <span className="max-w-[60%] truncate font-mono text-xs text-slate-700">
+                {payment.transaction_reference}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  /* =======================================================
+     REFUNDED
+  ======================================================= */
+
+  if (payment?.payment_status === "refunded") {
+    return (
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100">
+            <RotateCcw className="h-5 w-5 text-amber-600" />
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-amber-900">Payment refunded</h3>
+
+            <p className="mt-1 text-sm text-amber-700">
+              This payment has been refunded.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* =======================================================
+     PENDING PAYMENT
+  ======================================================= */
+
+  if (payment?.payment_status === "pending") {
+    return (
+      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100">
+            <Loader2 className="h-5 w-5 text-blue-600" />
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-blue-900">Payment pending</h3>
+
+            <p className="mt-1 text-sm text-blue-700">
+              Your selected payment method is being processed.
+            </p>
+
+            <p className="mt-2 text-sm font-medium text-blue-900">
+              {getPaymentMethodLabel(payment.payment_method)}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* =======================================================
+     PAYMENT FAILED
+  ======================================================= */
+
+  if (payment?.payment_status === "failed") {
+    return (
+      <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100">
+            <AlertCircle className="h-5 w-5 text-rose-600" />
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-rose-900">Payment failed</h3>
+
+            <p className="mt-1 text-sm text-rose-700">
+              Your previous payment attempt was not completed. You can try again
+              below.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* =======================================================
+     PAYMENT SELECTION
+  ======================================================= */
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <h3 className="text-base font-semibold text-slate-900">
           Payment method
-        </p>
+        </h3>
 
         <p className="mt-1 text-sm text-slate-500">
-          Choose how you want to pay for this shipment.
+          Choose how you would like to pay.
         </p>
       </div>
+
+      {error && (
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+          {error}
+        </div>
+      )}
 
       <div className="grid gap-3">
         {/* Online */}
@@ -73,31 +261,23 @@ export function PaymentMethodSelector({
           type="button"
           onClick={() => setMethod("online")}
           disabled={loading}
-          className={`flex items-center gap-4 rounded-xl border p-4 text-left transition-all ${
+          className={`flex items-center gap-4 rounded-xl border p-4 text-left transition ${
             method === "online"
-              ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500/20"
-              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+              ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
+              : "border-slate-200 bg-white hover:border-slate-300"
           }`}
         >
-          <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-              method === "online"
-                ? "bg-blue-600 text-white"
-                : "bg-slate-100 text-slate-500"
-            }`}
-          >
-            <CreditCard className="h-5 w-5" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+            <CreditCard className="h-5 w-5 text-slate-700" />
           </div>
 
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-slate-900">Pay online</p>
+          <div className="flex-1">
+            <p className="font-medium text-slate-900">Pay online</p>
 
-            <p className="text-xs text-slate-500">Pay securely with Paystack</p>
+            <p className="text-sm text-slate-500">
+              Pay securely with your card or bank.
+            </p>
           </div>
-
-          {method === "online" && (
-            <CheckCircle2 className="h-5 w-5 shrink-0 text-blue-600" />
-          )}
         </button>
 
         {/* Cash */}
@@ -105,33 +285,23 @@ export function PaymentMethodSelector({
           type="button"
           onClick={() => setMethod("cash")}
           disabled={loading}
-          className={`flex items-center gap-4 rounded-xl border p-4 text-left transition-all ${
+          className={`flex items-center gap-4 rounded-xl border p-4 text-left transition ${
             method === "cash"
-              ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/20"
-              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+              ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
+              : "border-slate-200 bg-white hover:border-slate-300"
           }`}
         >
-          <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-              method === "cash"
-                ? "bg-emerald-600 text-white"
-                : "bg-slate-100 text-slate-500"
-            }`}
-          >
-            <Banknote className="h-5 w-5" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+            <Banknote className="h-5 w-5 text-slate-700" />
           </div>
 
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-slate-900">Cash</p>
+          <div className="flex-1">
+            <p className="font-medium text-slate-900">Cash</p>
 
-            <p className="text-xs text-slate-500">
-              Pay with cash at our office
+            <p className="text-sm text-slate-500">
+              Pay with cash according to your shipment arrangements.
             </p>
           </div>
-
-          {method === "cash" && (
-            <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
-          )}
         </button>
 
         {/* Pay on delivery */}
@@ -139,68 +309,49 @@ export function PaymentMethodSelector({
           type="button"
           onClick={() => setMethod("pay_on_delivery")}
           disabled={loading}
-          className={`flex items-center gap-4 rounded-xl border p-4 text-left transition-all ${
+          className={`flex items-center gap-4 rounded-xl border p-4 text-left transition ${
             method === "pay_on_delivery"
-              ? "border-amber-500 bg-amber-50 ring-2 ring-amber-500/20"
-              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+              ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
+              : "border-slate-200 bg-white hover:border-slate-300"
           }`}
         >
-          <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-              method === "pay_on_delivery"
-                ? "bg-amber-600 text-white"
-                : "bg-slate-100 text-slate-500"
-            }`}
-          >
-            <Truck className="h-5 w-5" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+            <Truck className="h-5 w-5 text-slate-700" />
           </div>
 
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-slate-900">Pay on delivery</p>
+          <div className="flex-1">
+            <p className="font-medium text-slate-900">Pay on delivery</p>
 
-            <p className="text-xs text-slate-500">
-              Pay when your shipment arrives
+            <p className="text-sm text-slate-500">
+              Pay when your shipment is delivered.
             </p>
           </div>
-
-          {method === "pay_on_delivery" && (
-            <CheckCircle2 className="h-5 w-5 shrink-0 text-amber-600" />
-          )}
         </button>
       </div>
 
-      {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {error}
+      <div className="rounded-xl bg-slate-50 p-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-slate-500">Amount</span>
+
+          <span className="text-lg font-bold text-slate-900">
+            {formatCurrency(amount)}
+          </span>
         </div>
-      )}
+      </div>
 
       <Button
         type="button"
         onClick={handleContinue}
         disabled={loading}
-        className="w-full bg-amber-600 text-white hover:bg-amber-700"
+        className="w-full"
       >
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Processing...
           </>
-        ) : method === "online" ? (
-          <>
-            <CreditCard className="mr-2 h-4 w-4" />
-            Pay {formatCurrency(amount)} online
-          </>
-        ) : method === "cash" ? (
-          <>
-            <Banknote className="mr-2 h-4 w-4" />
-            Select cash payment
-          </>
         ) : (
-          <>
-            <Truck className="mr-2 h-4 w-4" />
-            Select pay on delivery
-          </>
+          "Continue to payment"
         )}
       </Button>
     </div>
