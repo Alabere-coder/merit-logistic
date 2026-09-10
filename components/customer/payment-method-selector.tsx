@@ -65,6 +65,7 @@ export function PaymentMethodSelector({
     : "online";
 
   const [method, setMethod] = useState<PaymentMethod>(initialMethod);
+  const [showNewPayment, setShowNewPayment] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -176,7 +177,7 @@ export function PaymentMethodSelector({
      REFUNDED
   ======================================================= */
 
-  if (payment?.payment_status === "refunded") {
+  if (payment?.payment_status === "refunded" && !showNewPayment) {
     return (
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
         <div className="flex items-start gap-3">
@@ -188,7 +189,8 @@ export function PaymentMethodSelector({
             <h3 className="font-semibold text-amber-900">Payment refunded</h3>
 
             <p className="mt-1 text-sm text-amber-700">
-              This payment has been refunded.
+              This payment has been refunded. You can choose a new payment
+              method to continue.
             </p>
           </div>
         </div>
@@ -199,6 +201,7 @@ export function PaymentMethodSelector({
             onClick={() => {
               setError("");
               setMethod("online");
+              setShowNewPayment(true);
             }}
             className="w-full"
           >
