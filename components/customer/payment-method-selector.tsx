@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Banknote,
@@ -67,7 +67,22 @@ export function PaymentMethodSelector({
   const [method, setMethod] = useState<PaymentMethod>(initialMethod);
 
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
+
+  /*
+   * Keep the selected method synchronized with
+   * the latest payment returned by the server.
+   */
+  useEffect(() => {
+    const latestMethod = payment?.payment_method ?? null;
+
+    if (isPaymentMethod(latestMethod)) {
+      setMethod(latestMethod);
+    } else {
+      setMethod("online");
+    }
+  }, [payment?.payment_method]);
 
   async function handleContinue() {
     setLoading(true);
@@ -87,13 +102,14 @@ export function PaymentMethodSelector({
        */
       if (method === "online" && result.authorizationUrl) {
         window.location.href = result.authorizationUrl;
+
         return;
       }
 
       /*
        * Cash / Pay on delivery.
        *
-       * Reload so the newly-created payment record
+       * Reload so the updated payment record
        * is displayed immediately.
        */
       window.location.reload();
@@ -176,58 +192,18 @@ export function PaymentMethodSelector({
             </p>
           </div>
         </div>
-      </div>
-    );
-  }
 
-  /* =======================================================
-     PENDING PAYMENT
-  ======================================================= */
-
-  if (payment?.payment_status === "pending") {
-    return (
-      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100">
-            <Loader2 className="h-5 w-5 text-blue-600" />
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-blue-900">Payment pending</h3>
-
-            <p className="mt-1 text-sm text-blue-700">
-              Your selected payment method is being processed.
-            </p>
-
-            <p className="mt-2 text-sm font-medium text-blue-900">
-              {getPaymentMethodLabel(payment.payment_method)}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  /* =======================================================
-     PAYMENT FAILED
-  ======================================================= */
-
-  if (payment?.payment_status === "failed") {
-    return (
-      <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100">
-            <AlertCircle className="h-5 w-5 text-rose-600" />
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-rose-900">Payment failed</h3>
-
-            <p className="mt-1 text-sm text-rose-700">
-              Your previous payment attempt was not completed. You can try again
-              below.
-            </p>
-          </div>
+        <div className="mt-4">
+          <Button
+            type="button"
+            onClick={() => {
+              setError("");
+              setMethod("online");
+            }}
+            className="w-full"
+          >
+            Make a new payment
+          </Button>
         </div>
       </div>
     );
@@ -235,6 +211,16 @@ export function PaymentMethodSelector({
 
   /* =======================================================
      PAYMENT SELECTION
+     
+     IMPORTANT:
+     Pending payments remain editable.
+     
+     This allows the customer to change:
+     Online → Cash
+     Cash → Pay on delivery
+     Pay on delivery → Online
+     
+     Only "paid" is locked.
   ======================================================= */
 
   return (
@@ -247,16 +233,33 @@ export function PaymentMethodSelector({
         <p className="mt-1 text-sm text-slate-500">
           Choose how you would like to pay.
         </p>
+
+        {payment?.payment_status === "pending" && payment.payment_method && (
+          <p className="mt-2 text-xs text-blue-600">
+            Current method:{" "}
+            <span className="font-medium">
+              {getPaymentMethodLabel(payment.payment_method)}
+            </span>
+            . You can change it before payment is completed.
+          </p>
+        )}
       </div>
 
+      {/* Error */}
+
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-          {error}
+        <div className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+
+          <span>{error}</span>
         </div>
       )}
 
+      {/* Payment options */}
+
       <div className="grid gap-3">
         {/* Online */}
+
         <button
           type="button"
           onClick={() => setMethod("online")}
@@ -278,9 +281,14 @@ export function PaymentMethodSelector({
               Pay securely with your card or bank.
             </p>
           </div>
+
+          {method === "online" && (
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-blue-600" />
+          )}
         </button>
 
         {/* Cash */}
+
         <button
           type="button"
           onClick={() => setMethod("cash")}
@@ -302,9 +310,14 @@ export function PaymentMethodSelector({
               Pay with cash according to your shipment arrangements.
             </p>
           </div>
+
+          {method === "cash" && (
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-blue-600" />
+          )}
         </button>
 
         {/* Pay on delivery */}
+
         <button
           type="button"
           onClick={() => setMethod("pay_on_delivery")}
@@ -326,8 +339,14 @@ export function PaymentMethodSelector({
               Pay when your shipment is delivered.
             </p>
           </div>
+
+          {method === "pay_on_delivery" && (
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-blue-600" />
+          )}
         </button>
       </div>
+
+      {/* Amount */}
 
       <div className="rounded-xl bg-slate-50 p-4">
         <div className="flex items-center justify-between">
@@ -339,19 +358,24 @@ export function PaymentMethodSelector({
         </div>
       </div>
 
+      {/* Continue */}
+
       <Button
         type="button"
+        variant="outline"
         onClick={handleContinue}
         disabled={loading}
-        className="w-full"
+        className="w-full bg-emerald-500 border-emerald-200 text-white hover:bg-emerald-600 hover:text-emerald-900"
       >
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Processing...
           </>
+        ) : method === "online" ? (
+          "Continue to online payment"
         ) : (
-          "Continue to payment"
+          `Select ${getPaymentMethodLabel(method)}`
         )}
       </Button>
     </div>
