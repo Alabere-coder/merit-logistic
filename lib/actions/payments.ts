@@ -1,8 +1,8 @@
 "use server";
 
-import { requireRole } from "@/lib/auth/require-role";
 import { revalidatePath } from "next/cache";
 
+import { requireRole } from "@/lib/auth/require-role";
 
 type PaymentMethod = "online" | "cash" | "pay_on_delivery";
 
@@ -12,26 +12,58 @@ export async function initializePayment(
 ) {
   const { user, supabase } = await requireRole(["customer"]);
 
-  // Get the customer's shipment
+  /* =======================================================
+     VALIDATE PAYMENT METHOD
+  ======================================================= */
+
+  const allowedMethods: PaymentMethod[] = ["online", "cash", "pay_on_delivery"];
+
+  if (!allowedMethods.includes(paymentMethod)) {
+    return {
+      error: "Invalid payment method.",
+    };
+  }
+
+  /* =======================================================
+     GET CUSTOMER SHIPMENT
+  ======================================================= */
+
   const { data: shipment, error: shipmentError } = await supabase
     .from("shipments")
-    .select("id, tracking_number, price, customer_id, status")
+    .select(
+      `
+          id,
+          tracking_number,
+          price,
+          customer_id,
+          status
+        `,
+    )
     .eq("id", shipmentId)
     .eq("customer_id", user.id)
     .single();
 
   if (shipmentError || !shipment) {
+    console.error("PAYMENT SHIPMENT LOOKUP ERROR:", shipmentError);
+
     return {
       error: "Shipment not found.",
     };
   }
 
-  // Don't allow payment for cancelled shipments
+  /* =======================================================
+     CANCELLED SHIPMENT
+  ======================================================= */
+
   if (shipment.status === "cancelled") {
     return {
       error: "This shipment has been cancelled.",
     };
   }
+
+  /* =======================================================
+     VALIDATE AMOUNT
+  ======================================================= */
 
   const amount = Number(shipment.price);
 
@@ -41,70 +73,72 @@ export async function initializePayment(
     };
   }
 
-  // Get the existing payment for this shipment.
-  // Because shipment_id is now UNIQUE, there can only be one.
-  const { data: existingPayment, error: existingPaymentError } =
-    await supabase
-      .from("payments")
-      .select(
-        "id, payment_status, payment_method, transaction_reference",
-      )
-      .eq("shipment_id", shipment.id)
-      .eq("customer_id", user.id)
-      .maybeSingle();
+  /* =======================================================
+     GET EXISTING PAYMENT
+  ======================================================= */
+
+  const { data: existingPayment, error: existingPaymentError } = await supabase
+    .from("payments")
+    .select(
+      `
+        id,
+        payment_status,
+        payment_method,
+        transaction_reference
+      `,
+    )
+    .eq("shipment_id", shipment.id)
+    .eq("customer_id", user.id)
+    .maybeSingle();
 
   if (existingPaymentError) {
-    console.error("Existing payment lookup error:", existingPaymentError);
+    console.error("EXISTING PAYMENT LOOKUP ERROR:", existingPaymentError);
 
     return {
       error: "Unable to check existing payment.",
     };
   }
 
-  // Don't pay again if already paid
+  /* =======================================================
+     PAID PAYMENTS ARE LOCKED
+  ======================================================= */
+
   if (existingPayment?.payment_status === "paid") {
     return {
       error: "This shipment has already been paid for.",
     };
   }
 
-  /*
-   * CASH
-   *
-   * Create or update the single payment record.
-   */
+  /* =======================================================
+     CASH
+  ======================================================= */
+
   if (paymentMethod === "cash") {
-    const reference =
-      existingPayment?.transaction_reference ??
-      `CASH-${shipment.tracking_number}-${Date.now()}`;
+    const paymentData = {
+      customer_id: user.id,
+      shipment_id: shipment.id,
+      amount,
+      payment_status: "pending",
+      payment_method: "cash",
+      transaction_reference: null,
+    };
 
     const { error: paymentError } = await supabase
       .from("payments")
-      .upsert(
-        {
-          customer_id: user.id,
-          shipment_id: shipment.id,
-          amount,
-          payment_status: "pending",
-          payment_method: "cash",
-          transaction_reference: reference,
-        },
-        {
-          onConflict: "shipment_id",
-        },
-      );
+      .upsert(paymentData, {
+        onConflict: "shipment_id",
+      });
 
     if (paymentError) {
       console.error("CASH PAYMENT ERROR:", paymentError);
 
       return {
-        error: paymentError.message,
+        error: "Unable to select cash payment.",
       };
     }
 
-    revalidatePath(
-      `/customer/shipments/${shipment.tracking_number}`,
-    );
+    revalidatePath(`/customer/shipments/${shipment.tracking_number}`);
+
     revalidatePath("/customer/payments");
     revalidatePath("/admin/payments");
 
@@ -114,40 +148,36 @@ export async function initializePayment(
     };
   }
 
-  /*
-   * PAY ON DELIVERY
-   *
-   * Create or update the single payment record.
-   */
+  /* =======================================================
+     PAY ON DELIVERY
+  ======================================================= */
+
   if (paymentMethod === "pay_on_delivery") {
+    const paymentData = {
+      customer_id: user.id,
+      shipment_id: shipment.id,
+      amount,
+      payment_status: "pending",
+      payment_method: "pay_on_delivery",
+      transaction_reference: null,
+    };
+
     const { error: paymentError } = await supabase
       .from("payments")
-      .upsert(
-        {
-          customer_id: user.id,
-          shipment_id: shipment.id,
-          amount,
-          payment_status: "pending",
-          payment_method: "pay_on_delivery",
-          transaction_reference:
-            existingPayment?.transaction_reference ?? null,
-        },
-        {
-          onConflict: "shipment_id",
-        },
-      );
+      .upsert(paymentData, {
+        onConflict: "shipment_id",
+      });
 
     if (paymentError) {
       console.error("PAY ON DELIVERY ERROR:", paymentError);
 
       return {
-        error: paymentError.message,
+        error: "Unable to select pay on delivery.",
       };
     }
 
-    revalidatePath(
-      `/customer/shipments/${shipment.tracking_number}`,
-    );
+    revalidatePath(`/customer/shipments/${shipment.tracking_number}`);
+
     revalidatePath("/customer/payments");
     revalidatePath("/admin/payments");
 
@@ -157,58 +187,70 @@ export async function initializePayment(
     };
   }
 
-  /*
-   * ONLINE / PAYSTACK
-   */
+  /* =======================================================
+     ONLINE / PAYSTACK
+  ======================================================= */
 
   if (paymentMethod === "online") {
-    /*
-     * Reuse the existing Paystack reference if this payment
-     * already has one.
-     *
-     * Otherwise create a new reference.
-     */
-    const reference =
-      existingPayment?.transaction_reference &&
-      existingPayment.payment_method === "online"
-        ? existingPayment.transaction_reference
-        : `SWS-${shipment.tracking_number}-${Date.now()}`;
+    const paystackSecret = process.env.PAYSTACK_SECRET_KEY;
+
+    if (!paystackSecret) {
+      console.error("PAYSTACK_SECRET_KEY is not configured.");
+
+      return {
+        error: "Online payment is temporarily unavailable.",
+      };
+    }
 
     /*
-     * Create or update the single payment row.
+     * Always create a NEW reference when starting
+     * an online payment attempt.
+     *
+     * Do NOT reuse an old reference from a previous
+     * failed/refunded/abandoned attempt.
      */
-    const { error: paymentError } = await supabase
-      .from("payments")
-      .upsert(
-        {
-          customer_id: user.id,
-          shipment_id: shipment.id,
-          amount,
-          payment_status: "pending",
-          payment_method: "online",
-          transaction_reference: reference,
-        },
-        {
-          onConflict: "shipment_id",
-        },
-      );
+
+    const reference = `SWS-${shipment.tracking_number}-${Date.now()}`;
+
+    /* -----------------------------------------------------
+       First update/create the payment record
+    ----------------------------------------------------- */
+
+    const { error: paymentError } = await supabase.from("payments").upsert(
+      {
+        customer_id: user.id,
+        shipment_id: shipment.id,
+        amount,
+        payment_status: "pending",
+        payment_method: "online",
+        transaction_reference: reference,
+      },
+      {
+        onConflict: "shipment_id",
+      },
+    );
 
     if (paymentError) {
       console.error("CREATE ONLINE PAYMENT ERROR:", paymentError);
 
       return {
-        error: paymentError.message,
+        error: "Unable to initialize online payment.",
       };
     }
 
+    /* -----------------------------------------------------
+       Initialize Paystack
+    ----------------------------------------------------- */
+
     const amountInKobo = Math.round(amount * 100);
 
-    const response = await fetch(
-      "https://api.paystack.co/transaction/initialize",
-      {
+    let response: Response;
+
+    try {
+      response = await fetch("https://api.paystack.co/transaction/initialize", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          Authorization: `Bearer ${paystackSecret}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -222,10 +264,50 @@ export async function initializePayment(
             customer_id: user.id,
           },
         }),
-      },
-    );
+      });
+    } catch (error) {
+      console.error("PAYSTACK REQUEST ERROR:", error);
 
-    const result = await response.json();
+      await supabase
+        .from("payments")
+        .update({
+          payment_status: "failed",
+        })
+        .eq("shipment_id", shipment.id)
+        .eq("customer_id", user.id);
+
+      return {
+        error: "Unable to connect to the payment provider. Please try again.",
+      };
+    }
+
+    /* -----------------------------------------------------
+       Parse Paystack response
+    ----------------------------------------------------- */
+
+    let result: any;
+
+    try {
+      result = await response.json();
+    } catch (error) {
+      console.error("PAYSTACK RESPONSE PARSE ERROR:", error);
+
+      await supabase
+        .from("payments")
+        .update({
+          payment_status: "failed",
+        })
+        .eq("shipment_id", shipment.id)
+        .eq("customer_id", user.id);
+
+      return {
+        error: "Invalid response from payment provider.",
+      };
+    }
+
+    /* -----------------------------------------------------
+       Paystack initialization failed
+    ----------------------------------------------------- */
 
     if (!response.ok || !result.status) {
       console.error("PAYSTACK INITIALIZATION ERROR:", result);
@@ -243,16 +325,20 @@ export async function initializePayment(
       };
     }
 
-    revalidatePath(
-      `/customer/shipments/${shipment.tracking_number}`,
-    );
+    /* =====================================================
+       SUCCESS
+    ===================================================== */
+
+    revalidatePath(`/customer/shipments/${shipment.tracking_number}`);
+
     revalidatePath("/customer/payments");
+    revalidatePath("/admin/payments");
 
     return {
       success: true,
       method: "online" as const,
       authorizationUrl: result.data.authorization_url,
-      reference: result.data.reference,
+      reference: result.data.reference ?? reference,
     };
   }
 
