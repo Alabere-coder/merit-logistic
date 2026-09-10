@@ -10,6 +10,7 @@ import {
   Settings,
   KeyRound,
 } from "lucide-react";
+import { NotificationSettings } from "@/components/notifications/notification-settings";
 
 export default async function CustomerSettingsPage() {
   const { profile } = await requireRole(["customer"]);
@@ -32,6 +33,8 @@ export default async function CustomerSettingsPage() {
           </div>
         </div>
       </div>
+
+      <NotificationSettings />
 
       <div className="space-y-6">
         {/* Profile Card - Blue Theme */}

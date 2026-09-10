@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/require-role";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendPushNotificationToUser } from "@/lib/notifications/send-push-notification";
 
 export type NotificationType =
   | "general"
@@ -62,25 +63,14 @@ export async function createNotification({
       paymentId,
       supportTicketId,
     });
+
     await requireRole(["admin", "driver", "customer"]);
 
-    /*
-     * =======================================================
-     * CHECK RECIPIENT NOTIFICATION PREFERENCE
-     *
-     * Notification preferences belong to the recipient,
-     * not the person creating the notification.
-     *
-     * Example:
-     * Admin A disables shipment_delivered
-     * Admin B enables shipment_delivered
-     *
-     * A will not receive it.
-     * B will receive it.
-     * =======================================================
-     */
-
     const adminSupabase = createAdminClient();
+
+    /* =======================================================
+       GET RECIPIENT
+    ======================================================= */
 
     const { data: recipient, error: recipientError } = await adminSupabase
       .from("users")
@@ -96,14 +86,9 @@ export async function createNotification({
       };
     }
 
-    /*
-     * =======================================================
-     * GENERAL NOTIFICATIONS
-     *
-     * "general" does not have a corresponding preference
-     * column, so it should always be allowed.
-     * =======================================================
-     */
+    /* =======================================================
+       CHECK RECIPIENT NOTIFICATION PREFERENCE
+    ======================================================= */
 
     if (type !== "general") {
       const { data: settings, error: settingsError } = await adminSupabase
@@ -112,41 +97,20 @@ export async function createNotification({
         .eq("user_id", userId)
         .maybeSingle();
 
-      /*
-       * If the recipient has no settings row yet, use the
-       * default behavior: notifications are enabled.
-       *
-       * This is important because existing customers,
-       * drivers, or admins may not have a settings row.
-       */
       if (settingsError) {
         console.error("GET NOTIFICATION SETTINGS ERROR:", {
           userId,
           type,
           error: settingsError,
         });
-
-        /*
-         * Do not break the actual business operation just
-         * because notification preferences could not be read.
-         *
-         * Fall through and create the notification.
-         */
       } else if (settings) {
         const preference = settings[type];
 
         /*
-         * Only explicitly false disables a notification.
-         *
-         * This means:
-         *   true      -> send
-         *   false     -> don't send
-         *   undefined -> send
-         *
-         * The undefined case protects us if a new notification
-         * type is introduced before the settings table is
-         * updated.
+         * Only explicitly false disables
+         * the notification.
          */
+
         if (preference === false) {
           console.log("NOTIFICATION SKIPPED BY USER PREFERENCE:", {
             userId,
@@ -163,21 +127,9 @@ export async function createNotification({
       }
     }
 
-    /*
-     * =======================================================
-     * CREATE NOTIFICATION
-     * =======================================================
-     */
-
-    console.log("CREATE NOTIFICATION DEBUG:", {
-      userId,
-      role: recipient.role,
-      title,
-      type,
-      shipmentId,
-      paymentId,
-      supportTicketId,
-    });
+    /* =======================================================
+       CREATE IN-APP NOTIFICATION
+    ======================================================= */
 
     const { data, error } = await adminSupabase
       .from("notifications")
@@ -194,24 +146,123 @@ export async function createNotification({
       .select()
       .single();
 
-    if (error) {
+    if (error || !data) {
       console.error("CREATE NOTIFICATION ERROR:", error);
 
       return {
-        error: error.message,
+        error: error?.message ?? "Unable to create notification.",
       };
     }
 
     console.log("CREATED NOTIFICATION:", data);
 
-    /*
-     * Revalidate all role notification pages.
-     *
-     * The notification belongs to the recipient, so we
-     * don't need to know the caller's role here.
-     */
+    /* =======================================================
+       BUILD NOTIFICATION CLICK URL
+    ======================================================= */
+
+    let notificationUrl = `/${recipient.role}/notifications`;
+
+    /* -------------------------------------------------------
+       Shipment notification
+
+       Customer shipment pages use trackingNumber,
+       not shipment UUID.
+    ------------------------------------------------------- */
+
+    if (shipmentId) {
+      const { data: shipment, error: shipmentError } = await adminSupabase
+        .from("shipments")
+        .select("id, tracking_number")
+        .eq("id", shipmentId)
+        .maybeSingle();
+
+      if (shipmentError) {
+        console.error(
+          "GET SHIPMENT FOR NOTIFICATION URL ERROR:",
+          shipmentError,
+        );
+      }
+
+      if (shipment) {
+        if (recipient.role === "customer") {
+          notificationUrl = `/customer/shipments/${encodeURIComponent(
+            shipment.tracking_number,
+          )}`;
+        } else if (recipient.role === "driver") {
+          /*
+           * Keep driver shipment routing
+           * based on the shipment ID.
+           *
+           * If your actual driver route uses
+           * tracking_number, change this later.
+           */
+          notificationUrl = `/driver/deliveries/${shipment.id}`;
+        } else if (recipient.role === "admin") {
+          notificationUrl = `/admin/shipments/${shipment.id}`;
+        }
+      }
+    } else if (paymentId) {
+      /* -------------------------------------------------------
+       Payment notification
+    ------------------------------------------------------- */
+      if (recipient.role === "admin") {
+        notificationUrl = `/admin/payments/${paymentId}`;
+      } else {
+        notificationUrl = `/${recipient.role}/payments`;
+      }
+    } else if (supportTicketId) {
+      /* -------------------------------------------------------
+       Support ticket notification
+    ------------------------------------------------------- */
+      if (recipient.role === "admin") {
+        notificationUrl = `/admin/support/${supportTicketId}`;
+      } else {
+        notificationUrl = `/${recipient.role}/support/${supportTicketId}`;
+      }
+    }
+
+    /* =======================================================
+       SEND WEB PUSH
+    ======================================================= */
+
+    try {
+      const pushResult = await sendPushNotificationToUser(userId, {
+        title,
+        message,
+        url: notificationUrl,
+        notificationId: data.id,
+        shipmentId,
+        paymentId,
+        supportTicketId,
+      });
+
+      console.log("PUSH NOTIFICATION RESULT:", {
+        userId,
+        type,
+        notificationUrl,
+        ...pushResult,
+      });
+    } catch (pushError) {
+      /*
+       * Push failure must never cause the
+       * database notification to fail.
+       */
+
+      console.error("PUSH NOTIFICATION ERROR:", {
+        userId,
+        type,
+        error: pushError,
+      });
+    }
+
+    /* =======================================================
+       REVALIDATE NOTIFICATION PAGES
+    ======================================================= */
+
     revalidatePath("/admin/notifications");
+
     revalidatePath("/driver/notifications");
+
     revalidatePath("/customer/notifications");
 
     return {

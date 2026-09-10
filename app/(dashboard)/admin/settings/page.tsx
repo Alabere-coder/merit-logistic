@@ -31,6 +31,7 @@ import {
   Palette,
   Globe2,
 } from "lucide-react";
+import { NotificationSettings } from "@/components/notifications/notification-settings";
 
 export default async function AdminSettingsPage() {
   const { profile } = await requireRole(["admin"]);
@@ -235,6 +236,8 @@ export default async function AdminSettingsPage() {
           </div>
         </div>
       </div>
+
+      <NotificationSettings />
 
       {/* =====================================================
           COMPANY INFORMATION

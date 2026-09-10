@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ProfileForm } from "@/components/shared/profile-form";
 import { Badge } from "@/components/ui/badge";
 import { ChangePasswordForm } from "@/components/shared/change-password-form";
+import { NotificationSettings } from "@/components/notifications/notification-settings";
 
 export default async function DriverSettingsPage() {
   const { profile, user, supabase } = await requireRole(["driver"]);
@@ -22,6 +23,8 @@ export default async function DriverSettingsPage() {
           Update your contact information.
         </p>
       </div>
+
+      <NotificationSettings />
 
       <Card>
         <CardHeader>
