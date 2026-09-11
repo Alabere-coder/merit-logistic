@@ -84,7 +84,6 @@ export function DashboardShell({
   const { pending } = useFormStatus();
 
   const SidebarContent = (
-    // <div className="flex h-full flex-col justify-between">
     <div className="flex min-h-0 flex-1 flex-col justify-between">
       {/* Brand Logo Header */}
       <div className="flex items-center justify-between px-6 pt-6">
@@ -112,7 +111,7 @@ export function DashboardShell({
       </div>
 
       {/* Navigation Links */}
-      {/* Navigation + scrolling */}
+
       <div className="min-h-0 flex-1 overflow-hidden">
         <nav className="h-full overflow-y-auto space-y-1.5 px-3 py-6">
           {navItems.map((item) => {
@@ -176,10 +175,6 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen bg-slate-50 lg:flex">
-      {/* Desktop Sidebar */}
-      {/* <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex">
-        {SidebarContent}
-      </aside> */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex">
         {SidebarContent}
       </aside>
