@@ -103,7 +103,7 @@ export default async function AdminLayout({
   return (
     <DashboardShell
       navItems={navItems}
-      roleLabel="Administrator"
+      roleLabel="admin"
       user={{
         firstName: profile.first_name,
         lastName: profile.last_name,

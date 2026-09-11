@@ -43,7 +43,7 @@ export default async function DriverLayout({
   return (
     <DashboardShell
       navItems={navItems}
-      roleLabel="Driver"
+      roleLabel="driver"
       user={{
         firstName: profile.first_name,
         lastName: profile.last_name,

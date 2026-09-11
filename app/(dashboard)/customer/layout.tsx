@@ -53,7 +53,7 @@ export default async function CustomerLayout({
   return (
     <DashboardShell
       navItems={navItems}
-      roleLabel="Customer"
+      roleLabel="customer"
       user={{
         firstName: profile.first_name,
         lastName: profile.last_name,

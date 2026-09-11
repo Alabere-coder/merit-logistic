@@ -33,6 +33,7 @@ import { logOut } from "@/lib/actions/auth";
 import { Button } from "../ui/button";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
 import { useFormStatus } from "react-dom";
+import { UserAccountProfile } from "./user-account";
 
 export type NavItem = {
   href: string;
@@ -83,45 +84,41 @@ export function DashboardShell({
   const { pending } = useFormStatus();
 
   const SidebarContent = (
-    <div className="flex h-full flex-col justify-between">
-      <div className="space-y-6">
-        {/* Brand Logo Header */}
-        <div className="flex items-center justify-between px-6 pt-6">
-          <Link
-            href="/"
-            className="flex items-center gap-3 font-display text-lg font-bold text-white"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-tr from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20">
-              <PackageSearch className="h-5 w-5" strokeWidth={2.2} />
-            </span>
-            <span className="tracking-tight">
-              AMANAH<span className="text-blue-400">PLUS</span>
-            </span>
-          </Link>
-          {/* Mobile Close Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setMobileOpen(false)}
-            className="text-slate-200 hover:bg-slate-800 hover:text-white lg:hidden"
-            aria-label="Close menu"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-
-        {/* Role Badge */}
-        {/* <div className="px-6">
-          <span className="inline-block rounded-full bg-blue-500/10 px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-blue-400 ring-1 ring-inset ring-blue-400/20">
-            {roleLabel}
+    // <div className="flex h-full flex-col justify-between">
+    <div className="flex min-h-0 flex-1 flex-col justify-between">
+      {/* Brand Logo Header */}
+      <div className="flex items-center justify-between px-6 pt-6">
+        <Link
+          href="/"
+          className="flex items-center gap-3 font-display text-lg font-bold text-white"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-tr from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20">
+            <PackageSearch className="h-5 w-5" strokeWidth={2.2} />
           </span>
-        </div> */}
+          <span className="tracking-tight">
+            AMANAH<span className="text-blue-400">PLUS</span>
+          </span>
+        </Link>
+        {/* Mobile Close Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setMobileOpen(false)}
+          className="text-slate-200 hover:bg-slate-800 hover:text-white lg:hidden"
+          aria-label="Close menu"
+        >
+          <X className="h-5 w-5" />
+        </Button>
+      </div>
 
-        {/* Navigation Links */}
-        <nav className="space-y-1.5 px-3">
+      {/* Navigation Links */}
+      {/* Navigation + scrolling */}
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <nav className="h-full overflow-y-auto space-y-1.5 px-3 py-6">
           {navItems.map((item) => {
             const active = pathname === item.href;
             const Icon = icons[item.icon];
+
             return (
               <Link
                 key={item.href}
@@ -142,6 +139,7 @@ export function DashboardShell({
                       : "text-slate-400 group-hover:text-slate-200",
                   )}
                 />
+
                 {item.label}
               </Link>
             );
@@ -150,7 +148,7 @@ export function DashboardShell({
       </div>
 
       {/* User Footer */}
-      <div className="border-t border-slate-800/80 p-4">
+      {/* <div className="border-t border-slate-800/80 p-4">
         <div className="flex items-center gap-3 rounded-xl border border-slate-700/40 bg-slate-800/40 p-2.5">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-xs font-bold text-white shadow-2xs">
             {initials(user.firstName, user.lastName)}
@@ -163,7 +161,7 @@ export function DashboardShell({
           </div>
         </div>
 
-        {/* Trigger Logout Modal */}
+        
         <button
           type="button"
           onClick={() => setShowLogoutModal(true)}
@@ -172,14 +170,17 @@ export function DashboardShell({
           <LogOut className="h-4 w-4" />
           Log out
         </button>
-      </div>
+      </div> */}
     </div>
   );
 
   return (
     <div className="min-h-screen bg-slate-50 lg:flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex">
+      {/* <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex">
+        {SidebarContent}
+      </aside> */}
+      <aside className="fixed inset-y-0 left-0 hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex">
         {SidebarContent}
       </aside>
 
@@ -199,37 +200,50 @@ export function DashboardShell({
       )}
 
       {/* Main Content Area */}
-      <div className="flex min-h-screen flex-1 flex-col bg-slate-50/60">
+      {/* <div className="flex min-h-screen flex-1 flex-col bg-slate-50/60"> */}
+      <div className="flex min-h-screen flex-1 flex-col bg-slate-50/60 lg:ml-64">
         {/* Top Header */}
         <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/80 px-4 backdrop-blur-md transition-all sm:px-6 lg:px-8">
           {/* Mobile Menu Trigger */}
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 rounded-xl text-slate-700 transition-all hover:bg-slate-100 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:hidden"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open menu"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </div>
+          <div className="flex items-center">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-xl text-slate-700 transition-all hover:bg-slate-100 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:hidden"
+                onClick={() => setMobileOpen(true)}
+                aria-label="Open menu"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </div>
 
-          {/* Role Badge Indicator */}
-          <div className="flex items-center justify-start">
-            {/* <span>
+            {/* Role Badge Indicator */}
+            <div className="flex items-center justify-start">
+              {/* <span>
               {user.firstName} {user.lastName}
             </span> */}
-            <h1 className="inline-flex px-3 py-1 font-mono text-md sm:text-xl font-bold uppercase tracking-wider text-blue-700">
-              {roleLabel}
-            </h1>
+              <h1 className="inline-flex px-3 py-1 font-mono text-md sm:text-xl font-bold uppercase tracking-wider text-blue-700">
+                {roleLabel}
+              </h1>
+            </div>
           </div>
 
           {/* Profile Action */}
-          <div></div>
-          {/* Notifications Action */}
-          <div className="flex items-center justify-end gap-2">
-            <NotificationBell />
+          <div className="flex items-center gap-4">
+            {/* Notifications Action */}
+            <div className="flex items-center justify-end gap-2">
+              <NotificationBell />
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <UserAccountProfile
+                firstName={user.firstName}
+                lastName={user.lastName}
+                email={user.email}
+                settingsHref={`/${roleLabel}/settings`}
+                onLogout={() => setShowLogoutModal(true)}
+              />
+            </div>
           </div>
         </header>
 
