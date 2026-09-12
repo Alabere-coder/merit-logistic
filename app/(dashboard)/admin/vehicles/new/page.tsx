@@ -10,7 +10,8 @@ export default async function AddVehiclePage() {
 
   const driversResult = await getVehicleDrivers();
 
-  const drivers = "success" in driversResult ? driversResult.drivers ?? [] : [];
+  const drivers =
+    "success" in driversResult ? (driversResult.drivers ?? []) : [];
 
   return (
     <div className="space-y-6">
@@ -26,7 +27,7 @@ export default async function AddVehiclePage() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-blue-100 p-2.5 text-blue-600">
+            <div className="rounded-xl bg-blue-100 p-2.5 text-cyan-600">
               <Truck className="h-5 w-5" />
             </div>
 

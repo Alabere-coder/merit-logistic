@@ -56,7 +56,7 @@ export function DeliveryPerformance({ data }: DeliveryPerformanceProps) {
             className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
-              <Icon className="h-5 w-5 text-slate-700" />
+              <Icon className="h-5 w-5 text-cyan-600" />
             </div>
 
             <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">

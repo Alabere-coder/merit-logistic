@@ -27,6 +27,7 @@ import {
   DollarSign,
   MapPin,
   LifeBuoy,
+  Loader2,
 } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
 import { logOut } from "@/lib/actions/auth";
@@ -91,11 +92,11 @@ export function DashboardShell({
           href="/"
           className="flex items-center gap-3 font-display text-lg font-bold text-white"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-tr from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400 text-white shadow-md shadow-blue-500/20">
             <PackageSearch className="h-5 w-5" strokeWidth={2.2} />
           </span>
-          <span className="tracking-tight">
-            AMANAH<span className="text-blue-400">PLUS</span>
+          <span className="tracking-tight text-slate-500">
+            AMANAH<span className="text-cyan-400">PLUS</span>
           </span>
         </Link>
         {/* Mobile Close Button */}
@@ -103,7 +104,7 @@ export function DashboardShell({
           variant="ghost"
           size="icon"
           onClick={() => setMobileOpen(false)}
-          className="text-slate-200 hover:bg-slate-800 hover:text-white lg:hidden"
+          className="text-cyan-500 hover:bg-cyan-600 hover:text-white lg:hidden"
           aria-label="Close menu"
         >
           <X className="h-5 w-5" />
@@ -124,10 +125,10 @@ export function DashboardShell({
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150",
+                  "group flex items-center gap-3 rounded-xl px-3.5 py-1.5 text-sm font-medium transition-all duration-150",
                   active
-                    ? "bg-blue-500 font-semibold text-white shadow-md shadow-blue-600/20"
-                    : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200",
+                    ? "bg-cyan-500 font-medium text-white shadow-md shadow-blue-600/20 "
+                    : "text-slate-400 hover:bg-slate-200 hover:text-slate-500",
                 )}
               >
                 <Icon
@@ -135,7 +136,7 @@ export function DashboardShell({
                     "h-4.5 w-4.5 transition-colors",
                     active
                       ? "text-white"
-                      : "text-slate-400 group-hover:text-slate-200",
+                      : "text-slate-400 group-hover:text-slate-500",
                   )}
                 />
 
@@ -175,7 +176,7 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen bg-slate-50 lg:flex">
-      <aside className="fixed inset-y-0 left-0 hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 shrink-0 border-r border-slate-800 bg-white lg:flex">
         {SidebarContent}
       </aside>
 
@@ -188,7 +189,7 @@ export function DashboardShell({
             onClick={() => setMobileOpen(false)}
           />
           {/* Drawer */}
-          <aside className="relative flex h-full w-72 flex-col rounded-r-xl bg-slate-800 shadow-2xl">
+          <aside className="relative flex h-full w-72 flex-col rounded-r-xl bg-white shadow-2xl">
             {SidebarContent}
           </aside>
         </div>
@@ -205,7 +206,7 @@ export function DashboardShell({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-xl text-slate-700 transition-all hover:bg-slate-100 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:hidden"
+                className="h-9 w-9 rounded-xl text-cyan-600 ring-1 transition-all hover:bg-slate-100 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:hidden"
                 onClick={() => setMobileOpen(true)}
                 aria-label="Open menu"
               >
@@ -218,9 +219,9 @@ export function DashboardShell({
               {/* <span>
               {user.firstName} {user.lastName}
             </span> */}
-              <h1 className="inline-flex px-3 py-1 font-mono text-md sm:text-xl font-bold uppercase tracking-wider text-blue-700">
+              {/* <h1 className="inline-flex px-3 py-1 font-mono text-md sm:text-xl font-bold uppercase tracking-wider text-cyan-600">
                 {roleLabel}
-              </h1>
+              </h1> */}
             </div>
           </div>
 
@@ -289,7 +290,14 @@ export function DashboardShell({
                   disabled={pending}
                   className="h-10 rounded-xl bg-rose-600 px-4 text-xs font-semibold text-white shadow-md transition-all hover:bg-rose-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {pending ? "Logging out..." : "Yes, Log out"}
+                  {pending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Logging out...
+                    </>
+                  ) : (
+                    "Yes, Log out"
+                  )}
                 </Button>
               </form>
             </div>

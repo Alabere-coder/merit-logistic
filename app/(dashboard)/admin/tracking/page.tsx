@@ -103,7 +103,7 @@ export default async function AdminTrackingPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+        <div className="flex items-center gap-2 text-sm text-cyan-600">
           <Package className="h-4 w-4" />
 
           <span>

@@ -96,7 +96,7 @@ export function SupportTicketActions({
               setStatus(event.target.value as SupportTicketStatus)
             }
             disabled={saving}
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {STATUSES.map((item) => (
               <option key={item} value={item}>
@@ -122,7 +122,7 @@ export function SupportTicketActions({
               setPriority(event.target.value as SupportTicketPriority)
             }
             disabled={saving}
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {PRIORITIES.map((item) => (
               <option key={item} value={item}>
@@ -146,7 +146,7 @@ export function SupportTicketActions({
             value={assignedTo}
             onChange={(event) => setAssignedTo(event.target.value)}
             disabled={saving}
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">Unassigned</option>
 
@@ -163,7 +163,7 @@ export function SupportTicketActions({
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-cyan-600 px-4 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin" />

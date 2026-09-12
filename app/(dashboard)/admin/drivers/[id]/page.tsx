@@ -114,15 +114,11 @@ export default async function AdminDriverDetailsPage({
             </div>
 
             <div>
-              <p className="text-sm font-medium text-brand-primary">
-                Driver profile
-              </p>
-
               <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-navy-900">
                 {driverName}
               </h1>
 
-              <p className="mt-1 text-sm text-navy-500">
+              <p className="mt-1 text-sm text-cyan-600">
                 Driver since {formatDate(driver.created_at)}
               </p>
             </div>
@@ -146,14 +142,14 @@ export default async function AdminDriverDetailsPage({
                 Driver information
               </h2>
 
-              <p className="mt-1 text-sm text-navy-500">
+              <p className="mt-1 text-sm text-cyan-600">
                 Contact and identification details.
               </p>
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-navy-50 p-2 text-navy-500">
+                <div className="rounded-lg bg-navy-50 p-2 text-cyan-600">
                   <Mail className="h-4 w-4" />
                 </div>
 
@@ -167,7 +163,7 @@ export default async function AdminDriverDetailsPage({
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-navy-50 p-2 text-navy-500">
+                <div className="rounded-lg bg-navy-50 p-2 text-cyan-600">
                   <Phone className="h-4 w-4" />
                 </div>
 
@@ -181,7 +177,7 @@ export default async function AdminDriverDetailsPage({
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-navy-50 p-2 text-navy-500">
+                <div className="rounded-lg bg-navy-50 p-2 text-cyan-600">
                   <ShieldCheck className="h-4 w-4" />
                 </div>
 
@@ -224,7 +220,7 @@ export default async function AdminDriverDetailsPage({
         <Card className="border border-navy-100/80 bg-white shadow-xs rounded-xl">
           <CardContent className="p-6">
             <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-lg bg-navy-50 p-2 text-navy-500">
+              <div className="rounded-lg bg-navy-50 p-2 text-cyan-600">
                 <MapPin className="h-4 w-4" />
               </div>
 
@@ -254,7 +250,7 @@ export default async function AdminDriverDetailsPage({
               </div>
             ) : (
               <div>
-                <div className="flex items-center gap-2 text-sm font-medium text-navy-500">
+                <div className="flex items-center gap-2 text-sm font-medium text-cyan-600">
                   <span className="h-2 w-2 rounded-full bg-navy-300" />
                   Not reporting
                 </div>
@@ -277,7 +273,7 @@ export default async function AdminDriverDetailsPage({
                 Assigned vehicle
               </h2>
 
-              <p className="mt-1 text-sm text-navy-500">
+              <p className="mt-1 text-sm text-cyan-600">
                 Vehicle currently assigned to this driver.
               </p>
             </div>
@@ -353,14 +349,14 @@ export default async function AdminDriverDetailsPage({
                 No vehicle assigned
               </p>
 
-              <p className="mt-1 max-w-sm text-xs text-navy-500">
+              <p className="mt-1 max-w-sm text-xs text-cyan-600">
                 This driver does not currently have a vehicle assigned. Assign
                 one from the Vehicles section.
               </p>
 
               <Link
                 href="/admin/vehicles"
-                className="mt-4 inline-flex items-center justify-center rounded-lg bg-brand-primary px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+                className="mt-4 inline-flex items-center justify-center rounded-lg bg-cyan-500 px-4 py-2 text-xs font-semibold text-white transition hover:opacity-80"
               >
                 View vehicles
               </Link>

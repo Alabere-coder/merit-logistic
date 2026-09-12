@@ -59,7 +59,7 @@ export default async function AdminPricingPage() {
       <Card className="overflow-hidden rounded-2xl border-slate-200/80 shadow-sm">
         <CardHeader className="border-b border-slate-100 bg-linear-to-r from-blue-50/70 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-blue-100 p-2.5 text-blue-600">
+            <div className="rounded-xl bg-blue-100 p-2.5 text-cyan-600">
               <DollarSign className="h-4 w-4" />
             </div>
 
@@ -84,7 +84,7 @@ export default async function AdminPricingPage() {
       <Card className="rounded-2xl border-slate-200/80 shadow-sm">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
-            <div className="rounded-xl bg-indigo-50 p-2.5 text-indigo-600">
+            <div className="rounded-xl bg-indigo-50 p-2.5 text-cyan-600">
               <Info className="h-5 w-5" />
             </div>
 

@@ -27,7 +27,7 @@ function SubmitButton() {
     <Button
       type="submit"
       disabled={pending}
-      className="h-10 w-full sm:w-auto rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
+      className="h-10 w-full sm:w-auto rounded-xl bg-cyan-600 font-semibold text-white shadow-md transition-all hover:bg-cyan-700 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
     >
       {pending ? (
         <>
@@ -88,7 +88,7 @@ export function CreateDriverForm() {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg active:scale-[0.99]"
+        className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2 text-xs font-bold text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg active:scale-[0.99]"
       >
         <UserPlus className="h-4 w-4 text-white" />
         Add driver
@@ -106,7 +106,7 @@ export function CreateDriverForm() {
           <Card className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xl flex flex-col backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 bg-linear-to-r from-slate-50/90 via-blue-50/30 to-indigo-50/20 px-6 py-4 sticky top-0 z-10">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-blue-500 to-indigo-600 text-white shadow-sm ring-2 ring-blue-200/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-sm ring-2 ring-blue-200/50">
                   <UserPlus className="h-5 w-5" />
                 </div>
                 <div>
@@ -123,7 +123,7 @@ export function CreateDriverForm() {
                 size="icon"
                 onClick={() => setOpen(false)}
                 aria-label="Close modal"
-                className="h-8 w-8 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                className="h-8 w-8 rounded-xl text-cyan-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
               >
                 <X className="h-4 w-4" />
               </Button>

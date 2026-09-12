@@ -65,12 +65,12 @@ export default async function ManageVehiclePage({
         </Link>
 
         <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-blue-100 p-2.5 text-blue-600">
+          <div className="rounded-xl bg-blue-100 p-2.5 text-cyan-600">
             <Truck className="h-5 w-5" />
           </div>
 
           <div>
-            <p className="text-sm font-medium text-blue-600">
+            <p className="text-sm font-medium text-cyan-600">
               {vehicle.vehicle_number}
             </p>
 

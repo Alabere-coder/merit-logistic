@@ -273,27 +273,10 @@ export function AddVehicleForm({ drivers }: AddVehicleFormProps) {
           Cancel
         </Link>
 
-        {/* <button
-          type="submit"
-          disabled={pending}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {pending ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Creating vehicle...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              Create vehicle
-            </>
-          )}
-        </button> */}
         <button
           type="submit"
           disabled={pending || !!state.success}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 text-sm font-semibold text-white transition hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {pending ? (
             <>

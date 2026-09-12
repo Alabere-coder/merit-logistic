@@ -69,8 +69,8 @@ export function StatCard({
   const theme = CARD_THEMES[normalizedLabel] || {
     bg: "hover:border-slate-300",
     iconBg:
-      "bg-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-colors duration-200",
-    iconColor: "text-slate-600",
+      "bg-slate-100 group-hover:bg-cyan-600 group-hover:text-white transition-colors duration-200",
+    iconColor: "text-cyan-600",
     border: "border-slate-200/80",
     badgeBg: "bg-slate-100",
     badgeText: "text-slate-700",

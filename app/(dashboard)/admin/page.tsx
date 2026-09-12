@@ -111,7 +111,7 @@ export default async function AdminOverviewPage() {
             </div>
             <Link
               href="/admin/shipments"
-              className="group inline-flex items-center gap-1.5 rounded-lg bg-blue-50/80 px-3 py-1.5 text-xs font-bold text-blue-700 transition-all hover:bg-blue-600 hover:text-white hover:shadow-sm"
+              className="group inline-flex items-center gap-1.5 rounded-lg bg-blue-50/80 px-3 py-1.5 text-xs font-bold text-cyan-700 transition-all hover:bg-cyan-600 hover:text-white hover:shadow-sm"
             >
               <span>View all</span>
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -159,9 +159,9 @@ export default async function AdminOverviewPage() {
         </Card>
 
         {/* Action Needed Card */}
-        <Card className="h-fit rounded-2xl border border-amber-200/50 bg-linear-to-b from-white via-amber-50/20 to-white shadow-sm backdrop-blur-sm">
+        <Card className="h-fit rounded-2xl bg-linear-to-b from-white via-amber-50/20 to-white shadow-sm backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center gap-3 border-b border-amber-100/60 bg-linear-to-r from-amber-50/60 via-orange-50/30 to-transparent px-6 py-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm ring-2 ring-amber-200/50">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-sm ring-2">
               <Clock className="h-4 w-4" />
             </div>
             <div>
@@ -176,12 +176,12 @@ export default async function AdminOverviewPage() {
 
           <CardContent className="space-y-4 p-6">
             {/* Metric Alert Block with Rich linear Blend */}
-            <div className="relative overflow-hidden rounded-xl border border-amber-300/60 bg-amber-500 p-4 text-white shadow-md">
+            <div className="relative overflow-hidden rounded-xl bg-amber-500 p-4 text-white shadow-md">
               <div className="pointer-events-none absolute -right-6 -bottom-6 h-24 w-24 rounded-full bg-white/10 blur-xl" />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-200" />
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-amber-100">
+                  <AlertTriangle className="h-4 w-4 text-white" />
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-white">
                     Pending Approval
                   </span>
                 </div>

@@ -104,7 +104,7 @@ export default async function AdminVehiclesPage({
       <div className="flex flex-col gap-4 border-b border-slate-200/80 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-tr from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-500/20">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-600 text-white shadow-md shadow-blue-500/20">
               <Truck className="h-5 w-5" />
             </div>
 
@@ -122,7 +122,7 @@ export default async function AdminVehiclesPage({
 
         <Link
           href="/admin/vehicles/new"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-70"
         >
           <Plus className="h-4 w-4" />
           Add vehicle
@@ -226,9 +226,9 @@ export default async function AdminVehiclesPage({
 
       {/* Vehicle Table */}
       <Card className="overflow-hidden border-slate-200/80 shadow-sm">
-        <CardHeader className="border-b border-slate-100 bg-linear-to-r from-blue-50/60 to-transparent">
+        <CardHeader className="border-b border-slate-100 bg-linear-to-r from-cyan-50/60 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-blue-100 p-2.5 text-blue-600">
+            <div className="rounded-xl bg-blue-100 p-2.5 text-cyan-600">
               <Truck className="h-4 w-4" />
             </div>
 
