@@ -40,7 +40,7 @@ export default async function AdminsPage() {
         </div>
 
         {isSuperAdmin && (
-          <Button className="shadow-sm transition-all hover:shadow bg-black text-white dark:bg-white/10 hover:bg-black/60 dark:hover:bg-white/5">
+          <Button className="shadow-sm transition-all hover:shadow bg-cyan-500 text-white dark:bg-white/10 hover:bg-cyan-600 dark:hover:bg-white/5">
             <Link href="/admin/users/admins/create">
               <span className="mr-1.5">+</span> Create Admin
             </Link>
