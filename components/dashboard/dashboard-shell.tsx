@@ -35,6 +35,7 @@ import { Button } from "../ui/button";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
 import { useFormStatus } from "react-dom";
 import { UserAccountProfile } from "./user-account";
+import { GlobalSearch } from "@/components/admin/global-search";
 
 export type NavItem = {
   href: string;
@@ -224,6 +225,8 @@ export function DashboardShell({
               </h1> */}
             </div>
           </div>
+
+          <div>{roleLabel === "admin" && <GlobalSearch />}</div>
 
           {/* Profile Action */}
           <div className="flex items-center gap-4">
