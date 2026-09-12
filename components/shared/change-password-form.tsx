@@ -91,7 +91,7 @@ export function ChangePasswordForm() {
 
   return (
     <div>
-      <CardContent className="p-6">
+      <CardContent className="p-2">
         <form ref={formRef} action={handleSubmit} className="space-y-4">
           <div>
             <Label
@@ -152,7 +152,7 @@ export function ChangePasswordForm() {
             <Button
               type="submit"
               disabled={loading}
-              className="h-10 w-full sm:w-full rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
+              className="h-10 w-full sm:w-full rounded-xl bg-cyan-500 font-semibold text-white shadow-md transition-all hover:bg-cyan-600 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
             >
               {loading ? (
                 <>

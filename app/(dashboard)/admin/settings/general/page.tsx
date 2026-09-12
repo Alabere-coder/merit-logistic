@@ -103,10 +103,8 @@ export default async function GeneralSettingsPage() {
         </Link>
 
         <div className="mt-4">
-          <p className="text-sm font-medium text-blue-600">General settings</p>
-
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
-            General
+            General settings
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
@@ -123,7 +121,7 @@ export default async function GeneralSettingsPage() {
       <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
         <CardHeader className="border-b border-slate-100 bg-linear-to-r from-blue-50/60 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-blue-100 p-2.5 text-blue-600">
+            <div className="rounded-xl bg-blue-100 p-2.5 text-cyan-500">
               <Building2 className="h-4 w-4" />
             </div>
 
@@ -151,7 +149,7 @@ export default async function GeneralSettingsPage() {
       <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
         <CardHeader className="border-b border-slate-100 bg-linear-to-r from-indigo-50/60 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-indigo-100 p-2.5 text-indigo-600">
+            <div className="rounded-xl bg-cyan-50 p-2.5 text-cyan-600">
               <Palette className="h-4 w-4" />
             </div>
 

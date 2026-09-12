@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Bell,
   Building2,
-  CreditCard,
   LockKeyhole,
   Mail,
   Settings,
@@ -46,13 +45,13 @@ const settingsCategories = [
     href: "/admin/settings/security",
     icon: LockKeyhole,
   },
-  {
-    title: "System",
-    description:
-      "Configure system-wide preferences and administrative options.",
-    href: "/admin/settings/system",
-    icon: Settings2,
-  },
+  // {
+  //   title: "System",
+  //   description:
+  //     "Configure system-wide preferences and administrative options.",
+  //   href: "/admin/settings/system",
+  //   icon: Settings2,
+  // },
 ];
 
 export default async function AdminSettingsPage() {
@@ -69,28 +68,88 @@ export default async function AdminSettingsPage() {
 
       <div className="border-b border-slate-200/80 pb-5">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-tr from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-500/20">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-md shadow-blue-500/20">
             <Settings className="h-5 w-5" />
           </div>
 
-          <div>
+          <div className="flex flex-col">
             <h1 className="font-display text-2xl font-bold tracking-tight text-slate-900">
               Settings
             </h1>
 
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">
-              Manage your company, operations, notifications, payments,
-              security, and system preferences.
+            <p className="mt-2 max-w-xl text-sm text-slate-500">
+              Manage your company, notifications, security.
             </p>
           </div>
         </div>
       </div>
 
+      <Card className="overflow-hidden border-none bg-slate-50/50 shadow-sm">
+        <CardContent className="flex items-start gap-4 p-5 border-none">
+          <div className="rounded-xl bg-blue-100 p-2.5 text-cyan-500">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900">
+              Administrator account
+            </h2>
+
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Your administrator account has access to platform configuration,
+              users, shipments, payments, support, and other administrative
+              features. Keep your password secure and never share your
+              credentials.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Settings Categories */}
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {settingsCategories.map((category) => {
+          const Icon = category.icon;
+
+          return (
+            <Link
+              key={category.href}
+              href={category.href}
+              className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+            >
+              <div className="flex items-start justify-between gap-4">
+                {/* Icon */}
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-cyan-600">
+                  <Icon className="h-5 w-5" />
+                </div>
+
+                {/* Arrow */}
+                <ArrowRight className="h-5 w-5 text-slate-300 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-cyan-600" />
+              </div>
+
+              {/* Content */}
+              <div className="mt-5">
+                <h2 className="text-base font-semibold text-slate-900">
+                  {category.title}
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  {category.description}
+                </p>
+              </div>
+
+              {/* Action */}
+              <div className="mt-5 text-sm font-medium text-cyan-500">
+                Manage {category.title}
+              </div>
+            </Link>
+          );
+        })}
+      </div>
       {/* =====================================================
            ADMIN EMAIL
        ====================================================== */}
 
-      <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+      <Card className="overflow-hidden border-none shadow-sm transition-all hover:shadow-md">
         <CardHeader className="border-b border-slate-100 bg-linear-to-r from-amber-50/60 to-transparent">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-amber-100 p-2.5 text-amber-600">
@@ -128,68 +187,6 @@ export default async function AdminSettingsPage() {
           </div>
         </CardContent>
       </Card>
-
-      <Card className="overflow-hidden border-slate-200/80 bg-slate-50/50 shadow-sm">
-        <CardContent className="flex items-start gap-4 p-5">
-          <div className="rounded-xl bg-blue-100 p-2.5 text-blue-600">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-slate-900">
-              Administrator account
-            </h2>
-
-            <p className="mt-1 text-xs leading-5 text-slate-500">
-              Your administrator account has access to platform configuration,
-              users, shipments, payments, support, and other administrative
-              features. Keep your password secure and never share your
-              credentials.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Settings Categories */}
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {settingsCategories.map((category) => {
-          const Icon = category.icon;
-
-          return (
-            <Link
-              key={category.href}
-              href={category.href}
-              className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-4">
-                {/* Icon */}
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                  <Icon className="h-5 w-5" />
-                </div>
-
-                {/* Arrow */}
-                <ArrowRight className="h-5 w-5 text-slate-300 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-blue-600" />
-              </div>
-
-              {/* Content */}
-              <div className="mt-5">
-                <h2 className="text-base font-semibold text-slate-900">
-                  {category.title}
-                </h2>
-
-                <p className="mt-2 text-sm leading-6 text-slate-500">
-                  {category.description}
-                </p>
-              </div>
-
-              {/* Action */}
-              <div className="mt-5 text-sm font-medium text-blue-600">
-                Manage {category.title}
-              </div>
-            </Link>
-          );
-        })}
-      </div>
     </div>
   );
 }

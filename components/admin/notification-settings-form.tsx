@@ -38,7 +38,7 @@ function SubmitButton() {
     <Button
       type="submit"
       disabled={pending}
-      className="bg-linear-to-r from-blue-600 to-indigo-600 font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg disabled:opacity-50"
+      className="bg-cyan-500 font-semibold text-white shadow-md transition-all hover:bg-cyan-600 hover:shadow-lg disabled:opacity-50"
     >
       {pending ? (
         <>

@@ -29,10 +29,8 @@ export default async function SecuritySettingsPage() {
         </Link>
 
         <div className="mt-4">
-          <p className="text-sm font-medium text-blue-600">Security settings</p>
-
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
-            Security
+            Security settings
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
@@ -49,7 +47,7 @@ export default async function SecuritySettingsPage() {
       <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
         <CardHeader className="border-b border-slate-100 bg-linear-to-r from-indigo-50/60 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-indigo-100 p-2.5 text-indigo-600">
+            <div className="rounded-xl bg-indigo-100 p-2.5 text-cyan-500">
               <User className="h-4 w-4" />
             </div>
 
@@ -65,7 +63,7 @@ export default async function SecuritySettingsPage() {
           </div>
         </CardHeader>
 
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 border-none">
           <ProfileForm profile={profile} />
         </CardContent>
       </Card>
@@ -77,7 +75,7 @@ export default async function SecuritySettingsPage() {
       <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
         <CardHeader className="border-b border-slate-100 bg-linear-to-r from-blue-50/60 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-blue-500 to-indigo-600 text-white shadow-sm ring-2 ring-blue-200/50">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-sm ring-2 ring-blue-200/50">
               <KeyRound className="h-5 w-5" />
             </div>
 
