@@ -177,7 +177,7 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen bg-slate-50 lg:flex">
-      <aside className="fixed inset-y-0 left-0 hidden w-64 shrink-0 border-r border-slate-800 bg-white lg:flex">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 shrink-0 border-r border-slate-300 bg-white lg:flex">
         {SidebarContent}
       </aside>
 
