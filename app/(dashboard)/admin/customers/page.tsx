@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { initials, formatDate } from "@/lib/utils";
 import { AlertCircle, AlertTriangle, Users } from "lucide-react";
+import Link from "next/link";
 
 export default async function AdminCustomersPage() {
   const { supabase } = await requireRole(["admin"]);
@@ -119,20 +120,26 @@ export default async function AdminCustomersPage() {
                       className="group transition-colors hover:bg-navy-50/50"
                     >
                       {/* Avatar + Name */}
+
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy-100/80 text-xs font-bold text-navy-800 ring-1 ring-inset ring-navy-200/50 group-hover:bg-brand-50 group-hover:text-brand-700 transition-colors">
+                        <Link
+                          href={`/admin/customers/${customer.id}`}
+                          className="group/customer flex items-center gap-3"
+                        >
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy-100/80 text-xs font-bold text-navy-800 ring-1 ring-inset ring-navy-200/50 transition-colors group-hover/customer:bg-brand-50 group-hover/customer:text-brand-700">
                             {initials(customer.first_name, customer.last_name)}
                           </span>
+
                           <div className="flex flex-col">
-                            <span className="font-semibold text-navy-900 group-hover:text-brand-600 transition-colors">
+                            <span className="font-semibold text-navy-900 transition-colors group-hover/customer:text-brand-600">
                               {customer.first_name} {customer.last_name}
                             </span>
-                            <span className="text-xs text-navy-400 font-normal">
+
+                            <span className="text-xs font-normal text-navy-400">
                               {customer.email}
                             </span>
                           </div>
-                        </div>
+                        </Link>
                       </td>
 
                       {/* Phone */}
