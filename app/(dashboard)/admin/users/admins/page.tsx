@@ -29,24 +29,28 @@ export default async function AdminsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-5">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-            Administrators
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Manage platform access, roles, and administrative permissions.
-          </p>
-        </div>
+      <Card className="overflow-hidden border-none bg-slate-50/50 shadow-sm">
+        <CardContent className="gap-4 p-5 border-none">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                Administrators
+              </h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Manage platform access, roles, and administrative permissions.
+              </p>
+            </div>
 
-        {isSuperAdmin && (
-          <Button className="shadow-sm transition-all hover:shadow bg-cyan-500 text-white dark:bg-white/10 hover:bg-cyan-600 dark:hover:bg-white/5">
-            <Link href="/admin/users/admins/create">
-              <span className="mr-1.5">+</span> Create Admin
-            </Link>
-          </Button>
-        )}
-      </div>
+            {isSuperAdmin && (
+              <Button className="shadow-sm transition-all hover:shadow bg-cyan-500 text-white dark:bg-white/10 hover:bg-cyan-600 dark:hover:bg-white/5">
+                <Link href="/admin/users/admins/create">
+                  <span className="mr-1.5">+</span> Create Admin
+                </Link>
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
         <CardContent className="p-0">

@@ -6,6 +6,7 @@ import {
   SupportTicketTable,
   type SupportTicket,
 } from "@/components/admin/support-ticket-table";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function AdminSupportPage() {
   const { supabase } = await requireRole(["admin"]);
@@ -175,16 +176,19 @@ export default async function AdminSupportPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
+      <Card className="overflow-hidden border-none bg-slate-50/50 shadow-sm">
+        <CardContent className="gap-4 p-5 border-none">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              Support
+            </h1>
 
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-          Support
-        </h1>
-
-        <p className="mt-1 text-sm text-slate-500">
-          Manage customer and driver support requests.
-        </p>
-      </div>
+            <p className="mt-1 text-sm text-slate-500">
+              Manage customer and driver support requests.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Statistics */}
 

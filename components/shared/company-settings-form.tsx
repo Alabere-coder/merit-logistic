@@ -99,7 +99,7 @@ export function CompanySettingsForm({ settings }: CompanySettingsFormProps) {
         <div className="space-y-2 sm:col-span-2">
           <Label
             htmlFor="companyName"
-            className="text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             Company name
           </Label>
@@ -111,7 +111,6 @@ export function CompanySettingsForm({ settings }: CompanySettingsFormProps) {
             onChange={(event) => setCompanyName(event.target.value)}
             required
             placeholder="Your logistics company"
-            className="border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
 
@@ -119,7 +118,7 @@ export function CompanySettingsForm({ settings }: CompanySettingsFormProps) {
         <div className="space-y-2">
           <Label
             htmlFor="companyEmail"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="flex items-center gap-2 text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             <Mail className="h-3.5 w-3.5 text-cyan-600" />
             Company email
@@ -132,7 +131,6 @@ export function CompanySettingsForm({ settings }: CompanySettingsFormProps) {
             value={companyEmail}
             onChange={(event) => setCompanyEmail(event.target.value)}
             placeholder="support@example.com"
-            className="border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
 
@@ -140,7 +138,7 @@ export function CompanySettingsForm({ settings }: CompanySettingsFormProps) {
         <div className="space-y-2">
           <Label
             htmlFor="companyPhone"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="flex items-center gap-2 text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             <Phone className="h-3.5 w-3.5 text-cyan-600" />
             Company phone
@@ -153,7 +151,6 @@ export function CompanySettingsForm({ settings }: CompanySettingsFormProps) {
             value={companyPhone}
             onChange={(event) => setCompanyPhone(event.target.value)}
             placeholder="+234..."
-            className="border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
 
@@ -161,7 +158,7 @@ export function CompanySettingsForm({ settings }: CompanySettingsFormProps) {
         <div className="space-y-2 sm:col-span-2">
           <Label
             htmlFor="companyAddress"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="flex items-center gap-2 text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             <MapPin className="h-3.5 w-3.5 text-cyan-600" />
             Company address
@@ -174,7 +171,6 @@ export function CompanySettingsForm({ settings }: CompanySettingsFormProps) {
             onChange={(event) => setCompanyAddress(event.target.value)}
             placeholder="Enter your company address"
             rows={3}
-            className="resize-none border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
 
@@ -182,7 +178,7 @@ export function CompanySettingsForm({ settings }: CompanySettingsFormProps) {
         <div className="space-y-2 sm:col-span-2">
           <Label
             htmlFor="companyWebsite"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="flex items-center gap-2 text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             <Globe className="h-3.5 w-3.5 text-cyan-600" />
             Website
@@ -195,7 +191,6 @@ export function CompanySettingsForm({ settings }: CompanySettingsFormProps) {
             value={companyWebsite}
             onChange={(event) => setCompanyWebsite(event.target.value)}
             placeholder="https://example.com"
-            className="border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
       </div>

@@ -67,7 +67,7 @@ export function OperationsSettingsForm({
         <div className="space-y-2">
           <Label
             htmlFor="defaultDeliveryDays"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="flex items-center gap-2 text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             <Clock className="h-3.5 w-3.5" />
             Default delivery days
@@ -91,7 +91,7 @@ export function OperationsSettingsForm({
         <div className="space-y-2">
           <Label
             htmlFor="maxDeliveryDays"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="flex items-center gap-2 text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             <Truck className="h-3.5 w-3.5" />
             Maximum delivery days
@@ -115,7 +115,7 @@ export function OperationsSettingsForm({
         <div className="space-y-2">
           <Label
             htmlFor="shipmentExpiryDays"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="flex items-center gap-2 text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             <Package className="h-3.5 w-3.5" />
             Shipment expiry
@@ -139,7 +139,7 @@ export function OperationsSettingsForm({
         <div className="space-y-2">
           <Label
             htmlFor="supportResponseHours"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="flex items-center gap-2 text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             <Clock className="h-3.5 w-3.5" />
             Support response time
@@ -165,7 +165,7 @@ export function OperationsSettingsForm({
       <div className="space-y-2">
         <Label
           htmlFor="deliveryInstructions"
-          className="text-xs font-bold uppercase tracking-wider text-slate-500"
+          className="text-xs font-bold capitalize tracking-wider text-slate-500"
         >
           Default delivery instructions
         </Label>

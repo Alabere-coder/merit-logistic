@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 
 import { updateLocalizationSettings } from "@/lib/actions/localization-settings";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 type LocalizationSettings = {
   id: string;
@@ -168,18 +170,18 @@ export function LocalizationSettingsForm({
       <div className="grid gap-6 md:grid-cols-2">
         {/* Country */}
         <div className="space-y-2">
-          <label
+          <Label
             htmlFor="default_country"
             className="text-sm font-medium text-slate-700"
           >
             Default country
-          </label>
+          </Label>
 
           <select
             id="default_country"
             name="default_country"
             defaultValue={settings.default_country}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-200 focus:ring-3 focus:ring-slate-200"
           >
             {countries.map((country) => (
               <option key={country.value} value={country.value}>
@@ -195,18 +197,18 @@ export function LocalizationSettingsForm({
 
         {/* Currency */}
         <div className="space-y-2">
-          <label
+          <Label
             htmlFor="default_currency"
             className="text-sm font-medium text-slate-700"
           >
             Default currency
-          </label>
+          </Label>
 
           <select
             id="default_currency"
             name="default_currency"
             defaultValue={settings.default_currency}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-200 focus:ring-3 focus:ring-slate-200"
           >
             {currencies.map((currency) => (
               <option key={currency.value} value={currency.value}>
@@ -223,18 +225,18 @@ export function LocalizationSettingsForm({
 
       {/* Timezone */}
       <div className="space-y-2">
-        <label
+        <Label
           htmlFor="timezone"
           className="text-sm font-medium text-slate-700"
         >
           Timezone
-        </label>
+        </Label>
 
         <select
           id="timezone"
           name="timezone"
           defaultValue={settings.timezone}
-          className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+          className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-200 focus:ring-3 focus:ring-slate-200"
         >
           {timezones.map((timezone) => (
             <option key={timezone.value} value={timezone.value}>
@@ -252,18 +254,18 @@ export function LocalizationSettingsForm({
       <div className="grid gap-6 md:grid-cols-2">
         {/* Date format */}
         <div className="space-y-2">
-          <label
+          <Label
             htmlFor="date_format"
             className="text-sm font-medium text-slate-700"
           >
             Date format
-          </label>
+          </Label>
 
           <select
             id="date_format"
             name="date_format"
             defaultValue={settings.date_format}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-200 focus:ring-3 focus:ring-slate-200"
           >
             {dateFormats.map((format) => (
               <option key={format.value} value={format.value}>
@@ -275,18 +277,18 @@ export function LocalizationSettingsForm({
 
         {/* Time format */}
         <div className="space-y-2">
-          <label
+          <Label
             htmlFor="time_format"
             className="text-sm font-medium text-slate-700"
           >
             Time format
-          </label>
+          </Label>
 
           <select
             id="time_format"
             name="time_format"
             defaultValue={settings.time_format}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-200 focus:ring-3 focus:ring-slate-200"
           >
             <option value="12-hour">12-hour — 2:30 PM</option>
 
@@ -297,18 +299,18 @@ export function LocalizationSettingsForm({
 
       {/* Language */}
       <div className="space-y-2">
-        <label
+        <Label
           htmlFor="language"
           className="text-sm font-medium text-slate-700"
         >
           Language
-        </label>
+        </Label>
 
         <select
           id="language"
           name="language"
           defaultValue={settings.language}
-          className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+          className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-200 focus:ring-3 focus:ring-slate-200"
         >
           <option value="en">English</option>
         </select>

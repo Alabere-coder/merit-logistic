@@ -119,17 +119,20 @@ export default async function NotificationSettingsPage() {
           <ArrowLeft className="h-4 w-4" />
           Back to settings
         </Link>
+        <Card className="overflow-hidden border-none bg-slate-50/50 shadow-sm">
+          <CardContent className="gap-4 p-5 border-none">
+            <div className="mt-4">
+              <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+                Notifications settings
+              </h1>
 
-        <div className="mt-4">
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
-            Notifications settings
-          </h1>
-
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-            Manage in-app notifications, browser alerts, email communication,
-            and notification preferences.
-          </p>
-        </div>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+                Manage in-app notifications, browser alerts, email
+                communication, and notification preferences.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* =====================================================
@@ -137,7 +140,7 @@ export default async function NotificationSettingsPage() {
       ====================================================== */}
 
       <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
-        <CardHeader className="border-b border-slate-100 bg-linear-to-r from-emerald-50/60 to-transparent">
+        <CardHeader className="border-b border-slate-100 ">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-cyan-50 p-2.5 text-cyan-600">
               <Bell className="h-4 w-4" />
@@ -166,7 +169,7 @@ export default async function NotificationSettingsPage() {
       ====================================================== */}
 
       <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
-        <CardHeader className="border-b border-slate-100 bg-linear-to-r from-violet-50/60 to-transparent">
+        <CardHeader className="border-b border-slate-100 ">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-cyan-50 p-2.5 text-cyan-600">
               <Bell className="h-4 w-4" />
@@ -194,7 +197,7 @@ export default async function NotificationSettingsPage() {
       ====================================================== */}
 
       <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
-        <CardHeader className="border-b border-slate-100 bg-linear-to-r from-blue-50/60 to-transparent">
+        <CardHeader className="border-b border-slate-100 ">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-blue-100 p-2.5 text-blue-600">
               <Mail className="h-4 w-4" />

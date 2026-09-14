@@ -43,7 +43,7 @@ function PasswordInput({
         placeholder={placeholder}
         minLength={minLength}
         required={required}
-        className={fieldClass}
+        className="mt-2"
       />
       <button
         type="button"
@@ -96,7 +96,7 @@ export function ChangePasswordForm() {
           <div>
             <Label
               htmlFor="currentPassword"
-              className="text-xs font-bold uppercase tracking-wider text-slate-500"
+              className="text-xs font-bold capitalize tracking-wider text-slate-500"
             >
               Current password
             </Label>
@@ -110,7 +110,7 @@ export function ChangePasswordForm() {
           <div>
             <Label
               htmlFor="newPassword"
-              className="text-xs font-bold uppercase tracking-wider text-slate-500"
+              className="text-xs font-bold capitalize tracking-wider text-slate-500"
             >
               New password
             </Label>
@@ -128,7 +128,7 @@ export function ChangePasswordForm() {
           <div>
             <Label
               htmlFor="confirmPassword"
-              className="text-xs font-bold uppercase tracking-wider text-slate-500"
+              className="text-xs font-bold capitalize tracking-wider text-slate-500"
             >
               Confirm new password
             </Label>

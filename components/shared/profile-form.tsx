@@ -50,7 +50,7 @@ export function ProfileForm({
           <div className="space-y-2">
             <Label
               htmlFor="firstName"
-              className="text-xs font-bold uppercase tracking-wider text-slate-500"
+              className="text-xs font-bold captalize tracking-wider text-slate-500"
             >
               First name
             </Label>
@@ -60,14 +60,14 @@ export function ProfileForm({
               name="firstName"
               defaultValue={profile.first_name}
               required
-              className="border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+              // className="border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
           <div className="space-y-2">
             <Label
               htmlFor="lastName"
-              className="text-xs font-bold uppercase tracking-wider text-slate-500"
+              className="text-xs font-bold captalize tracking-wider text-slate-500"
             >
               Last name
             </Label>
@@ -77,7 +77,7 @@ export function ProfileForm({
               name="lastName"
               defaultValue={profile.last_name}
               required
-              className="border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+              // className="border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
         </div>
@@ -85,7 +85,7 @@ export function ProfileForm({
         <div className="space-y-2">
           <Label
             htmlFor="phone"
-            className="text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="text-xs font-bold captalize tracking-wider text-slate-500"
           >
             Phone number
           </Label>
@@ -97,7 +97,7 @@ export function ProfileForm({
             placeholder="e.g. 08012345678"
             defaultValue={profile.phone_number ?? ""}
             required
-            className="border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+            // className="border-slate-200 bg-slate-50/30 transition-colors focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
 

@@ -52,7 +52,7 @@ export function AdminSecuritySettings() {
           HEADER
       ====================================================== */}
 
-      <CardHeader className="border-b border-slate-100 bg-linear-to-r from-rose-50/60 to-transparent">
+      <CardHeader className="border-b border-slate-100">
         <div className="flex items-center gap-3">
           <div className="rounded-xl bg-rose-100 p-2.5 text-rose-600">
             <ShieldCheck className="h-4 w-4" />

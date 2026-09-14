@@ -18,6 +18,8 @@ import {
   type BrandingActionState,
 } from "@/lib/actions/branding-settings";
 import { uploadBrandingFavicon } from "@/lib/actions/branding-favicon";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 type BrandingSettings = {
   id: string;
@@ -159,21 +161,20 @@ export function BrandingSettingsForm({
       <form action={formAction} className="space-y-6">
         {/* Tagline */}
         <div className="space-y-2">
-          <label
+          <Label
             htmlFor="tagline"
-            className="text-sm font-medium text-slate-700"
+            className="text-sm mb-2 font-medium text-slate-700"
           >
             Tagline
-          </label>
+          </Label>
 
-          <input
+          <Input
             id="tagline"
             name="tagline"
             type="text"
             defaultValue={settings.tagline ?? ""}
             maxLength={150}
             placeholder="Fast, reliable delivery you can trust"
-            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
           />
 
           <p className="text-xs text-slate-500">
@@ -185,15 +186,15 @@ export function BrandingSettingsForm({
         <div className="grid gap-6 md:grid-cols-2">
           {/* Primary */}
           <div className="space-y-2">
-            <label
+            <Label
               htmlFor="primary_color"
               className="text-sm font-medium text-slate-700"
             >
               Primary color
-            </label>
+            </Label>
 
             <div className="flex items-center gap-3">
-              <input
+              <Input
                 id="primary_color"
                 name="primary_color"
                 type="color"
@@ -216,15 +217,15 @@ export function BrandingSettingsForm({
 
           {/* Secondary */}
           <div className="space-y-2">
-            <label
+            <Label
               htmlFor="secondary_color"
               className="text-sm font-medium text-slate-700"
             >
               Secondary color
-            </label>
+            </Label>
 
             <div className="flex items-center gap-3">
-              <input
+              <Input
                 id="secondary_color"
                 name="secondary_color"
                 type="color"
@@ -363,7 +364,7 @@ export function BrandingSettingsForm({
               action={handleFaviconUpload}
               className="flex flex-col gap-3 sm:items-end"
             >
-              <input
+              <Input
                 ref={fileInputRef}
                 type="file"
                 name="file"

@@ -45,9 +45,9 @@ export default async function SecuritySettingsPage() {
       ====================================================== */}
 
       <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
-        <CardHeader className="border-b border-slate-100 bg-linear-to-r from-indigo-50/60 to-transparent">
+        <CardHeader className="border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-indigo-100 p-2.5 text-cyan-500">
+            <div className="rounded-xl bg-slate-200 p-2.5 text-cyan-500">
               <User className="h-4 w-4" />
             </div>
 
