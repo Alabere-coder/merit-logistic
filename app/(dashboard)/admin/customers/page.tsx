@@ -1,9 +1,10 @@
 import { requireRole } from "@/lib/auth/require-role";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { initials, formatDate } from "@/lib/utils";
 import { AlertCircle, AlertTriangle, Users } from "lucide-react";
 import Link from "next/link";
+import { CustomerActions } from "@/components/admin/customer-actions";
 
 export default async function AdminCustomersPage() {
   const { supabase } = await requireRole(["admin"]);
@@ -40,19 +41,23 @@ export default async function AdminCustomersPage() {
   return (
     <div className="space-y-6">
       {/* Header & Meta */}
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-navy-900">
-            Customers
-          </h1>
-          <p className="text-sm font-medium text-navy-500">
-            <span className="font-semibold text-navy-800">
-              {customers?.length ?? 0}
-            </span>{" "}
-            total registered customers.
-          </p>
-        </div>
-      </div>
+      <Card className="overflow-hidden border-none bg-slate-50/50 shadow-sm">
+        <CardContent className="flex items-start gap-4 p-5 border-none">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-navy-900">
+                Customers
+              </h1>
+              <p className="text-sm font-medium text-navy-500">
+                <span className="font-semibold text-navy-800">
+                  {customers?.length ?? 0}
+                </span>{" "}
+                total registered customers.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Alert Notices */}
       {customersError && (
@@ -76,7 +81,7 @@ export default async function AdminCustomersPage() {
       )}
 
       {/* Main Data Table Card */}
-      <Card className="overflow-hidden border border-navy-100/80 bg-white shadow-xs rounded-xl">
+      <Card className="overflow-hidden border border-slate-300 bg-white shadow-xs rounded-xl">
         <CardContent className="p-0">
           {!customersError && (customers ?? []).length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 text-center">
@@ -94,7 +99,7 @@ export default async function AdminCustomersPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-navy-700">
                 <thead>
-                  <tr className="border-b border-navy-100/80 bg-navy-50/40 text-[11px] font-bold uppercase tracking-wider text-navy-500">
+                  <tr className="border-b border-slate-300 bg-navy-50/40 text-[11px] font-bold uppercase tracking-wider text-navy-500">
                     <th scope="col" className="px-6 py-3.5">
                       Customer
                     </th>
@@ -107,13 +112,17 @@ export default async function AdminCustomersPage() {
                     <th scope="col" className="px-6 py-3.5">
                       Joined
                     </th>
-                    <th scope="col" className="px-6 py-3.5 text-right">
+                    <th scope="col" className="px-6 py-3.5">
                       Status
+                    </th>
+
+                    <th scope="col" className="px-6 py-3.5 text-right">
+                      Actions
                     </th>
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-navy-100/60">
+                <tbody className="divide-y divide-slate-300">
                   {(customers ?? []).map((customer) => (
                     <tr
                       key={customer.id}
@@ -162,7 +171,7 @@ export default async function AdminCustomersPage() {
                       </td>
 
                       {/* Status Badge */}
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-6 py-4 whitespace-nowrap ">
                         <Badge
                           variant={customer.is_active ? "default" : "secondary"}
                           className={
@@ -173,6 +182,13 @@ export default async function AdminCustomersPage() {
                         >
                           {customer.is_active ? "Active" : "Deactivated"}
                         </Badge>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <CustomerActions
+                          customerId={customer.id}
+                          customerName={`${customer.first_name} ${customer.last_name}`}
+                          isActive={customer.is_active}
+                        />
                       </td>
                     </tr>
                   ))}

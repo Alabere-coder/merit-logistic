@@ -34,7 +34,7 @@ export default async function AdminPricingPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="mx-auto max-w-7xl space-y-8">
       {/* Header */}
       <div className="rounded-2xl border border-slate-200/80 bg-linear-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 text-white shadow-xl">
         <div className="flex items-center gap-3.5">

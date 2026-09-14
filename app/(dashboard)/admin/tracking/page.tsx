@@ -4,6 +4,7 @@ import { CalendarDays, Eye, MapPin, Package, Truck, User } from "lucide-react";
 import { getAdminTracking } from "@/lib/actions/tracking";
 import { getLocalizationSettings } from "@/lib/localization/get-localization-settings";
 import { formatLocalizedDateTime } from "@/lib/localization/format-localized";
+import { Card, CardContent } from "@/components/ui/card";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "Pending",
@@ -88,30 +89,35 @@ export default async function AdminTrackingPage() {
           HEADER
       ================================================= */}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-brand-600">
-            Shipment Operations
-          </p>
+      <Card className="overflow-hidden border-none bg-slate-50/50 shadow-sm">
+        <CardContent className="gap-4 p-5 border-none">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-brand-600">
+                Shipment Operations
+              </p>
 
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
-            Tracking
-          </h1>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+                Tracking
+              </h1>
 
-          <p className="mt-1 text-sm text-slate-500">
-            Monitor shipment progress, drivers, vehicles, and delivery activity.
-          </p>
-        </div>
+              <p className="mt-1 text-sm text-slate-500">
+                Monitor shipment progress, drivers, vehicles, and delivery
+                activity.
+              </p>
+            </div>
 
-        <div className="flex items-center gap-2 text-sm text-cyan-600">
-          <Package className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-sm text-cyan-600">
+              <Package className="h-4 w-4" />
 
-          <span>
-            {shipments.length}{" "}
-            {shipments.length === 1 ? "shipment" : "shipments"}
-          </span>
-        </div>
-      </div>
+              <span>
+                {shipments.length}{" "}
+                {shipments.length === 1 ? "shipment" : "shipments"}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* =================================================
           SUMMARY CARDS

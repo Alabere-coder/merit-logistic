@@ -176,21 +176,21 @@ export function DashboardShell({
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 lg:flex">
+    <div className="min-h-screen bg-slate-50 lg:h-screen lg:overflow-hidden lg:flex">
       <aside className="fixed inset-y-0 left-0 hidden w-64 shrink-0 border-r border-slate-300 bg-white lg:flex">
         {SidebarContent}
       </aside>
 
       {/* Mobile Sidebar */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 overflow-hidden lg:hidden">
           {/* Overlay */}
           <div
             className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
             onClick={() => setMobileOpen(false)}
           />
           {/* Drawer */}
-          <aside className="relative flex h-full w-72 flex-col rounded-r-xl bg-white shadow-2xl">
+          <aside className="relative flex h-dvh w-72 flex-col rounded-r-xl bg-white shadow-2xl">
             {SidebarContent}
           </aside>
         </div>
@@ -247,8 +247,10 @@ export function DashboardShell({
         </header>
 
         {/* Viewport Content */}
-        <main className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6 lg:p-8">
-          {children}
+        <main className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
+            {children}
+          </div>
         </main>
       </div>
 

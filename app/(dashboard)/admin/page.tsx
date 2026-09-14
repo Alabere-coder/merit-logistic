@@ -60,17 +60,21 @@ export default async function AdminOverviewPage() {
       {/* Soft Ambient Background Mesh Blends */}
 
       {/* Page Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-extrabold tracking-tight bg-slate-900 bg-clip-text text-transparent">
-            System Overview
-          </h1>
-          <p className="text-xs font-medium text-slate-500">
-            Real-time metric monitoring across customers, drivers, and active
-            deliveries.
-          </p>
-        </div>
-      </div>
+      <Card className="overflow-hidden border-none bg-slate-50/50 shadow-sm">
+        <CardContent className="flex items-start gap-4 p-5 border-none">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="font-display text-2xl font-extrabold tracking-tight bg-slate-900 bg-clip-text text-transparent">
+                System Overview
+              </h1>
+              <p className="text-xs font-medium text-slate-500">
+                Real-time metric monitoring across customers, drivers, and
+                active deliveries.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stat Cards Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

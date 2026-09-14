@@ -150,7 +150,7 @@ export default async function AdminSettingsPage() {
        ====================================================== */}
 
       <Card className="overflow-hidden border-none shadow-sm transition-all hover:shadow-md">
-        <CardHeader className="border-b border-slate-100 bg-linear-to-r from-amber-50/60 to-transparent">
+        <CardHeader className="border-b border-slate-100 bg-">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-amber-100 p-2.5 text-amber-600">
               <Mail className="h-4 w-4" />

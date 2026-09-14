@@ -70,7 +70,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${display.variable} ${geistMono.variable} ${mono.variable} h-full antialiased`}
     >
       <body
-        className="min-h-full flex flex-col"
+        className="min-h-screen bg-slate-50"
         style={
           {
             "--brand-primary": branding.primary_color,

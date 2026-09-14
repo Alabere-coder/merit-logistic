@@ -78,27 +78,31 @@ export default async function AdminDriversPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
       {/* Header & Primary Action */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-navy-900">
-            Drivers
-          </h1>
+      <Card className="overflow-hidden border-none bg-slate-50/50 shadow-sm">
+        <CardContent className="flex items-start gap-4 p-5 border-none">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-navy-900">
+                Drivers
+              </h1>
 
-          <p className="mt-0.5 text-sm font-medium text-navy-500">
-            Only admins can create driver accounts. Credentials are issued upon
-            creation.
-          </p>
-        </div>
+              <p className="mt-0.5 text-sm font-medium text-navy-500">
+                Only admins can create driver accounts. Credentials are issued
+                upon creation.
+              </p>
+            </div>
 
-        <div className="shrink-0">
+            {/* <div className="shrink-0">
           <CreateDriverForm />
-        </div>
-      </div>
+        </div> */}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Main Table Container */}
-      <Card className="overflow-hidden rounded-xl border border-navy-100/80 bg-white shadow-xs">
+      <Card className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xs">
         <CardContent className="p-0">
           {driversError ? (
             <div className="flex flex-col items-center justify-center p-12 text-center">
@@ -129,10 +133,10 @@ export default async function AdminDriversPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="w-full overflow-x-auto">
               <table className="w-full text-left text-sm text-navy-700">
                 <thead>
-                  <tr className="border-b border-navy-100/80 bg-navy-50/40 text-[11px] font-bold uppercase tracking-wider text-navy-500">
+                  <tr className="border-b border-slate-300 bg-navy-50/40 text-[11px] font-bold uppercase tracking-wider text-navy-500">
                     <th scope="col" className="px-6 py-3.5">
                       Driver
                     </th>
@@ -163,7 +167,7 @@ export default async function AdminDriversPage() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-navy-100/60">
+                <tbody className="divide-y divide-slate-300">
                   {(drivers ?? []).map((d) => {
                     const vehicle = vehicleByDriverId.get(d.user_id);
 

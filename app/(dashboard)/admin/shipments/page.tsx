@@ -63,18 +63,22 @@ export default async function AdminShipmentsPage() {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight text-navy-900">
-          Shipments
-        </h1>
+      <Card className="overflow-hidden border-none bg-slate-50/50 shadow-sm">
+        <CardContent className="flex items-start gap-4 p-5 border-none">
+          <div>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-navy-900">
+              Shipments
+            </h1>
 
-        <p className="mt-0.5 text-sm font-medium text-navy-500">
-          Approve, assign, and monitor every shipment in the system.
-        </p>
-      </div>
+            <p className="mt-0.5 text-sm font-medium text-navy-500">
+              Approve, assign, and monitor every shipment in the system.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Main Table Container */}
-      <Card className="overflow-hidden rounded-xl border border-navy-100/80 bg-white shadow-xs">
+      <Card className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xs">
         <CardContent className="p-0">
           {(shipments ?? []).length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 text-center">
@@ -95,7 +99,7 @@ export default async function AdminShipmentsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-navy-700">
                 <thead>
-                  <tr className="border-b border-navy-100/80 bg-navy-50/40 text-[11px] font-bold uppercase tracking-wider text-navy-500">
+                  <tr className="border-b border-slate-300 bg-navy-50/40 text-[11px] font-bold uppercase tracking-wider text-navy-500">
                     <th scope="col" className="px-6 py-3.5">
                       Tracking #
                     </th>
@@ -126,7 +130,7 @@ export default async function AdminShipmentsPage() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-navy-100/60">
+                <tbody className="divide-y divide-slate-300">
                   {(shipments ?? []).map((s: any) => (
                     <tr
                       key={s.id}
