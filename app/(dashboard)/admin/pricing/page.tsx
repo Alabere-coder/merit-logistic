@@ -113,7 +113,7 @@ export default async function AdminPricingPage() {
       </Card>
 
       {/* Security notice */}
-      <Card className="rounded-2xl border-emerald-200/70 bg-emerald-50/40 shadow-sm">
+      <Card className="rounded-2xl border-emerald-200">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             <div className="rounded-xl bg-emerald-100 p-2.5 text-emerald-600">

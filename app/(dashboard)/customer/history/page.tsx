@@ -23,7 +23,7 @@ export default async function CustomerHistoryPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8">
       {/* Header with Colored Gradient Icon Header */}
       <div className="border-b border-slate-200/80 pb-5">
         <div className="flex items-center space-x-3.5">

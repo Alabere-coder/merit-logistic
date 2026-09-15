@@ -66,7 +66,7 @@ export function PricingSettingsForm({
       <div className="space-y-2">
         <Label
           htmlFor="currency"
-          className="text-xs font-bold uppercase tracking-wider text-slate-500"
+          className="text-xs font-bold capitalize tracking-wider text-slate-500"
         >
           Currency
         </Label>
@@ -90,7 +90,7 @@ export function PricingSettingsForm({
         <div className="space-y-2">
           <Label
             htmlFor="baseDeliveryFee"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600"
+            className="flex items-center gap-2 text-xs font-bold capitalize tracking-wider text-slate-600"
           >
             <DollarSign className="h-3.5 w-3.5" />
             Base delivery fee
@@ -114,7 +114,7 @@ export function PricingSettingsForm({
         <div className="space-y-2">
           <Label
             htmlFor="pricePerKg"
-            className="text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             Price per kg
           </Label>
@@ -137,7 +137,7 @@ export function PricingSettingsForm({
         <div className="space-y-2">
           <Label
             htmlFor="fragileSurcharge"
-            className="text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             Fragile surcharge
           </Label>
@@ -160,7 +160,7 @@ export function PricingSettingsForm({
         <div className="space-y-2">
           <Label
             htmlFor="expressDeliveryFee"
-            className="text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             Express delivery fee
           </Label>
@@ -183,7 +183,7 @@ export function PricingSettingsForm({
         <div className="space-y-2">
           <Label
             htmlFor="additionalServiceFee"
-            className="text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             Additional service fee
           </Label>
@@ -206,7 +206,7 @@ export function PricingSettingsForm({
         <div className="space-y-2">
           <Label
             htmlFor="minDeliveryFee"
-            className="text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             Minimum delivery fee
           </Label>
@@ -229,7 +229,7 @@ export function PricingSettingsForm({
         <div className="space-y-2 sm:col-span-2">
           <Label
             htmlFor="maxDeliveryFee"
-            className="text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             Maximum delivery fee
           </Label>

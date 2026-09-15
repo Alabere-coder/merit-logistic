@@ -56,11 +56,11 @@ export default function NewShipmentPage() {
   );
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8">
       {/* Page Header */}
       <div className="flex items-center space-x-3.5 border-b border-slate-200/80 pb-5">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-r from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-500/20">
-          <Package className="h-5.5 w-5.5" />
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-600 px-2 text-white shadow-md shadow-blue-500/20">
+          <Package className="h-8 w-8" />
         </div>
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight text-slate-900">
@@ -89,7 +89,7 @@ export default function NewShipmentPage() {
               <div className="space-y-2">
                 <Label
                   htmlFor="senderName"
-                  className="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  className="text-xs font-bold capitalize tracking-wider text-slate-500"
                 >
                   Sender name
                 </Label>
@@ -104,7 +104,7 @@ export default function NewShipmentPage() {
               <div className="space-y-2">
                 <Label
                   htmlFor="senderPhone"
-                  className="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  className="text-xs font-bold capitalize tracking-wider text-slate-500"
                 >
                   Sender phone
                 </Label>
@@ -133,7 +133,7 @@ export default function NewShipmentPage() {
               <div className="space-y-2">
                 <Label
                   htmlFor="receiverName"
-                  className="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  className="text-xs font-bold capitalize tracking-wider text-slate-500"
                 >
                   Receiver name
                 </Label>
@@ -148,7 +148,7 @@ export default function NewShipmentPage() {
               <div className="space-y-2">
                 <Label
                   htmlFor="receiverPhone"
-                  className="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  className="text-xs font-bold capitalize tracking-wider text-slate-500"
                 >
                   Receiver phone
                 </Label>
@@ -177,7 +177,7 @@ export default function NewShipmentPage() {
               <div className="space-y-2">
                 <Label
                   htmlFor="pickupAddress"
-                  className="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  className="text-xs font-bold capitalize tracking-wider text-slate-500"
                 >
                   Pickup location
                 </Label>
@@ -193,7 +193,7 @@ export default function NewShipmentPage() {
               <div className="space-y-2">
                 <Label
                   htmlFor="deliveryAddress"
-                  className="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  className="text-xs font-bold capitalize tracking-wider text-slate-500"
                 >
                   Delivery destination
                 </Label>
@@ -223,7 +223,7 @@ export default function NewShipmentPage() {
               <div className="space-y-2">
                 <Label
                   htmlFor="packageType"
-                  className="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  className="text-xs font-bold capitalize tracking-wider text-slate-500"
                 >
                   Package type
                 </Label>
@@ -246,7 +246,7 @@ export default function NewShipmentPage() {
               <div className="space-y-2">
                 <Label
                   htmlFor="weightKg"
-                  className="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  className="text-xs font-bold capitalize tracking-wider text-slate-500"
                 >
                   Weight (kg)
                 </Label>
@@ -277,7 +277,7 @@ export default function NewShipmentPage() {
         <div className="lg:col-span-1">
           <div className="sticky top-24">
             <Card className="overflow-hidden border-slate-200/80 shadow-md">
-              <CardHeader className="border-b border-slate-100 bg-linear-to-r from-amber-50/60 to-transparent pb-4">
+              <CardHeader className="border-b pb-4">
                 <div className="flex items-center space-x-2.5">
                   <div className="rounded-lg bg-amber-100 p-2 text-amber-600 shadow-2xs">
                     <Wallet className="h-4 w-4" />
@@ -307,7 +307,7 @@ export default function NewShipmentPage() {
                 </div>
 
                 <div className="mt-6 flex flex-col space-y-1">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-amber-700">
+                  <span className="text-xs font-semibold capitalize tracking-wider text-amber-700">
                     Estimated total
                   </span>
                   <span className="font-display text-3xl font-extrabold tracking-tight text-slate-900">

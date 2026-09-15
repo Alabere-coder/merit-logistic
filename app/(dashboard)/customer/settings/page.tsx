@@ -61,7 +61,7 @@ export default async function CustomerSettingsPage() {
 
         {/* Email Card - Amber Theme */}
         <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
-          <CardHeader className="border-b border-slate-100 bg-linear-to-r from-amber-50/60 to-transparent pb-4">
+          <CardHeader className="border-b border-slate-100  pb-4">
             <div className="flex items-center space-x-3">
               <div className="rounded-xl bg-amber-100 p-2.5 text-amber-600 shadow-2xs">
                 <Mail className="h-4 w-4" />
@@ -91,9 +91,9 @@ export default async function CustomerSettingsPage() {
 
         {/* Password Card - Emerald Theme */}
         <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
-          <CardHeader className="border-b border-slate-100 bg-linear-to-r from-emerald-50/60 to-transparent pb-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-blue-500 to-indigo-600 text-white shadow-sm ring-2 ring-blue-200/50">
+          <CardHeader className="border-b border-slate-100 pb-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-600 text-white shadow-sm ring-2 ring-blue-200/50">
                 <KeyRound className="h-5 w-5" />
               </div>
               <div>
