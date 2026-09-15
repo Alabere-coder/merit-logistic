@@ -80,6 +80,7 @@ export default async function AdminDriversPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       {/* Header & Primary Action */}
+
       <Card className="overflow-hidden border-none bg-slate-50/50 shadow-sm">
         <CardContent className="flex items-start gap-4 p-5 border-none">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -94,14 +95,14 @@ export default async function AdminDriversPage() {
               </p>
             </div>
 
-            {/* <div className="shrink-0">
-          <CreateDriverForm />
-        </div> */}
+            <div className="shrink-0">
+              <CreateDriverForm />
+            </div>
           </div>
         </CardContent>
       </Card>
-
       {/* Main Table Container */}
+
       <Card className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xs">
         <CardContent className="p-0">
           {driversError ? (
@@ -133,7 +134,7 @@ export default async function AdminDriversPage() {
               </p>
             </div>
           ) : (
-            <div className="w-full overflow-x-auto">
+            <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-navy-700">
                 <thead>
                   <tr className="border-b border-slate-300 bg-navy-50/40 text-[11px] font-bold uppercase tracking-wider text-navy-500">
@@ -166,7 +167,6 @@ export default async function AdminDriversPage() {
                     </th>
                   </tr>
                 </thead>
-
                 <tbody className="divide-y divide-slate-300">
                   {(drivers ?? []).map((d) => {
                     const vehicle = vehicleByDriverId.get(d.user_id);
@@ -177,28 +177,33 @@ export default async function AdminDriversPage() {
                         className="group transition-colors hover:bg-navy-50/50"
                       >
                         {/* Driver Profile */}
+
                         <td className="whitespace-nowrap px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy-100/80 text-xs font-bold text-navy-800 ring-1 ring-inset ring-navy-200/50 transition-colors group-hover:bg-brand-50 group-hover:text-brand-700">
-                              {initials(
-                                d.users?.first_name ?? "",
-                                d.users?.last_name ?? "",
-                              )}
-                            </span>
+                          <Link href={`/admin/drivers/${d.id}`}>
+                            <div className="flex items-center gap-3">
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy-100/80 text-xs font-bold text-navy-800 ring-1 ring-inset ring-navy-200/50 transition-colors group-hover:bg-brand-50 group-hover:text-brand-700">
+                                {initials(
+                                  d.users?.first_name ?? "",
 
-                            <div className="flex flex-col">
-                              <span className="font-semibold text-navy-900 transition-colors group-hover:text-brand-600">
-                                {d.users?.first_name} {d.users?.last_name}
+                                  d.users?.last_name ?? "",
+                                )}
                               </span>
 
-                              <span className="text-xs font-normal text-navy-400">
-                                {d.users?.email}
-                              </span>
+                              <div className="flex flex-col">
+                                <span className="font-semibold text-navy-900 transition-colors group-hover:text-brand-600">
+                                  {d.users?.first_name} {d.users?.last_name}
+                                </span>
+
+                                <span className="text-xs font-normal text-navy-400">
+                                  {d.users?.email}
+                                </span>
+                              </div>
                             </div>
-                          </div>
+                          </Link>
                         </td>
 
                         {/* Vehicle Info */}
+
                         <td className="whitespace-nowrap px-6 py-4">
                           {vehicle ? (
                             <div className="flex flex-col">
@@ -223,26 +228,27 @@ export default async function AdminDriversPage() {
                             </span>
                           )}
                         </td>
-
                         {/* License */}
+
                         <td className="whitespace-nowrap px-6 py-4 font-mono text-xs font-medium text-navy-600">
                           {d.license_number || (
                             <span className="text-navy-300">—</span>
                           )}
                         </td>
-
                         {/* Joined Date */}
+
                         <td className="whitespace-nowrap px-6 py-4 text-xs font-medium text-navy-500">
                           {formatDate(d.created_at)}
                         </td>
-
                         {/* Location */}
+
                         <td className="whitespace-nowrap px-6 py-4">
                           {d.current_lat != null && d.current_lng != null ? (
                             <div className="flex flex-col gap-0.5">
                               <div className="flex items-center gap-1.5 font-mono text-xs font-medium text-navy-700">
                                 <span className="relative flex h-2 w-2">
                                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+
                                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                                 </span>
                                 {Number(d.current_lat).toFixed(3)},{" "}
@@ -262,8 +268,8 @@ export default async function AdminDriversPage() {
                             </span>
                           )}
                         </td>
-
                         {/* Status */}
+
                         <td className="whitespace-nowrap px-6 py-4">
                           <Badge
                             variant="secondary"
@@ -278,11 +284,12 @@ export default async function AdminDriversPage() {
                             <span className="capitalize">{d.status}</span>
                           </Badge>
                         </td>
-
                         {/* Actions */}
-                        <td className="whitespace-nowrap px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
+
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <div className="flex items-center justify-center gap-2">
                             {/* View / Manage */}
+
                             <Link
                               href={`/admin/drivers/${d.id}`}
                               className="inline-flex h-9 items-center gap-2 rounded-lg border border-navy-200 bg-white px-3 text-xs font-semibold text-navy-700 transition-colors hover:bg-navy-50 hover:text-navy-900"
@@ -292,11 +299,14 @@ export default async function AdminDriversPage() {
                             </Link>
 
                             {/* Status / Delete */}
-                            <DriverRowActions
-                              driverId={d.id}
-                              userId={d.user_id}
-                              status={d.status as DriverStatus}
-                            />
+
+                            {/* <div>
+                              <DriverRowActions
+                                driverId={d.id}
+                                userId={d.user_id}
+                                status={d.status as DriverStatus}
+                              />
+                            </div> */}
                           </div>
                         </td>
                       </tr>

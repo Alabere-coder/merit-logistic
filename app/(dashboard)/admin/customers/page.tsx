@@ -183,13 +183,13 @@ export default async function AdminCustomersPage() {
                           {customer.is_active ? "Active" : "Deactivated"}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      {/* <td className="px-6 py-4 whitespace-nowrap text-center">
                         <CustomerActions
                           customerId={customer.id}
                           customerName={`${customer.first_name} ${customer.last_name}`}
                           isActive={customer.is_active}
                         />
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
