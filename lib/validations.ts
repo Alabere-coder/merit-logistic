@@ -40,8 +40,16 @@ export const createShipmentSchema = z.object({
   receiverPhone: z.string().min(7),
   pickupAddress: z.string().min(5, "Enter a full pickup address"),
   deliveryAddress: z.string().min(5, "Enter a full delivery address"),
-  packageType: z.enum(["document", "parcel", "fragile", "electronics", "food", "other"]),
+  packageType: z.enum([
+    "document",
+    "parcel",
+    "fragile",
+    "electronics",
+    "food",
+    "other",
+  ]),
   weightKg: z.coerce.number().positive("Weight must be greater than 0"),
+  isExpress: z.boolean(),
 });
 
 export const createDriverSchema = z.object({

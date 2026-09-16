@@ -143,8 +143,11 @@ export async function updatePricingSettings(
       }
     }
 
+    // revalidatePath("/admin/pricing");
+    // revalidatePath("/admin/settings");
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/settings");
+    revalidatePath("/customer/shipments/new");
 
     return {
       success: "Pricing settings updated successfully.",

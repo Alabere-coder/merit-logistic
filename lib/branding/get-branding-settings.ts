@@ -23,18 +23,23 @@ export async function getBrandingSettings(): Promise<BrandingSettings> {
     .from("branding_settings")
     .select(
       `
-        id,
-        tagline,
-        primary_color,
-        secondary_color,
-        favicon_url
-      `,
+      id,
+      tagline,
+      primary_color,
+      secondary_color,
+      favicon_url
+    `,
     )
     .limit(1)
     .maybeSingle();
 
   if (error) {
-    console.error("GET PUBLIC BRANDING SETTINGS ERROR:", error);
+    console.error("GET PUBLIC BRANDING SETTINGS ERROR:", {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+    });
 
     return defaultBranding;
   }

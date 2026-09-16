@@ -2,7 +2,7 @@
 
 import { requireRole } from "@/lib/auth/require-role";
 import { createShipmentSchema } from "@/lib/validations";
-import { calculateShipmentPrice } from "@/lib/pricing/calculate-shipment-price";
+import { calculateShipmentPrice } from "@/lib/pricing/server-pricing";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -78,6 +78,7 @@ export async function createShipment(
     deliveryAddress: formData.get("deliveryAddress"),
     packageType: formData.get("packageType"),
     weightKg: formData.get("weightKg"),
+    isExpress: formData.get("isExpress") === "true",
   });
 
   if (!parsed.success) {
@@ -93,7 +94,7 @@ export async function createShipment(
   const pricingResult = await calculateShipmentPrice({
     weightKg: parsed.data.weightKg,
     isFragile: parsed.data.packageType === "fragile",
-    isExpress: false,
+    isExpress: parsed.data.isExpress,
   });
 
   if (!pricingResult.success) {
@@ -120,9 +121,10 @@ export async function createShipment(
       delivery_address: parsed.data.deliveryAddress,
       package_type: parsed.data.packageType,
       weight_kg: parsed.data.weightKg,
+      is_express: parsed.data.isExpress,
       price,
     })
-    .select("id, tracking_number, price, status")
+    .select("id, tracking_number, price, status, is_express")
     .single();
 
   if (shipmentError || !shipment) {
@@ -177,6 +179,7 @@ export async function createShipment(
      * Avoid leaving an apparently valid shipment without
      * its initial tracking history.
      */
+
     await supabase
       .from("payments")
       .delete()
@@ -246,7 +249,6 @@ export async function createShipment(
   revalidatePath("/customer");
   revalidatePath("/customer/payments");
   revalidatePath("/customer/history");
-
   revalidatePath("/admin");
   revalidatePath("/admin/shipments");
   revalidatePath("/admin/notifications");
