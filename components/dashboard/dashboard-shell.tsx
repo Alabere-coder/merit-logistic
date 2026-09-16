@@ -17,7 +17,7 @@ import {
   Wallet,
   Settings,
   History,
-  PackagePlus,
+  PackageGlobal,
   X,
   AlertTriangle,
   Shield,
@@ -53,7 +53,7 @@ const icons = {
   Wallet,
   Settings,
   History,
-  PackagePlus,
+  PackageGlobal,
   Shield,
   ShieldCheck,
   Bell,
@@ -97,7 +97,7 @@ export function DashboardShell({
             <PackageSearch className="h-5 w-5" strokeWidth={2.2} />
           </span>
           <span className="tracking-tight text-slate-500">
-            AMANAH<span className="text-cyan-400">PLUS</span>
+            Emirate<span className="text-cyan-400">Global</span>
           </span>
         </Link>
         {/* Mobile Close Button */}

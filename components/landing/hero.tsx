@@ -26,9 +26,9 @@ export function Hero() {
           </h1>
 
           <p className="mt-7 max-w-xl text-base leading-7 text-slate-100 sm:text-lg">
-            AMANAHPLUS moves parcels, documents, and freight across the city and
-            across the country — with a dispatch, driver, and warehouse network
-            you can watch move in real time.
+            EmirateGlobal moves parcels, documents, and freight across the city
+            and across the country — with a dispatch, driver, and warehouse
+            network you can watch move in real time.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">

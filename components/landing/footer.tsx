@@ -49,10 +49,10 @@ export function Footer() {
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-cyan-500">
                 <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} />
               </span>
-              AMANAH<span className="text-cyan-500">PLUS</span>
+              Emirate<span className="text-cyan-500">Global</span>
             </Link>
             <p className="mt-3 max-w-xs text-sm text-navy-500">
-              Real-time PLUS and courier management for businesses that ship
+              Real-time Global and courier management for businesses that ship
               every day.
             </p>
           </div>
@@ -80,7 +80,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-navy-100 pt-6 sm:flex-row">
           <p className="text-xs text-cyan-600">
-            © {new Date().getFullYear()} AMANAH PLUS. All rights reserved.
+            © {new Date().getFullYear()} Emirate Global. All rights reserved.
           </p>
           <p className="font-mono text-xs text-navy-300">SS-HQ · Ilorin, NG</p>
         </div>

@@ -44,8 +44,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      default: "Swiftway Shipping",
-      template: "%s | Swiftway Shipping",
+      default: "Emirate Global",
+      template: "%s | Emirate Global",
     },
 
     description:

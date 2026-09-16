@@ -35,7 +35,7 @@ export function Navbar() {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-cyan-500">
             <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} />
           </span>
-          AMANAH<span className="text-cyan-500">PLUS</span>
+          Emirate<span className="text-cyan-500">Global</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
