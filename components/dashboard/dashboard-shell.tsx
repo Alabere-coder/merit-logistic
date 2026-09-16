@@ -28,6 +28,7 @@ import {
   MapPin,
   LifeBuoy,
   Loader2,
+  InfoIcon,
 } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
 import { logOut } from "@/lib/actions/auth";
@@ -62,6 +63,7 @@ const icons = {
   DollarSign,
   MapPin,
   LifeBuoy,
+  InfoIcon,
 };
 
 export function DashboardShell({

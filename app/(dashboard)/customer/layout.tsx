@@ -27,6 +27,11 @@ const navItems: NavItem[] = [
     icon: "MapPin",
   },
   {
+    href: "/notifications",
+    label: "Notifications",
+    icon: "InfoIcon",
+  },
+  {
     href: "/customer/payments",
     label: "Payments",
     icon: "CreditCard",

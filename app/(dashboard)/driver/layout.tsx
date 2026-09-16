@@ -22,6 +22,11 @@ const navItems: NavItem[] = [
     icon: "Wallet",
   },
   {
+    href: "/notifications",
+    label: "Notifications",
+    icon: "Bell",
+  },
+  {
     href: "/driver/support",
     label: "Support",
     icon: "LifeBuoy",

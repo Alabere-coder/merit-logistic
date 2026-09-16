@@ -67,11 +67,11 @@ const navItems: NavItem[] = [
   },
 
   // Communication
-  // {
-  //   href: "/admin/notifications",
-  //   label: "Notifications",
-  //   icon: "Bell",
-  // },
+  {
+    href: "/notifications",
+    label: "Notifications",
+    icon: "Bell",
+  },
   {
     href: "/admin/support",
     label: "Support",
