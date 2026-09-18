@@ -35,9 +35,11 @@ export default async function GeneralSettingsPage() {
     company_name: "",
     company_email: null,
     company_phone: null,
+    whatsapp_number: null,
     company_address: null,
     company_website: null,
     company_logo_url: null,
+    help_center_url: null,
   };
 
   /* =====================================================
