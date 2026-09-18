@@ -27,7 +27,7 @@ export default async function CustomerHistoryPage() {
       {/* Header with Colored Gradient Icon Header */}
       <div className="border-b border-slate-200/80 pb-5">
         <div className="flex items-center space-x-3.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-tr from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-500/20">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-600 text-white shadow-md shadow-blue-500/20">
             <History className="h-5.5 w-5.5" />
           </div>
           <div>

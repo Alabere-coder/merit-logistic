@@ -124,6 +124,7 @@ export function BrandingSettingsForm({
 
     const allowedTypes = [
       "image/png",
+      "image/jpeg",
       "image/svg+xml",
       "image/x-icon",
       "image/vnd.microsoft.icon",
@@ -131,7 +132,7 @@ export function BrandingSettingsForm({
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      setFaviconError("Invalid format. Use PNG, SVG, ICO, or WEBP.");
+      setFaviconError("Invalid format. Use PNG, SVG, ICO, JPEG or WEBP.");
       return;
     }
 

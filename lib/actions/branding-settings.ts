@@ -26,7 +26,6 @@ export async function updateBrandingSettings(
   formData: FormData,
 ): Promise<BrandingActionState> {
   const { user } = await requireRole(["admin"]);
-
   const supabase = await createClient();
 
   try {
@@ -53,6 +52,14 @@ export async function updateBrandingSettings(
       "Secondary color",
     );
 
+    // Favicon
+    const faviconRaw = formData.get("faviconUrl");
+
+    const faviconUrl =
+      faviconRaw === null || String(faviconRaw).trim() === ""
+        ? null
+        : String(faviconRaw).trim();
+
     const { data: existing, error: existingError } = await supabase
       .from("branding_settings")
       .select("id")
@@ -71,6 +78,7 @@ export async function updateBrandingSettings(
       tagline,
       primary_color: primaryColor,
       secondary_color: secondaryColor,
+      favicon_url: faviconUrl,
       updated_by: user.id,
       updated_at: new Date().toISOString(),
     };

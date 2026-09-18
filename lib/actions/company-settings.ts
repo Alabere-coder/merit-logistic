@@ -21,8 +21,10 @@ export async function updateCompanySettings(
     const companyName = formData.get("companyName");
     const companyEmail = formData.get("companyEmail");
     const companyPhone = formData.get("companyPhone");
+    const whatsappNumber = formData.get("whatsappNumber");
     const companyAddress = formData.get("companyAddress");
     const companyWebsite = formData.get("companyWebsite");
+    const helpCenterUrl = formData.get("helpCenterUrl");
 
     if (typeof companyName !== "string" || !companyName.trim()) {
       return {
@@ -57,6 +59,11 @@ export async function updateCompanySettings(
           ? companyPhone.trim()
           : null,
 
+      whatsapp_number:
+        typeof whatsappNumber === "string" && whatsappNumber.trim()
+          ? whatsappNumber.trim()
+          : null,
+
       company_address:
         typeof companyAddress === "string" && companyAddress.trim()
           ? companyAddress.trim()
@@ -65,6 +72,11 @@ export async function updateCompanySettings(
       company_website:
         typeof companyWebsite === "string" && companyWebsite.trim()
           ? companyWebsite.trim()
+          : null,
+
+      help_center_url:
+        typeof helpCenterUrl === "string" && helpCenterUrl.trim()
+          ? helpCenterUrl.trim()
           : null,
 
       updated_by: user.id,
@@ -97,6 +109,7 @@ export async function updateCompanySettings(
     }
 
     revalidatePath("/admin/settings");
+    revalidatePath("/admin/settings/general");
 
     return {
       success: "Company settings updated successfully.",

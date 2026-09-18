@@ -9,6 +9,7 @@ const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
 
 const ALLOWED_TYPES = {
   "image/png": "png",
+  "image/jpeg": "jpeg",
   "image/svg+xml": "svg",
   "image/x-icon": "ico",
   "image/vnd.microsoft.icon": "ico",

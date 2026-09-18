@@ -4,6 +4,7 @@ import { FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "../ui/input";
 
 export function TrackingSearchForm() {
   const router = useRouter();
@@ -28,14 +29,14 @@ export function TrackingSearchForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
       <div className="relative flex-1">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cyan-600" />
 
-        <input
+        <Input
           type="text"
           value={trackingNumber}
           onChange={(event) => setTrackingNumber(event.target.value)}
           placeholder="Enter tracking number"
-          className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+          className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 outline-none transition"
           disabled={pending}
         />
       </div>

@@ -4,6 +4,8 @@ import {
   DashboardShell,
   type NavItem,
 } from "@/components/dashboard/dashboard-shell";
+import { FloatingSupportButton } from "@/components/dashboard/floating-support-button";
+import { getCompanySettings } from "@/lib/company/get-company-settings";
 
 const navItems: NavItem[] = [
   {
@@ -45,6 +47,8 @@ export default async function DriverLayout({
 }) {
   const { profile } = await requireRole(["driver"]);
 
+  const companySettings = await getCompanySettings();
+
   return (
     <DashboardShell
       navItems={navItems}
@@ -56,6 +60,12 @@ export default async function DriverLayout({
       }}
     >
       {children}
+
+      <FloatingSupportButton
+        href="/driver/support"
+        whatsappNumber={companySettings.whatsapp_number}
+        helpCenterUrl={companySettings.help_center_url}
+      />
     </DashboardShell>
   );
 }

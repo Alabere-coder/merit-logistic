@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Menu, X, PackageSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,12 +33,26 @@ export function Navbar() {
           href="/"
           className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-cyan-500">
-            <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} />
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg">
+            <Image
+              src="/emirate2.jpeg"
+              alt="Company Logo"
+              width={150}
+              height={40}
+              priority
+            />
           </span>
-          Emirate<span className="text-cyan-500">Global</span>
+          <p className="text-2xl">
+            Emirate<span className="text-cyan-500 pl-1">Global</span>
+          </p>
         </Link>
-
+        <div className="md:hidden">
+          <Link href="/login">
+            <Button variant="outline" size="sm">
+              Log in
+            </Button>
+          </Link>
+        </div>
         <nav className="hidden items-center gap-8 md:flex">
           {links.map((l) => (
             <a
@@ -69,7 +84,7 @@ export function Navbar() {
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost" size="sm">
+                <Button variant="outline" size="sm">
                   Log in
                 </Button>
               </Link>
@@ -82,7 +97,7 @@ export function Navbar() {
         </div>
 
         <button
-          className="md:hidden"
+          className="hidden"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >

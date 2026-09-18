@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 const inputClass =
-  "mt-1.5 h-10 w-full rounded-xl border border-slate-200 bg-slate-50/30 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20";
+  "mt-1.5 h-10 w-full rounded-xl border border-slate-200 bg-slate-50/30 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-slate-300 focus:bg-white focus:ring-2 focus:ring-blue-500/20";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -78,7 +78,7 @@ export default function SignupPage() {
             <div>
               <Label
                 htmlFor="firstName"
-                className="text-xs font-bold uppercase tracking-wider text-slate-500"
+                className="text-xs font-bold capitalize tracking-wider text-slate-500"
               >
                 First name
               </Label>
@@ -93,7 +93,7 @@ export default function SignupPage() {
             <div>
               <Label
                 htmlFor="lastName"
-                className="text-xs font-bold uppercase tracking-wider text-slate-500"
+                className="text-xs font-bold capitalize tracking-wider text-slate-500"
               >
                 Last name
               </Label>
@@ -111,7 +111,7 @@ export default function SignupPage() {
           <div>
             <Label
               htmlFor="email"
-              className="text-xs font-bold uppercase tracking-wider text-slate-500"
+              className="text-xs font-bold capitalize tracking-wider text-slate-500"
             >
               Email address
             </Label>
@@ -128,7 +128,7 @@ export default function SignupPage() {
           <div>
             <Label
               htmlFor="phone"
-              className="text-xs font-bold uppercase tracking-wider text-slate-500"
+              className="text-xs font-bold capitalize tracking-wider text-slate-500"
             >
               Phone number
             </Label>
@@ -146,7 +146,7 @@ export default function SignupPage() {
           <div>
             <Label
               htmlFor="password"
-              className="text-xs font-bold uppercase tracking-wider text-slate-500"
+              className="text-xs font-bold capitalize tracking-wider text-slate-500"
             >
               Password
             </Label>
@@ -177,7 +177,7 @@ export default function SignupPage() {
           <div>
             <Label
               htmlFor="confirmPassword"
-              className="text-xs font-bold uppercase tracking-wider text-slate-500"
+              className="text-xs font-bold capitalize tracking-wider text-slate-500"
             >
               Confirm password
             </Label>

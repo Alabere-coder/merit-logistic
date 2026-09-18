@@ -4,6 +4,8 @@ import {
   DashboardShell,
   type NavItem,
 } from "@/components/dashboard/dashboard-shell";
+import { FloatingSupportButton } from "@/components/dashboard/floating-support-button";
+import { getCompanySettings } from "@/lib/company/get-company-settings";
 
 const navItems: NavItem[] = [
   {
@@ -55,6 +57,8 @@ export default async function CustomerLayout({
 }) {
   const { profile } = await requireRole(["customer"]);
 
+  const companySettings = await getCompanySettings();
+
   return (
     <DashboardShell
       navItems={navItems}
@@ -66,6 +70,12 @@ export default async function CustomerLayout({
       }}
     >
       {children}
+
+      <FloatingSupportButton
+        href="/customer/support"
+        whatsappNumber={companySettings.whatsapp_number}
+        helpCenterUrl={companySettings.help_center_url}
+      />
     </DashboardShell>
   );
 }

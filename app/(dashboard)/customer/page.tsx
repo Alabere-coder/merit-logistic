@@ -38,7 +38,7 @@ export default async function CustomerOverviewPage() {
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div className="flex items-center space-x-3.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-tr from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-500/20">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-600 text-white shadow-md shadow-blue-500/20">
             <LayoutDashboard className="h-5.5 w-5.5" />
           </div>
           <div>
@@ -52,7 +52,7 @@ export default async function CustomerOverviewPage() {
         </div>
 
         <Link href="/customer/shipments/new">
-          <Button className="group gap-2 bg-blue-600 shadow-md shadow-blue-500/20 transition-all text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30">
+          <Button className="group gap-2 bg-cyan-600 shadow-md shadow-blue-500/20 transition-all text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30">
             <PackagePlus className="h-4 w-4 transition-transform group-hover:scale-110" />
             <span>New shipment</span>
           </Button>

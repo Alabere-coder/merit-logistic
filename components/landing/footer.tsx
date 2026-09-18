@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PackageSearch } from "lucide-react";
+import Image from "next/image";
 
 const columns = [
   {
@@ -46,10 +46,20 @@ export function Footer() {
               href="/"
               className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-cyan-500">
-                <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} />
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
+                {/* <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} /> */}
+
+                <Image
+                  src="/emirate2.jpeg"
+                  alt="Company Logo"
+                  width={150}
+                  height={40}
+                  priority
+                />
               </span>
-              Emirate<span className="text-cyan-500">Global</span>
+              <p className="text-2xl">
+                Emirate<span className="text-cyan-500 pl-1">Global</span>
+              </p>
             </Link>
             <p className="mt-3 max-w-xs text-sm text-navy-500">
               Real-time Global and courier management for businesses that ship

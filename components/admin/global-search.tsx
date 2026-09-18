@@ -294,12 +294,12 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
               <Search
                 className={cn(
                   "h-4.5 w-4.5 text-cyan-600 transition-transform",
-                  "max-sm:hidden",
+
                   "group-hover:scale-105",
                 )}
               />
 
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-slate-500 max-sm:hidden">
                 Search documentation...
               </span>
 

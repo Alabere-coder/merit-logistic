@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
@@ -93,15 +94,24 @@ export function DashboardShell({
       <div className="flex items-center justify-between px-6 pt-6">
         <Link
           href="/"
-          className="flex items-center gap-3 font-display text-lg font-bold text-white"
+          className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400 text-white shadow-md shadow-blue-500/20">
-            <PackageSearch className="h-5 w-5" strokeWidth={2.2} />
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
+            {/* <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} /> */}
+
+            <Image
+              src="/emirate2.jpeg"
+              alt="Company Logo"
+              width={150}
+              height={40}
+              priority
+            />
           </span>
-          <span className="tracking-tight text-slate-500">
-            Emirate<span className="text-cyan-400">Global</span>
-          </span>
+          <p className="text-2xl">
+            Emirate<span className="text-cyan-500 pl-1">Global</span>
+          </p>
         </Link>
+
         {/* Mobile Close Button */}
         <Button
           variant="ghost"
@@ -204,27 +214,42 @@ export function DashboardShell({
         {/* Top Header */}
         <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/80 px-4 backdrop-blur-md transition-all sm:px-6 lg:px-8">
           {/* Mobile Menu Trigger */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-xl text-cyan-600 ring-1 transition-all hover:bg-slate-100 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:hidden"
+              <button
+                className="h-8 w-8 text-cyan-600 transition-all  active:scale-95 lg:hidden"
                 onClick={() => setMobileOpen(true)}
                 aria-label="Open menu"
               >
-                <Menu className="h-5 w-5" />
-              </Button>
+                <Menu className="h-7 w-7" />
+              </button>
             </div>
 
             {/* Role Badge Indicator */}
-            <div className="flex items-center justify-start">
+            <div className="flex items-center justify-start md:hidden">
               {/* <span>
               {user.firstName} {user.lastName}
             </span> */}
               {/* <h1 className="inline-flex px-3 py-1 font-mono text-md sm:text-xl font-bold uppercase tracking-wider text-cyan-600">
                 {roleLabel}
               </h1> */}
+              <Link
+                href="/"
+                className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg">
+                  <Image
+                    src="/emirate2.jpeg"
+                    alt="Company Logo"
+                    width={150}
+                    height={40}
+                    priority
+                  />
+                </span>
+                <p className="text-2xl">
+                  Emirate<span className="text-cyan-500 pl-1">Global</span>
+                </p>
+              </Link>
             </div>
           </div>
 

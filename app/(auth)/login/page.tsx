@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 const inputClass =
-  "mt-1.5 h-10 w-full rounded-xl border border-slate-200 bg-slate-50/30 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20";
+  "mt-1.5 h-10 w-full rounded-xl border border-slate-200 bg-slate-50/30 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-slate-300 focus:bg-white focus:ring-2 focus:ring-blue-500/20";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -79,7 +79,7 @@ function LoginForm() {
         <div>
           <Label
             htmlFor="email"
-            className="text-xs font-bold uppercase tracking-wider text-slate-500"
+            className="text-xs font-bold capitalize tracking-wider text-slate-500"
           >
             Email address
           </Label>
@@ -97,7 +97,7 @@ function LoginForm() {
           <div className="flex items-center justify-between">
             <Label
               htmlFor="password"
-              className="text-xs font-bold uppercase tracking-wider text-slate-500"
+              className="text-xs font-bold capitalize tracking-wider text-slate-500"
             >
               Password
             </Label>

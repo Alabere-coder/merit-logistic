@@ -11,7 +11,7 @@ export default function CustomerTrackPage() {
 
       <div className="text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50">
-          <Package className="h-7 w-7 text-brand-600" />
+          <Package className="h-7 w-7 text-cyan-600" />
         </div>
 
         <h1 className="mt-5 text-3xl font-bold tracking-tight text-slate-900">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   PackageSearch,
   ShieldCheck,
@@ -24,7 +25,7 @@ export function AuthLayout({
 }) {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-slate-950 p-12 border-r border-slate-800/60 shadow-2xl select-none">
+      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-slate-600 p-12 border-r border-slate-800/60 shadow-2xl">
         {/* Layered Decorative Background Elements */}
         <div className="route-dot-grid pointer-events-none absolute inset-0 opacity-20 mask-[radial-gradient(ellipse_at_center,transparent_20%,black)]" />
         <div className="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full bg-amber-500/10 blur-[120px]" />
@@ -34,20 +35,20 @@ export function AuthLayout({
         {/* Brand Header */}
         <Link
           href="/"
-          className="group relative inline-flex items-center gap-3 font-display text-xl font-bold tracking-tight text-white w-fit transition-transform duration-300 hover:scale-[1.02]"
+          className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
         >
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-amber-400 to-amber-600 text-slate-950 shadow-lg shadow-amber-500/20 ring-1 ring-white/20 transition-all duration-300 group-hover:shadow-amber-500/40 group-hover:scale-105">
-            <PackageSearch
-              className="h-5 w-5 transition-transform duration-300 group-hover:rotate-6"
-              strokeWidth={2.2}
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
+            <Image
+              src="/emirate2.jpeg"
+              alt="Company Logo"
+              width={150}
+              height={40}
+              priority
             />
-          </div>
-          <span className="tracking-tight">
-            Emirate
-            <span className="bg-linear-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">
-              Global
-            </span>
           </span>
+          <p className="text-2xl text-white">
+            Emirate<span className="text-cyan-500 pl-1">Global</span>
+          </p>
         </Link>
 
         {/* Main Content Area */}
@@ -101,12 +102,22 @@ export function AuthLayout({
         <div className="w-full max-w-sm">
           <Link
             href="/"
-            className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
+            className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900 mb-4"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-cyan-500">
-              <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} />
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg">
+              {/* <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} /> */}
+
+              <Image
+                src="/emirate2.jpeg"
+                alt="Company Logo"
+                width={150}
+                height={40}
+                priority
+              />
             </span>
-            Emirate<span className="text-cyan-500">Global</span>
+            <p className="text-2xl">
+              Emirate<span className="text-cyan-500 pl-1">Global</span>
+            </p>
           </Link>
           <h1 className="font-display text-2xl font-700 text-navy-900">
             {title}
