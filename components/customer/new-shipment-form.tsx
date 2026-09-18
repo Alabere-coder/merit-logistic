@@ -41,7 +41,7 @@ function SubmitButton() {
       type="submit"
       disabled={pending}
       size="lg"
-      className="w-full bg-blue-500 text-gray-100 shadow-lg shadow-primary/20 transition-all duration-200 hover:shadow-primary/30"
+      className="w-full bg-blue-500 text-gray-100 shadow-primary/20 transition-all duration-200"
     >
       {pending ? (
         <>
@@ -88,7 +88,7 @@ export default function NewShipmentForm({
     <div className="mx-auto max-w-7xl space-y-8 px-4 py-8">
       {/* Page Header */}
       <div className="flex items-center space-x-3.5 border-b border-slate-200/80 pb-5">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-600 px-2 text-white shadow-md shadow-blue-500/20">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-600 px-2 text-white ">
           <Package className="h-8 w-8" />
         </div>
 
@@ -107,9 +107,9 @@ export default function NewShipmentForm({
       <form action={formAction} className="grid gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           {/* Sender Details */}
-          <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+          <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all ">
             <CardHeader className="flex flex-row items-center space-x-3 border-b border-slate-100 bg-slate-50/50 pb-4">
-              <div className="rounded-xl bg-blue-100 p-2 text-blue-600 shadow-2xs">
+              <div className="rounded-xl bg-blue-100 p-2 text-blue-600 ">
                 <User className="h-4 w-4" />
               </div>
 
@@ -156,9 +156,9 @@ export default function NewShipmentForm({
           </Card>
 
           {/* Receiver Details */}
-          <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+          <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all ">
             <CardHeader className="flex flex-row items-center space-x-3 border-b border-slate-100 bg-slate-50/50 pb-4">
-              <div className="rounded-xl bg-indigo-100 p-2 text-indigo-600 shadow-2xs">
+              <div className="rounded-xl bg-indigo-100 p-2 text-indigo-600 ">
                 <User className="h-4 w-4" />
               </div>
 
@@ -205,9 +205,9 @@ export default function NewShipmentForm({
           </Card>
 
           {/* Pickup & Delivery */}
-          <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+          <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all ">
             <CardHeader className="flex flex-row items-center space-x-3 border-b border-slate-100 bg-slate-50/50 pb-4">
-              <div className="rounded-xl bg-emerald-100 p-2 text-emerald-600 shadow-2xs">
+              <div className="rounded-xl bg-emerald-100 p-2 text-emerald-600 ">
                 <MapPin className="h-4 w-4" />
               </div>
 
@@ -256,9 +256,9 @@ export default function NewShipmentForm({
           </Card>
 
           {/* Package Details */}
-          <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
+          <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all ">
             <CardHeader className="flex flex-row items-center space-x-3 border-b border-slate-100 bg-slate-50/50 pb-4">
-              <div className="rounded-xl bg-purple-100 p-2 text-purple-600 shadow-2xs">
+              <div className="rounded-xl bg-purple-100 p-2 text-purple-600 ">
                 <Package className="h-4 w-4" />
               </div>
 
@@ -406,7 +406,7 @@ export default function NewShipmentForm({
             <Card className="overflow-hidden border-slate-200/80 shadow-md">
               <CardHeader className="border-b pb-4">
                 <div className="flex items-center space-x-2.5">
-                  <div className="rounded-lg bg-amber-100 p-2 text-amber-600 shadow-2xs">
+                  <div className="rounded-lg bg-amber-100 p-2 text-amber-600 ">
                     <Wallet className="h-4 w-4" />
                   </div>
 

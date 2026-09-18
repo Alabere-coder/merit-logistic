@@ -60,22 +60,23 @@ export default async function CustomerLayout({
   const companySettings = await getCompanySettings();
 
   return (
-    <DashboardShell
-      navItems={navItems}
-      roleLabel="customer"
-      user={{
-        firstName: profile.first_name,
-        lastName: profile.last_name,
-        email: profile.email,
-      }}
-    >
-      {children}
-
+    <>
+      <DashboardShell
+        navItems={navItems}
+        roleLabel="customer"
+        user={{
+          firstName: profile.first_name,
+          lastName: profile.last_name,
+          email: profile.email,
+        }}
+      >
+        {children}
+      </DashboardShell>
       <FloatingSupportButton
         href="/customer/support"
         whatsappNumber={companySettings.whatsapp_number}
         helpCenterUrl={companySettings.help_center_url}
       />
-    </DashboardShell>
+    </>
   );
 }

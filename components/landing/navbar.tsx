@@ -47,11 +47,28 @@ export function Navbar() {
           </p>
         </Link>
         <div className="md:hidden">
-          <Link href="/login">
-            <Button variant="outline" size="sm">
-              Log in
-            </Button>
-          </Link>
+          {loading ? null : user ? (
+            <Link href={dashboardHref}>
+              <Button
+                size="sm"
+                className="text-sm font-medium text-cyan-600 transition-colors duration-200 hover:text-cyan-900"
+              >
+                Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="outline" size="sm">
+                  Log in
+                </Button>
+              </Link>
+
+              <Link href="/signup">
+                <Button size="sm">Ship now</Button>
+              </Link>
+            </>
+          )}
         </div>
         <nav className="hidden items-center gap-8 md:flex">
           {links.map((l) => (

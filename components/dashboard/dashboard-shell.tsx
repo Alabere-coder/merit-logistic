@@ -260,9 +260,17 @@ export function DashboardShell({
           {/* Profile Action */}
           <div className="flex items-center gap-4">
             {/* Notifications Action */}
-            <div className="flex items-center justify-end gap-2 max-md:hidden">
-              <NotificationBell />
-            </div>
+
+            {(roleLabel === "customer" || roleLabel === "driver") && (
+                <div className="flex items-center justify-end gap-2">
+                  <NotificationBell />
+                </div>
+              )}
+            {roleLabel === "admin" && (
+              <div className="flex items-center justify-end gap-2 max-md:hidden">
+                <NotificationBell />
+              </div>
+            )}
             <div className="flex items-center justify-end gap-2">
               <UserAccountProfile
                 firstName={user.firstName}

@@ -64,7 +64,7 @@ export function FloatingSupportButton({
             <span className="absolute inset-0 animate-pulse rounded-full bg-cyan-400/20" />
 
             {/* Main button */}
-            <span className="relative flex items-center justify-center rounded-full bg-cyan-600 p-3 text-white shadow-lg shadow-cyan-600/30 transition-all duration-300 group-hover:scale-110 group-hover:bg-cyan-500 group-active:scale-95">
+            <span className="relative flex items-center justify-center rounded-full bg-cyan-600 p-3 text-white transition-all duration-300 group-hover:scale-110 group-hover:bg-cyan-500 group-active:scale-95">
               <BotMessageSquareIcon className="h-6 w-6 transition-transform duration-300 group-hover:rotate-6" />
             </span>
           </span>

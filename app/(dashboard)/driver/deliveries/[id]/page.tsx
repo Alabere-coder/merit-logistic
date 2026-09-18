@@ -116,7 +116,7 @@ export default async function DriverDeliveryDetailPage({
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
       {/* Header Section */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-blue-100 bg-linear-to-r from-blue-50/80 via-indigo-50/40 to-white p-6 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-blue-100 bg-cyan-50/50 to-white p-6 shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center space-x-2">
             <span className="relative flex h-2.5 w-2.5">
@@ -146,7 +146,7 @@ export default async function DriverDeliveryDetailPage({
           {/* Route Details */}
           <Card className="overflow-hidden border-indigo-100/80 shadow-sm transition-all hover:shadow-md">
             <CardHeader className="flex flex-row items-center gap-2.5 border-b border-indigo-100 bg-linear-to-r from-indigo-50/60 to-slate-50/30 px-6 py-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-500/20">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg">
                 <MapPin className="h-4 w-4" />
               </div>
 

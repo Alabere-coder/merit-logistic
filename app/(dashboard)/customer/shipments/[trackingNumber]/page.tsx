@@ -169,7 +169,7 @@ export default async function ShipmentDetailPage({
         <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
           <CardHeader className="border-b border-slate-100 bg-linear-to-r from-emerald-50/60 to-transparent pb-4">
             <div className="flex items-center space-x-3">
-              <div className="rounded-xl bg-emerald-100 p-2.5 text-emerald-600 shadow-2xs">
+              <div className="rounded-xl">
                 <MapPin className="h-4 w-4" />
               </div>
               <h2 className="font-display text-base font-semibold text-slate-900">
@@ -213,7 +213,7 @@ export default async function ShipmentDetailPage({
         <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
           <CardHeader className="border-b border-slate-100 bg-linear-to-r from-purple-50/60 to-transparent pb-4">
             <div className="flex items-center space-x-3">
-              <div className="rounded-xl bg-purple-100 p-2.5 text-purple-600 shadow-2xs">
+              <div className="rounded-xl">
                 <Package className="h-4 w-4" />
               </div>
               <h2 className="font-display text-base font-semibold text-slate-900">
@@ -247,7 +247,7 @@ export default async function ShipmentDetailPage({
         <Card className="overflow-hidden border-slate-200/80 shadow-sm transition-all hover:shadow-md">
           <CardHeader className="border-b border-slate-100 bg-linear-to-r from-amber-50/60 to-transparent pb-4">
             <div className="flex items-center space-x-3">
-              <div className="rounded-xl bg-amber-100 p-2.5 text-amber-600 shadow-2xs">
+              <div className="rounded-xl ">
                 <Wallet className="h-4 w-4" />
               </div>
               <h2 className="font-display text-base font-semibold text-slate-900">
@@ -297,7 +297,7 @@ export default async function ShipmentDetailPage({
         </Link>
 
         <Link href="/customer/shipments/new">
-          <Button className="bg-blue-600 text-white shadow-md shadow-blue-500/20 hover:bg-blue-700">
+          <Button className="bg-blue-600 text-white hover:bg-blue-700">
             Create another shipment
           </Button>
         </Link>
