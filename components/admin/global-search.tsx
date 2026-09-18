@@ -299,7 +299,7 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                 )}
               />
 
-              <span className="text-xs text-slate-500 max-sm:hidden">
+              <span className="text-xs text-slate-500">
                 Search documentation...
               </span>
 

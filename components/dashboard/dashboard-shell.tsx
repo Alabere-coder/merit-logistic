@@ -217,7 +217,7 @@ export function DashboardShell({
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-3">
               <button
-                className="h-8 w-8 text-cyan-600 transition-all  active:scale-95 lg:hidden"
+                className="h-8 w-8 text-cyan-900 transition-all  active:scale-95 lg:hidden"
                 onClick={() => setMobileOpen(true)}
                 aria-label="Open menu"
               >
@@ -253,12 +253,14 @@ export function DashboardShell({
             </div>
           </div>
 
-          <div>{roleLabel === "admin" && <GlobalSearch />}</div>
+          <div className="max-md:hidden">
+            {roleLabel === "admin" && <GlobalSearch />}
+          </div>
 
           {/* Profile Action */}
           <div className="flex items-center gap-4">
             {/* Notifications Action */}
-            <div className="flex items-center justify-end gap-2">
+            <div className="flex items-center justify-end gap-2 max-md:hidden">
               <NotificationBell />
             </div>
             <div className="flex items-center justify-end gap-2">
@@ -272,6 +274,16 @@ export function DashboardShell({
             </div>
           </div>
         </header>
+
+        {/* Mobile / Tablet Admin Search */}
+        {roleLabel === "admin" && (
+          <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sm:px-6 md:px-8 lg:hidden">
+            <GlobalSearch />
+            <div className="flex items-center justify-end gap-2">
+              <NotificationBell />
+            </div>
+          </div>
+        )}
 
         {/* Viewport Content */}
         <main className="min-h-0 flex-1 overflow-y-auto">
