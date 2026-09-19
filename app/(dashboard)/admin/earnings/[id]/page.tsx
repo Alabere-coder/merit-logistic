@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Clock3, Mail, Wallet } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Clock3,
+  Mail,
+  Wallet,
+  FileSpreadsheet,
+} from "lucide-react";
+import { DownloadPayoutPdf } from "./download/pdf/download-payout-pdf";
 
 import { requireRole } from "@/lib/auth/require-role";
 import { getLocalizationSettings } from "@/lib/localization/get-localization-settings";
@@ -146,11 +154,9 @@ export default async function DriverEarningsPage({
           </Link>
 
           <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight text-navy-900">
-                Driver Earnings
-              </h1>
-            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-navy-900">
+              Driver Earnings
+            </h1>
 
             <p className="mt-1 text-base font-semibold text-navy-700">
               {driverName}
@@ -165,17 +171,41 @@ export default async function DriverEarningsPage({
           </div>
         </div>
 
-        <Badge
-          className={
-            driver.status === "active"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : driver.status === "suspended"
-                ? "border-red-200 bg-red-50 text-red-700"
-                : "border-navy-200 bg-navy-50 text-navy-600"
-          }
-        >
-          {driver.status}
-        </Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge
+            className={
+              driver.status === "active"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : driver.status === "suspended"
+                  ? "border-red-200 bg-red-50 text-red-700"
+                  : "border-navy-200 bg-navy-50 text-navy-600"
+            }
+          >
+            {driver.status}
+          </Badge>
+
+          <a
+            href={`/admin/earnings/${id}/download/csv`}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-navy-700 transition hover:bg-navy-50"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            Download CSV
+          </a>
+
+          <DownloadPayoutPdf
+            driverName={driverName}
+            driverEmail={driverUser?.email ?? null}
+            earnings={earnings}
+            localization={localization}
+          />
+
+          <Link
+            href="/admin/earnings"
+            className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-navy-700 transition hover:bg-navy-50"
+          >
+            All earnings
+          </Link>
+        </div>
       </div>
 
       {/* Summary cards */}
