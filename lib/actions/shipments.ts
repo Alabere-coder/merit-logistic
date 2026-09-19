@@ -1,8 +1,12 @@
 "use server";
 
 import { requireRole } from "@/lib/auth/require-role";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createShipmentSchema } from "@/lib/validations";
-import { calculateShipmentPrice } from "@/lib/pricing/server-pricing";
+import {
+  calculateShipmentPrice,
+  getPricingSettings,
+} from "@/lib/pricing/server-pricing";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -831,13 +835,14 @@ export async function uploadProofOfDelivery(formData: FormData) {
     .from("shipments")
     .select(
       `
-          id,
-          driver_id,
-          customer_id,
-          tracking_number,
-          status,
-          proof_of_delivery_url
-        `,
+        id,
+        driver_id,
+        customer_id,
+        tracking_number,
+        status,
+        price,
+        proof_of_delivery_url
+      `,
     )
     .eq("id", shipmentId.trim())
     .eq("driver_id", driver.id)
@@ -852,7 +857,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
   }
 
   /* -------------------------------------------------------
-     5. POD is only allowed for out_for_delivery
+     5. Validate delivery status
   ------------------------------------------------------- */
 
   if (shipment.status === "delivered") {
@@ -875,7 +880,55 @@ export async function uploadProofOfDelivery(formData: FormData) {
   }
 
   /* -------------------------------------------------------
-     6. Capture driver coordinates
+     6. Load payout settings
+  ------------------------------------------------------- */
+
+  const pricingSettingsResult = await getPricingSettings();
+
+  if (!pricingSettingsResult.success) {
+    console.error(
+      "GET DRIVER PAYOUT SETTINGS ERROR:",
+      pricingSettingsResult.error,
+    );
+
+    return {
+      error: "Unable to load driver payout settings. Please try again.",
+    };
+  }
+
+  const payoutRate = Number(pricingSettingsResult.settings.driver_payout_rate);
+
+  if (!Number.isFinite(payoutRate) || payoutRate < 0 || payoutRate > 100) {
+    console.error("INVALID DRIVER PAYOUT RATE:", payoutRate);
+
+    return {
+      error: "The configured driver payout rate is invalid.",
+    };
+  }
+
+  /* -------------------------------------------------------
+     7. Calculate persistent driver earning
+  ------------------------------------------------------- */
+
+  const shipmentPrice = Number(shipment.price);
+
+  if (!Number.isFinite(shipmentPrice) || shipmentPrice < 0) {
+    console.error("INVALID SHIPMENT PRICE:", {
+      shipmentId: shipment.id,
+      price: shipment.price,
+    });
+
+    return {
+      error: "The shipment price is invalid.",
+    };
+  }
+
+  const driverEarning =
+    Math.round(((shipmentPrice * payoutRate) / 100 + Number.EPSILON) * 100) /
+    100;
+
+  /* -------------------------------------------------------
+     8. Capture driver coordinates
   ------------------------------------------------------- */
 
   const latitude =
@@ -891,7 +944,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
     Number.isFinite(longitude);
 
   /* -------------------------------------------------------
-     7. Generate unique storage path
+     9. Generate unique storage path
   ------------------------------------------------------- */
 
   const fileExtension = file.name.split(".").pop()?.toLowerCase() || "jpg";
@@ -903,7 +956,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
   const path = `${shipmentId.trim()}/${crypto.randomUUID()}.${safeExtension}`;
 
   /* -------------------------------------------------------
-     8. Upload proof
+     10. Upload proof
   ------------------------------------------------------- */
 
   const { error: uploadError } = await supabase.storage
@@ -922,7 +975,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
   }
 
   /* -------------------------------------------------------
-     9. Mark shipment delivered
+     11. Mark shipment delivered
      
      The status condition prevents two simultaneous requests
      from both successfully completing the shipment.
@@ -940,11 +993,11 @@ export async function uploadProofOfDelivery(formData: FormData) {
     .eq("status", "arrived_at_delivery_destination")
     .select(
       `
-          id,
-          status,
-          tracking_number,
-          customer_id
-        `,
+        id,
+        status,
+        tracking_number,
+        customer_id
+      `,
     )
     .maybeSingle();
 
@@ -955,7 +1008,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
       error: updateError,
     });
 
-    /* Remove uploaded file if delivery update failed. */
+    // Remove uploaded file if delivery update failed.
     await supabase.storage.from("proof-of-delivery").remove([path]);
 
     return {
@@ -966,7 +1019,42 @@ export async function uploadProofOfDelivery(formData: FormData) {
   }
 
   /* -------------------------------------------------------
-     10. Create delivered tracking event
+     12. Create persistent driver earning
+  ------------------------------------------------------- */
+
+  const adminSupabase = createAdminClient();
+
+  const { error: earningError } = await adminSupabase
+    .from("driver_earnings")
+    .insert({
+      driver_id: driver.id,
+      shipment_id: shipment.id,
+      amount: driverEarning,
+      status: "pending",
+    });
+
+  if (earningError) {
+    console.error("CREATE DRIVER EARNING ERROR:", {
+      shipmentId: shipment.id,
+      driverId: driver.id,
+      shipmentPrice,
+      payoutRate,
+      driverEarning,
+      error: earningError,
+    });
+
+    /*
+     * Delivery has already been completed successfully.
+     * We deliberately do not roll back the delivery because
+     * the customer should not be told that delivery failed.
+     *
+     * The unique(driver_id, shipment_id) constraint also
+     * protects against duplicate earning records.
+     */
+  }
+
+  /* -------------------------------------------------------
+     13. Create delivered tracking event
   ------------------------------------------------------- */
 
   const { error: eventError } = await supabase.from("shipment_events").insert({
@@ -991,7 +1079,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
   }
 
   /* -------------------------------------------------------
-     11. Notify customer
+     14. Notify customer
   ------------------------------------------------------- */
 
   const customerNotification = await createNotification({
@@ -1010,7 +1098,7 @@ export async function uploadProofOfDelivery(formData: FormData) {
   }
 
   /* -------------------------------------------------------
-     12. Notify admins
+     15. Notify admins
   ------------------------------------------------------- */
 
   const adminIds = await getAdminUserIds();
@@ -1035,17 +1123,17 @@ export async function uploadProofOfDelivery(formData: FormData) {
   );
 
   /* -------------------------------------------------------
-     13. Refresh relevant pages
+     16. Refresh relevant pages
   ------------------------------------------------------- */
 
   revalidatePath("/driver");
   revalidatePath("/driver/deliveries");
   revalidatePath(`/driver/deliveries/${shipmentId}`);
+  revalidatePath("/driver/earnings");
 
   revalidatePath("/customer");
   revalidatePath("/customer/track");
   revalidatePath("/customer/notifications");
-
   revalidatePath(`/customer/shipments/${shipment.tracking_number}`);
 
   revalidatePath("/admin");
@@ -1057,3 +1145,310 @@ export async function uploadProofOfDelivery(formData: FormData) {
     success: true,
   };
 }
+
+// export async function uploadProofOfDelivery(formData: FormData) {
+//   const { supabase, user } = await requireRole(["driver"]);
+
+//   const shipmentId = formData.get("shipmentId");
+//   const file = formData.get("file");
+
+//   /* -------------------------------------------------------
+//      1. Validate form data
+//   ------------------------------------------------------- */
+
+//   if (typeof shipmentId !== "string" || !shipmentId.trim()) {
+//     return {
+//       error: "Invalid shipment ID.",
+//     };
+//   }
+
+//   if (!(file instanceof File)) {
+//     return {
+//       error: "Please select a proof-of-delivery image.",
+//     };
+//   }
+
+//   if (file.size === 0) {
+//     return {
+//       error: "The selected file is empty.",
+//     };
+//   }
+
+//   const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+//   if (file.size > MAX_FILE_SIZE) {
+//     return {
+//       error: "The proof-of-delivery image must be smaller than 5MB.",
+//     };
+//   }
+
+//   /* -------------------------------------------------------
+//      2. Validate file type
+//   ------------------------------------------------------- */
+
+//   const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+//   if (!allowedTypes.includes(file.type)) {
+//     return {
+//       error: "Only JPG, PNG, and WebP images are allowed.",
+//     };
+//   }
+
+//   /* -------------------------------------------------------
+//      3. Find driver and current location
+//   ------------------------------------------------------- */
+
+//   const { data: driver, error: driverError } = await supabase
+//     .from("drivers")
+//     .select(
+//       `
+//         id,
+//         current_lat,
+//         current_lng
+//       `,
+//     )
+//     .eq("user_id", user.id)
+//     .single();
+
+//   if (driverError || !driver) {
+//     console.error("DRIVER LOOKUP ERROR:", driverError);
+
+//     return {
+//       error: "Driver account not found.",
+//     };
+//   }
+
+//   /* -------------------------------------------------------
+//      4. Find assigned shipment
+//   ------------------------------------------------------- */
+
+//   const { data: shipment, error: shipmentError } = await supabase
+//     .from("shipments")
+//     .select(
+//       `
+//           id,
+//           driver_id,
+//           customer_id,
+//           tracking_number,
+//           status,
+//           proof_of_delivery_url
+//         `,
+//     )
+//     .eq("id", shipmentId.trim())
+//     .eq("driver_id", driver.id)
+//     .single();
+
+//   if (shipmentError || !shipment) {
+//     console.error("SHIPMENT LOOKUP ERROR:", shipmentError);
+
+//     return {
+//       error: "Shipment not found or is not assigned to you.",
+//     };
+//   }
+
+//   /* -------------------------------------------------------
+//      5. POD is only allowed for out_for_delivery
+//   ------------------------------------------------------- */
+
+//   if (shipment.status === "delivered") {
+//     return {
+//       error: "This shipment has already been delivered.",
+//     };
+//   }
+
+//   if (shipment.status === "cancelled") {
+//     return {
+//       error: "This shipment has been cancelled.",
+//     };
+//   }
+
+//   if (shipment.status !== "arrived_at_delivery_destination") {
+//     return {
+//       error:
+//         "Proof of delivery can only be uploaded when the shipment is out for delivery.",
+//     };
+//   }
+
+//   /* -------------------------------------------------------
+//      6. Capture driver coordinates
+//   ------------------------------------------------------- */
+
+//   const latitude =
+//     driver.current_lat != null ? Number(driver.current_lat) : null;
+
+//   const longitude =
+//     driver.current_lng != null ? Number(driver.current_lng) : null;
+
+//   const hasLocation =
+//     latitude != null &&
+//     longitude != null &&
+//     Number.isFinite(latitude) &&
+//     Number.isFinite(longitude);
+
+//   /* -------------------------------------------------------
+//      7. Generate unique storage path
+//   ------------------------------------------------------- */
+
+//   const fileExtension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+
+//   const safeExtension = ["jpg", "jpeg", "png", "webp"].includes(fileExtension)
+//     ? fileExtension
+//     : "jpg";
+
+//   const path = `${shipmentId.trim()}/${crypto.randomUUID()}.${safeExtension}`;
+
+//   /* -------------------------------------------------------
+//      8. Upload proof
+//   ------------------------------------------------------- */
+
+//   const { error: uploadError } = await supabase.storage
+//     .from("proof-of-delivery")
+//     .upload(path, file, {
+//       upsert: false,
+//       contentType: file.type,
+//     });
+
+//   if (uploadError) {
+//     console.error("PROOF UPLOAD ERROR:", uploadError);
+
+//     return {
+//       error: uploadError.message,
+//     };
+//   }
+
+//   /* -------------------------------------------------------
+//      9. Mark shipment delivered
+
+//      The status condition prevents two simultaneous requests
+//      from both successfully completing the shipment.
+//   ------------------------------------------------------- */
+
+//   const { data: updatedShipment, error: updateError } = await supabase
+//     .from("shipments")
+//     .update({
+//       proof_of_delivery_url: path,
+//       status: "delivered",
+//       updated_at: new Date().toISOString(),
+//     })
+//     .eq("id", shipmentId.trim())
+//     .eq("driver_id", driver.id)
+//     .eq("status", "arrived_at_delivery_destination")
+//     .select(
+//       `
+//           id,
+//           status,
+//           tracking_number,
+//           customer_id
+//         `,
+//     )
+//     .maybeSingle();
+
+//   if (updateError || !updatedShipment) {
+//     console.error("UPDATE DELIVERY ERROR:", {
+//       shipmentId,
+//       driverId: driver.id,
+//       error: updateError,
+//     });
+
+//     /* Remove uploaded file if delivery update failed. */
+//     await supabase.storage.from("proof-of-delivery").remove([path]);
+
+//     return {
+//       error:
+//         updateError?.message ??
+//         "Unable to complete delivery. The shipment may have already been updated.",
+//     };
+//   }
+
+//   /* -------------------------------------------------------
+//      10. Create delivered tracking event
+//   ------------------------------------------------------- */
+
+//   const { error: eventError } = await supabase.from("shipment_events").insert({
+//     shipment_id: shipmentId.trim(),
+//     status: "delivered",
+//     note: "Proof of delivery uploaded.",
+//     created_by: user.id,
+//     lat: hasLocation ? latitude : null,
+//     lng: hasLocation ? longitude : null,
+//   });
+
+//   if (eventError) {
+//     console.error("DELIVERY EVENT ERROR:", {
+//       shipmentId,
+//       error: eventError,
+//     });
+
+//     /*
+//      * Delivery is already complete.
+//      * Do not report delivery itself as failed.
+//      */
+//   }
+
+//   /* -------------------------------------------------------
+//      11. Notify customer
+//   ------------------------------------------------------- */
+
+//   const customerNotification = await createNotification({
+//     userId: shipment.customer_id,
+//     title: "Shipment delivered",
+//     message: `Your shipment ${shipment.tracking_number} has been delivered successfully.`,
+//     type: "shipment_delivered",
+//     shipmentId: shipment.id,
+//   });
+
+//   if (customerNotification.error) {
+//     console.error(
+//       "CUSTOMER DELIVERY NOTIFICATION ERROR:",
+//       customerNotification.error,
+//     );
+//   }
+
+//   /* -------------------------------------------------------
+//      12. Notify admins
+//   ------------------------------------------------------- */
+
+//   const adminIds = await getAdminUserIds();
+
+//   await Promise.all(
+//     adminIds.map(async (adminId) => {
+//       const adminNotification = await createNotification({
+//         userId: adminId,
+//         title: "Shipment delivered",
+//         message: `Shipment ${shipment.tracking_number} has been delivered successfully.`,
+//         type: "shipment_delivered",
+//         shipmentId: shipment.id,
+//       });
+
+//       if (adminNotification.error) {
+//         console.error(
+//           `ADMIN DELIVERY NOTIFICATION ERROR (${adminId}):`,
+//           adminNotification.error,
+//         );
+//       }
+//     }),
+//   );
+
+//   /* -------------------------------------------------------
+//      13. Refresh relevant pages
+//   ------------------------------------------------------- */
+
+//   revalidatePath("/driver");
+//   revalidatePath("/driver/deliveries");
+//   revalidatePath(`/driver/deliveries/${shipmentId}`);
+
+//   revalidatePath("/customer");
+//   revalidatePath("/customer/track");
+//   revalidatePath("/customer/notifications");
+
+//   revalidatePath(`/customer/shipments/${shipment.tracking_number}`);
+
+//   revalidatePath("/admin");
+//   revalidatePath("/admin/shipments");
+//   revalidatePath("/admin/tracking");
+//   revalidatePath("/admin/notifications");
+
+//   return {
+//     success: true,
+//   };
+// }

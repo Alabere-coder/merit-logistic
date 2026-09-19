@@ -13,6 +13,7 @@ export type PricingSettings = {
   additional_service_fee: number;
   min_delivery_fee: number | null;
   max_delivery_fee: number | null;
+  driver_payout_rate: number;
 };
 
 export type ShipmentPricingResult = {

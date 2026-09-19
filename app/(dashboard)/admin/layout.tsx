@@ -42,6 +42,11 @@ const navItems: NavItem[] = [
 
   // Finance
   {
+    href: "/admin/earnings",
+    label: "Driver Earnings",
+    icon: "Wallet",
+  },
+  {
     href: "/admin/payments",
     label: "Payments",
     icon: "CreditCard",

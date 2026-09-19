@@ -15,6 +15,11 @@ import { DriverRowActions } from "@/components/dashboard/driver-row-actions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate, initials } from "@/lib/utils";
+import { getLocalizationSettings } from "@/lib/localization/get-localization-settings";
+import {
+  formatLocalizedCurrency,
+  formatLocalizedDateTime,
+} from "@/lib/localization/format-localized";
 
 import type { DriverStatus } from "@/types/app";
 
@@ -55,6 +60,49 @@ export default async function AdminDriverDetailsPage({
     .single();
 
   const vehicleResult = await getDriverAssignedVehicle(driver?.user_id ?? "");
+  const localization = await getLocalizationSettings();
+
+  const { data: driverEarnings, error: earningsError } = await supabase
+    .from("driver_earnings")
+    .select(
+      `
+    id,
+    shipment_id,
+    amount,
+    status,
+    payment_reference,
+    paid_at,
+    created_at,
+    drivers (
+      user_id,
+      users!drivers_user_id_fkey (
+        first_name,
+        last_name,
+        email
+      )
+    ),
+    shipments (
+      tracking_number
+    )
+  `,
+    )
+    .eq("driver_id", id)
+    .order("created_at", { ascending: false });
+
+  const earnings = driverEarnings ?? [];
+
+  const totalEarnings = earnings.reduce(
+    (total, earning) => total + Number(earning.amount || 0),
+    0,
+  );
+
+  const pendingEarnings = earnings
+    .filter((earning) => earning.status === "pending")
+    .reduce((total, earning) => total + Number(earning.amount || 0), 0);
+
+  const paidEarnings = earnings
+    .filter((earning) => earning.status === "paid")
+    .reduce((total, earning) => total + Number(earning.amount || 0), 0);
 
   if (driverError || !driver) {
     console.error("ADMIN DRIVER DETAILS ERROR:", driverError);
@@ -119,7 +167,8 @@ export default async function AdminDriverDetailsPage({
               </h1>
 
               <p className="mt-1 text-sm text-cyan-600">
-                Driver since {formatDate(driver.created_at)}
+                Driver since{" "}
+                {formatLocalizedDateTime(driver.created_at, localization)}
               </p>
             </div>
           </div>
@@ -135,7 +184,7 @@ export default async function AdminDriverDetailsPage({
       {/* Profile and status */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Contact information */}
-        <Card className="border border-navy-100/80 bg-white shadow-xs rounded-xl lg:col-span-2">
+        <Card className="border border-slate-300/80 bg-white shadow-xs rounded-xl lg:col-span-2">
           <CardContent className="p-6">
             <div className="mb-5">
               <h2 className="text-base font-bold text-navy-900">
@@ -217,7 +266,7 @@ export default async function AdminDriverDetailsPage({
         </Card>
 
         {/* Location */}
-        <Card className="border border-navy-100/80 bg-white shadow-xs rounded-xl">
+        <Card className="border border-slate-300/80 bg-white shadow-xs rounded-xl">
           <CardContent className="p-6">
             <div className="mb-5 flex items-center gap-3">
               <div className="rounded-lg bg-navy-50 p-2 text-cyan-600">
@@ -265,7 +314,7 @@ export default async function AdminDriverDetailsPage({
       </div>
 
       {/* Assigned vehicle */}
-      <Card className="border border-navy-100/80 bg-white shadow-xs rounded-xl">
+      <Card className="border border-slate-300/80 bg-white shadow-xs rounded-xl">
         <CardContent className="p-6">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -340,7 +389,7 @@ export default async function AdminDriverDetailsPage({
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-navy-200 bg-navy-50/40 px-6 py-10 text-center">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-400 bg-navy-50/40 px-6 py-10 text-center">
               <div className="rounded-full bg-white p-3 text-navy-400 ring-1 ring-inset ring-navy-200">
                 <Truck className="h-5 w-5" />
               </div>
@@ -362,6 +411,153 @@ export default async function AdminDriverDetailsPage({
               </Link>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="border border-slate-300/80 bg-white shadow-xs rounded-xl">
+        <CardContent className="p-6">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-base font-bold text-navy-900">
+                Driver earnings
+              </h2>
+
+              <p className="mt-1 text-sm text-cyan-600">
+                Earnings and payout history for this driver.
+              </p>
+            </div>
+
+            <Link
+              href={`/admin/earnings/${id}`}
+              className="inline-flex items-center justify-center rounded-lg border border-navy-200 bg-cyan-500 text-white px-3 py-2 text-xs font-semibold text-navy-700 transition hover:bg-navy-50"
+            >
+              View all earnings
+            </Link>
+          </div>
+
+          {/* Summary */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-slate-300 bg-navy-50/40 p-4">
+              <p className="text-xs font-medium text-navy-400">
+                Total earnings
+              </p>
+
+              <p className="mt-1 text-xl font-bold text-navy-900">
+                {formatLocalizedCurrency(totalEarnings, localization)}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-amber-100 bg-amber-50/50 p-4">
+              <p className="text-xs font-medium text-amber-700">
+                Pending payout
+              </p>
+
+              <p className="mt-1 text-xl font-bold text-amber-800">
+                {formatLocalizedCurrency(pendingEarnings, localization)}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
+              <p className="text-xs font-medium text-emerald-700">Paid</p>
+
+              <p className="mt-1 text-xl font-bold text-emerald-800">
+                {formatLocalizedCurrency(paidEarnings, localization)}
+              </p>
+            </div>
+          </div>
+
+          {/* Earnings history */}
+          <div className="mt-6">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-navy-900">
+                Recent earnings
+              </h3>
+
+              {/* {earnings.length > 0 && (
+                <Link
+                  href={`/admin/earnings/${id}`}
+                  className="text-xs font-medium text-cyan-600 hover:text-cyan-700"
+                >
+                  View all
+                </Link>
+              )} */}
+            </div>
+
+            {earnings.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-navy-200 bg-navy-50/30 px-6 py-8 text-center">
+                <p className="text-sm font-semibold text-navy-700">
+                  No earnings yet
+                </p>
+
+                <p className="mt-1 text-xs text-navy-400">
+                  Earnings will appear here after this driver completes
+                  deliveries.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-hidden rounded-xl border border-slate-300">
+                <div className="divide-y divide-slate-300">
+                  {earnings.slice(0, 5).map((earning) => {
+                    const shipment = Array.isArray(earning.shipments)
+                      ? earning.shipments[0]
+                      : earning.shipments;
+
+                    return (
+                      <div
+                        key={earning.id}
+                        className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div className="min-w-0">
+                          {shipment?.tracking_number ? (
+                            <Link
+                              href={`/admin/shipments/${earning.shipment_id}`}
+                              className="text-sm font-semibold text-navy-800 hover:text-cyan-600"
+                            >
+                              {shipment.tracking_number}
+                            </Link>
+                          ) : (
+                            <p className="text-sm font-semibold text-navy-800">
+                              Shipment
+                            </p>
+                          )}
+
+                          <p className="mt-1 text-xs text-navy-400">
+                            {formatDate(earning.created_at)}
+                          </p>
+
+                          {earning.payment_reference && (
+                            <p className="mt-1 text-xs text-navy-400">
+                              Ref: {earning.payment_reference}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4 sm:justify-end">
+                          <p className="text-sm font-bold text-navy-900">
+                            {formatLocalizedCurrency(
+                              Number(earning.amount || 0),
+                              localization,
+                            )}
+                          </p>
+
+                          <Badge
+                            variant="secondary"
+                            className={
+                              earning.status === "paid"
+                                ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20"
+                                : "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20"
+                            }
+                          >
+                            {earning.status === "paid" ? "Paid" : "Pending"}
+                          </Badge>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 

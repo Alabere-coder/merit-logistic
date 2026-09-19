@@ -31,7 +31,8 @@ export async function getPricingSettings(): Promise<
       express_delivery_fee,
       additional_service_fee,
       min_delivery_fee,
-      max_delivery_fee
+      max_delivery_fee,
+      driver_payout_rate
     `,
     )
     .limit(1)
@@ -70,6 +71,7 @@ export async function getPricingSettings(): Promise<
         settings.max_delivery_fee === null
           ? null
           : Number(settings.max_delivery_fee),
+      driver_payout_rate: Number(settings.driver_payout_rate),
     },
   };
 }

@@ -148,16 +148,17 @@ export function DeliveryActions({
           accept="image/*"
           onChange={(event) => setFile(event.target.files?.[0] ?? null)}
           disabled={uploading}
-          className="block w-full text-sm text-navy-600 file:mr-4 file:rounded-lg file:border-0 file:bg-navy-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-navy-700 hover:file:bg-navy-200 disabled:opacity-60"
+          className="block w-full border-2 border-slate-300 rounded-xl text-sm text-navy-600 file:mr-4 file:rounded-lg file:border-slate-300 file:border-r-2 file:bg-navy-200 file:px-4 file:py-2 file:text-sm file:font-medium file:text-navy-700 hover:file:bg-navy-200 disabled:opacity-60"
         />
 
         {file && <p className="text-xs text-navy-500">Selected: {file.name}</p>}
 
         <Button
           type="button"
+          variant="outline"
           onClick={handleUploadAndDeliver}
           disabled={uploading || !file}
-          className="inline-flex items-center justify-center gap-2 rounded-xl"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border-2 mt-4 bg-cyan-600 text-white"
         >
           {uploading ? (
             <>
@@ -184,7 +185,7 @@ export function DeliveryActions({
       type="button"
       onClick={advanceStatus}
       disabled={pending || !nextStatus}
-      className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 px-5 py-2.5 font-medium text-white shadow-md shadow-indigo-500/20 transition-all duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-indigo-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
+      className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg bg-violet-600 px-5 py-2.5 font-medium text-white  transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
     >
       {pending ? (
         <>
