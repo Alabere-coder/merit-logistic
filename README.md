@@ -1,36 +1,159 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Logistics & Courier Management Platform
 
-## Getting Started
+A full-stack logistics and courier management platform built with **Next.js, TypeScript, and Supabase**.
 
-First, run the development server:
+The platform provides separate experiences for customers, drivers, and administrators, covering shipment creation, delivery management, tracking, payments, notifications, proof of delivery, driver earnings, and administrative management.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 🚀 Features
+
+### 👤 Customer
+
+Customers can:
+
+- Create an account
+- Log in securely
+- Create shipments
+- Select package types
+- Choose Standard or Express delivery
+- View delivery price estimates
+- Track shipments
+- View shipment history
+- Cancel eligible shipments
+- View payment history
+- Receive shipment notifications
+- View shipment details and status timeline
+- Manage account settings
+- Contact support
+
+---
+
+### 🚚 Driver
+
+Drivers are created and managed by administrators.
+
+Drivers can:
+
+- Log in securely
+- View assigned deliveries
+- View delivery details
+- Accept/manage delivery workflow
+- Update shipment status
+- Share delivery location
+- Upload proof of delivery
+- Complete deliveries
+- View earnings
+- View payout history
+- View paid and pending earnings
+- Manage driver settings
+
+Drivers cannot be publicly registered through the customer signup system.
+
+---
+
+### 🛠️ Administrator
+
+Administrators have access to the management dashboard.
+
+Admin capabilities include:
+
+#### Dashboard
+
+- Business overview
+- Shipment statistics
+- Driver statistics
+- Customer statistics
+- Payment information
+- Earnings information
+
+#### Shipments
+
+- View all shipments
+- View shipment details
+- Manage shipment status
+- Assign drivers
+- Monitor delivery progress
+- View shipment timeline
+- View proof of delivery
+
+#### Drivers
+
+- Create drivers
+- View drivers
+- Edit driver information
+- Activate/deactivate drivers
+- Suspend drivers
+- View driver details
+- View driver delivery activity
+- View driver earnings
+
+#### Customers
+
+- View customers
+- Manage customer accounts
+- Activate/deactivate customers
+- View customer shipment history
+
+#### Payments
+
+- View customer payments
+- Monitor payment status
+- Review payment history
+
+#### Driver Earnings
+
+- View all driver earnings
+- View individual driver earnings
+- View pending payouts
+- View paid payouts
+- Mark earnings as paid
+- Add payment references
+- Download driver payout records as CSV
+- Generate driver payout statements as PDF
+
+#### Tracking
+
+- Monitor shipment progress
+- View shipment status events
+- View driver location information
+
+#### Reports
+
+- View operational and financial information
+
+#### Settings
+
+- Company information
+- Branding
+- Logo and favicon
+- Localization
+- Currency
+- Timezone
+- Date/time formatting
+- Pricing configuration
+- Support information
+
+---
+
+# 📦 Shipment Workflow
+
+A shipment follows a controlled lifecycle.
+
+```text
+Pending
+   ↓
+Approved
+   ↓
+Picked Up
+   ↓
+In Transit
+   ↓
+Arrived at Warehouse
+   ↓
+Out for Delivery
+   ↓
+Arrived at Delivery Destination
+   ↓
+Delivered
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
