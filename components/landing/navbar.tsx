@@ -8,11 +8,10 @@ import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 
 const links = [
-  { href: "#services", label: "Services" },
-  { href: "#track", label: "Track" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
-  { href: "#contact", label: "Contact" },
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
@@ -33,16 +32,16 @@ export function Navbar() {
           href="/"
           className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg">
+          <span className="flex h-6 w-6 items-center justify-center rounded-lg">
             <Image
               src="/emirate2.jpeg"
               alt="Company Logo"
-              width={150}
+              width={40}
               height={40}
               priority
             />
           </span>
-          <p className="text-2xl">
+          <p className="text-xl">
             Emirate<span className="text-cyan-500 pl-1">Global</span>
           </p>
         </Link>

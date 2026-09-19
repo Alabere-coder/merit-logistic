@@ -68,8 +68,8 @@ export default async function AdminOverviewPage() {
                 System Overview
               </h1>
               <p className="text-xs font-medium text-slate-500">
-                Real-time metric monitoring across customers, drivers, and
-                active deliveries.
+                Real-time monitoring across customers, drivers, and active
+                deliveries.
               </p>
             </div>
           </div>

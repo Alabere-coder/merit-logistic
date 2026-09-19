@@ -214,30 +214,24 @@ export function DashboardShell({
         {/* Top Header */}
         <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/80 px-4 backdrop-blur-md transition-all sm:px-6 lg:px-8">
           {/* Mobile Menu Trigger */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             <div className="flex items-center gap-3">
               <button
                 className="h-8 w-8 text-cyan-900 transition-all  active:scale-95 lg:hidden"
                 onClick={() => setMobileOpen(true)}
                 aria-label="Open menu"
               >
-                <Menu className="h-7 w-7" />
+                <Menu className="h-6 w-6" />
               </button>
             </div>
 
             {/* Role Badge Indicator */}
             <div className="flex items-center justify-start md:hidden">
-              {/* <span>
-              {user.firstName} {user.lastName}
-            </span> */}
-              {/* <h1 className="inline-flex px-3 py-1 font-mono text-md sm:text-xl font-bold uppercase tracking-wider text-cyan-600">
-                {roleLabel}
-              </h1> */}
               <Link
                 href="/"
                 className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg">
+                <span className="flex h-6 w-6 items-center justify-center rounded-lg">
                   <Image
                     src="/emirate2.jpeg"
                     alt="Company Logo"
@@ -246,7 +240,7 @@ export function DashboardShell({
                     priority
                   />
                 </span>
-                <p className="text-2xl">
+                <p className="text-xl">
                   Emirate<span className="text-cyan-500 pl-1">Global</span>
                 </p>
               </Link>
@@ -258,14 +252,14 @@ export function DashboardShell({
           </div>
 
           {/* Profile Action */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Notifications Action */}
 
             {(roleLabel === "customer" || roleLabel === "driver") && (
-                <div className="flex items-center justify-end gap-2">
-                  <NotificationBell />
-                </div>
-              )}
+              <div className="flex items-center justify-end gap-2">
+                <NotificationBell />
+              </div>
+            )}
             {roleLabel === "admin" && (
               <div className="flex items-center justify-end gap-2 max-md:hidden">
                 <NotificationBell />

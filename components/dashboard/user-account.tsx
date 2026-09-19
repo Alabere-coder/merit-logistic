@@ -40,10 +40,10 @@ export function UserAccountProfile({
         render={
           <Button
             variant="ghost"
-            className="h-9 w-9 rounded-full border-2 border-slate-300 bg-slate-200 p-0 hover:bg-slate-300"
+            className="h-8 w-8 rounded-full  bg-cyan-600 p-0 hover:bg-cyan-500"
           >
             {firstName || lastName ? (
-              <span className="text-xs font-bold text-slate-700">
+              <span className="text-xs font-bold text-white">
                 {initials(firstName, lastName)}
               </span>
             ) : (
@@ -62,7 +62,7 @@ export function UserAccountProfile({
         <DropdownMenuGroup>
           <DropdownMenuLabel className="font-normal">
             <div className="flex items-center gap-3 my-2">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-xs font-bold text-white">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-500 text-xs font-bold text-white">
                 {initials(firstName, lastName)}
               </span>
 
