@@ -7,6 +7,7 @@ import {
   Clock,
   type LucideIcon,
 } from "lucide-react";
+import CompanyLogo from "../../public/emirate2.jpeg";
 
 const points: [LucideIcon, string][] = [
   [ShieldCheck, "Every shipment insured and tracked door to door"],
@@ -38,13 +39,7 @@ export function AuthLayout({
           className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
         >
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
-            <Image
-              src="/emirate2.jpeg"
-              alt="Company Logo"
-              width={150}
-              height={40}
-              priority
-            />
+            <Image src={CompanyLogo} alt="Company Logo" />
           </span>
           <p className="text-2xl text-white">
             Emirate<span className="text-cyan-500 pl-1">Global</span>

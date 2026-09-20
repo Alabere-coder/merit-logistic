@@ -38,6 +38,7 @@ import { NotificationBell } from "@/components/dashboard/notification-bell";
 import { useFormStatus } from "react-dom";
 import { UserAccountProfile } from "./user-account";
 import { GlobalSearch } from "@/components/admin/global-search";
+import CompanyLogo from "../../public/emirate2.jpeg";
 
 export type NavItem = {
   href: string;
@@ -99,13 +100,7 @@ export function DashboardShell({
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
             {/* <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} /> */}
 
-            <Image
-              src="/emirate2.jpeg"
-              alt="Company Logo"
-              width={150}
-              height={40}
-              priority
-            />
+            <Image src={CompanyLogo} alt="Company Logo" />
           </span>
           <p className="text-2xl">
             Emirate<span className="text-cyan-500 pl-1">Global</span>
