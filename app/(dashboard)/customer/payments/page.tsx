@@ -2,10 +2,12 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth/require-role";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatDate } from "@/lib/utils";
-import { CreditCard, ExternalLink, Receipt, ArrowUpRight } from "lucide-react";
+import { CreditCard, Receipt, ArrowUpRight } from "lucide-react";
 import { getLocalizationSettings } from "@/lib/localization/get-localization-settings";
-import { formatLocalizedCurrency } from "@/lib/localization/format-localized";
+import {
+  formatLocalizedCurrency,
+  formatLocalizedDateTime,
+} from "@/lib/localization/format-localized";
 
 const STATUS_VARIANT = {
   paid: "default",
@@ -121,7 +123,11 @@ export default async function CustomerPaymentsPage() {
                       </div>
 
                       <p className="text-xs font-medium text-slate-500">
-                        {formatDate(payment.created_at)} ·{" "}
+                        {formatLocalizedDateTime(
+                          payment.created_at,
+                          localization,
+                        )}{" "}
+                        ·{" "}
                         <span className="text-slate-700">{paymentMethod}</span>
                       </p>
 

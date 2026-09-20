@@ -2,6 +2,7 @@ import { requireRole } from "@/lib/auth/require-role";
 import { getMySupportTickets } from "@/lib/actions/support";
 import { SupportTicketForm } from "@/components/support/support-ticket-form";
 import { SupportTicketList } from "@/components/support/support-ticket-list";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default async function CustomerSupportPage() {
   await requireRole(["customer"]);
@@ -35,8 +36,14 @@ export default async function CustomerSupportPage() {
         </div>
 
         {result.error ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">
-            Unable to load your support tickets.
+          <div className="w-full max-w-xs">
+            <div>
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+            <div className="mt-4">
+              <Skeleton className="aspect-video w-full" />
+            </div>
           </div>
         ) : (
           <SupportTicketList

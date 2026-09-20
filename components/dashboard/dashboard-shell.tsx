@@ -240,6 +240,12 @@ export function DashboardShell({
                 </p>
               </Link>
             </div>
+            <div className="max-md:hidden text-xl flex items-baseline-last justify-center gap-2">
+              <h1 className="text-cyan-500 text-xl">Welcome back</h1>
+              <p className="truncate text-slate-600 font-semibold align-bottom text-[16px] ">
+                {user.firstName} {user.lastName}
+              </p>
+            </div>
           </div>
 
           <div className="max-md:hidden">
