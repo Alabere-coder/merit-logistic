@@ -5,9 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  PackageSearch,
   Menu,
-  LogOut,
   Bell,
   LayoutDashboard,
   Users,
@@ -68,6 +66,27 @@ const icons = {
   InfoIcon,
 };
 
+function LogoutSubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button
+      type="submit"
+      disabled={pending}
+      className="h-10 rounded-xl bg-rose-600 px-4 text-xs font-semibold text-white shadow-md transition-all hover:bg-rose-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+    >
+      {pending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Logging out...
+        </>
+      ) : (
+        "Yes, Log out"
+      )}
+    </Button>
+  );
+}
+
 export function DashboardShell({
   children,
   navItems,
@@ -86,8 +105,6 @@ export function DashboardShell({
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-  const { pending } = useFormStatus();
 
   const SidebarContent = (
     <div className="flex min-h-0 flex-1 flex-col justify-between">
@@ -332,20 +349,7 @@ export function DashboardShell({
               </Button>
 
               <form action={logOut}>
-                <Button
-                  type="submit"
-                  disabled={pending}
-                  className="h-10 rounded-xl bg-rose-600 px-4 text-xs font-semibold text-white shadow-md transition-all hover:bg-rose-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {pending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Logging out...
-                    </>
-                  ) : (
-                    "Yes, Log out"
-                  )}
-                </Button>
+                <LogoutSubmitButton />
               </form>
             </div>
           </div>
