@@ -12,6 +12,8 @@ import { formatCurrency } from "@/lib/utils";
 
 import { Eye, PackageSearch } from "lucide-react";
 
+export const instant = false;
+
 export default async function AdminShipmentsPage() {
   const { supabase } = await requireRole(["admin"]);
 

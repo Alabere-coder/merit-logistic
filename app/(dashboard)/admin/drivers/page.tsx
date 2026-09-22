@@ -14,6 +14,8 @@ import { Eye, Truck } from "lucide-react";
 
 import type { DriverStatus } from "@/types/app";
 
+export const instant = false;
+
 export default async function AdminDriversPage() {
   const { supabase } = await requireRole(["admin"]);
 

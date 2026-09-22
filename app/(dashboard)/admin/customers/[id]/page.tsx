@@ -82,6 +82,8 @@ function formatPaymentStatus(status: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+export const instant = false;
+
 export default async function AdminCustomerDetailPage({
   params,
 }: CustomerDetailPageProps) {

@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type BrandingSettings = {
@@ -17,32 +18,41 @@ const defaultBranding: BrandingSettings = {
 };
 
 export async function getBrandingSettings(): Promise<BrandingSettings> {
-  const supabase = createAdminClient();
+  return unstable_cache(
+    async () => {
+      const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("branding_settings")
-    .select(
-      `
-      id,
-      tagline,
-      primary_color,
-      secondary_color,
-      favicon_url
-    `,
-    )
-    .limit(1)
-    .maybeSingle();
+      const { data, error } = await supabase
+        .from("branding_settings")
+        .select(
+          `
+          id,
+          tagline,
+          primary_color,
+          secondary_color,
+          favicon_url
+        `,
+        )
+        .limit(1)
+        .maybeSingle();
 
-  if (error) {
-    console.error("GET PUBLIC BRANDING SETTINGS ERROR:", {
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-      code: error.code,
-    });
+      if (error) {
+        console.error("GET PUBLIC BRANDING SETTINGS ERROR:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        });
 
-    return defaultBranding;
-  }
+        return defaultBranding;
+      }
 
-  return data ?? defaultBranding;
+      return data ?? defaultBranding;
+    },
+    ["branding-settings"],
+    {
+      revalidate: 3600,
+      tags: ["branding-settings"],
+    },
+  )();
 }

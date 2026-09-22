@@ -29,6 +29,8 @@ const allowedPeriods = [
   "year",
 ] as const;
 
+export const instant = false;
+
 export default async function AdminReportsPage({
   searchParams,
 }: {

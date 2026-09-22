@@ -16,6 +16,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
+export const instant = false;
+
 export default async function AdminOverviewPage() {
   const { supabase } = await requireRole(["admin"]);
 

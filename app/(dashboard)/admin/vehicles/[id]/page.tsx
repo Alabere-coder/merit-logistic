@@ -11,6 +11,8 @@ import {
 
 import { ManageVehicleForm } from "@/components/admin/manage-vehicle-form";
 
+export const instant = false;
+
 export default async function ManageVehiclePage({
   params,
 }: {

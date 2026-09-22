@@ -3,6 +3,8 @@ import { requireRole } from "@/lib/auth/require-role";
 import { getNotifications } from "@/lib/actions/notifications";
 import { NotificationsList } from "@/components/notifications/notifications-list";
 
+export const instant = false;
+
 export default async function NotificationsPage() {
   const { profile } = await requireRole(["admin", "driver", "customer"]);
 

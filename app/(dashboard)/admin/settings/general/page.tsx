@@ -11,6 +11,8 @@ import { CompanySettingsForm } from "@/components/shared/company-settings-form";
 import { BrandingSettingsForm } from "@/components/admin/branding-settings-form";
 import { LocalizationSettingsForm } from "@/components/admin/localization-settings-form";
 
+export const instant = false;
+
 export default async function GeneralSettingsPage() {
   await requireRole(["admin"]);
 

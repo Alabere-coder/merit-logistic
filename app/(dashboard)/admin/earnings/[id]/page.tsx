@@ -27,6 +27,8 @@ type DriverEarningsPageProps = {
   }>;
 };
 
+export const instant = false;
+
 export default async function DriverEarningsPage({
   params,
 }: DriverEarningsPageProps) {

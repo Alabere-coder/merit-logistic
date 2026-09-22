@@ -54,6 +54,8 @@ const settingsCategories = [
   // },
 ];
 
+export const instant = false;
+
 export default async function AdminSettingsPage() {
   await requireRole(["admin"]);
   const { profile } = await requireRole(["admin"]);

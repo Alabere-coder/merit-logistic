@@ -11,6 +11,8 @@ import { NotificationSettings } from "@/components/notifications/notification-se
 import { NotificationSettingsForm } from "@/components/admin/notification-settings-form";
 import { CommunicationSettingsForm } from "@/components/admin/communication-settings-form";
 
+export const instant = false;
+
 export default async function NotificationSettingsPage() {
   const { profile } = await requireRole(["admin"]);
 

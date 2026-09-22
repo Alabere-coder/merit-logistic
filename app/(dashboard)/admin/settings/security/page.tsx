@@ -10,6 +10,8 @@ import { ArrowLeft, KeyRound, User } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
+export const instant = false;
+
 export default async function SecuritySettingsPage() {
   const { profile } = await requireRole(["admin"]);
 

@@ -4,6 +4,9 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { Wallet } from "lucide-react";
 
 import { MarkEarningPaid } from "./mark-earning-paid";
+import Link from "next/link";
+
+export const instant = false;
 
 export default async function AdminEarningsPage() {
   const { supabase } = await requireRole(["admin"]);
@@ -207,15 +210,17 @@ export default async function AdminEarningsPage() {
                     return (
                       <tr key={earning.id} className="hover:bg-slate-50">
                         <td className="px-5 py-4">
-                          <p className="font-medium text-navy-900">
-                            {driverName}
-                          </p>
-
-                          {user?.email && (
-                            <p className="mt-0.5 text-xs text-navy-400">
-                              {user.email}
+                          <Link href={`/admin/earnings/${earning.driver_id}`}>
+                            <p className="font-medium text-navy-900">
+                              {driverName}
                             </p>
-                          )}
+
+                            {user?.email && (
+                              <p className="mt-0.5 text-xs text-navy-400">
+                                {user.email}
+                              </p>
+                            )}
+                          </Link>
                         </td>
 
                         <td className="px-5 py-4">

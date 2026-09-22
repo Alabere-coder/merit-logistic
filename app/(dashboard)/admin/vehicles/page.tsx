@@ -57,6 +57,8 @@ function getDriverName(
   return name || driver.email || "Driver";
 }
 
+export const instant = false;
+
 export default async function AdminVehiclesPage({
   searchParams,
 }: {

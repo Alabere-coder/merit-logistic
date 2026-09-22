@@ -23,6 +23,8 @@ import {
 
 import type { DriverStatus } from "@/types/app";
 
+export const instant = false;
+
 export default async function AdminDriverDetailsPage({
   params,
 }: {

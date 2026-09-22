@@ -52,6 +52,8 @@ function formatStatus(status: string) {
   return STATUS_LABEL[status] ?? status.replaceAll("_", " ");
 }
 
+export const instant = false;
+
 export default async function AdminTrackingPage() {
   const [trackingResult, settings] = await Promise.all([
     getAdminTracking(),

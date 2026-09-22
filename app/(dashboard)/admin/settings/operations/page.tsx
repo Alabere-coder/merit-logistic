@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import { OperationsSettingsForm } from "@/components/admin/operations-settings-form";
 
+export const instant = false;
+
 export default async function OperationsSettingsPage() {
   await requireRole(["admin"]);
 

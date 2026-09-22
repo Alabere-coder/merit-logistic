@@ -98,6 +98,8 @@ const navItems: NavItem[] = [
   },
 ];
 
+export const instant = false;
+
 export default async function AdminLayout({
   children,
 }: {

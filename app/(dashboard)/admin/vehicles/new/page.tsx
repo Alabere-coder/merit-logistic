@@ -5,6 +5,8 @@ import { requireRole } from "@/lib/auth/require-role";
 import { getVehicleDrivers } from "@/lib/actions/vehicles";
 import { AddVehicleForm } from "@/components/admin/add-vehicle-form";
 
+export const instant = false;
+
 export default async function AddVehiclePage() {
   await requireRole(["admin"]);
 

@@ -6,10 +6,10 @@ import { AlertCircle, AlertTriangle, Users } from "lucide-react";
 import Link from "next/link";
 import { CustomerActions } from "@/components/admin/customer-actions";
 
+export const instant = false;
+
 export default async function AdminCustomersPage() {
   const { supabase } = await requireRole(["admin"]);
-
-  console.log("=== ADMIN CUSTOMERS PAGE ===");
 
   const { data: customers, error: customersError } = await supabase
     .from("users")
@@ -19,15 +19,9 @@ export default async function AdminCustomersPage() {
     .eq("role", "customer")
     .order("created_at", { ascending: false });
 
-  console.log("CUSTOMERS:", customers);
-  console.log("CUSTOMERS ERROR:", customersError);
-
   const { data: shipmentCounts, error: shipmentError } = await supabase
     .from("shipments")
     .select("customer_id");
-
-  console.log("SHIPMENT COUNTS:", shipmentCounts);
-  console.log("SHIPMENT ERROR:", shipmentError);
 
   const countByCustomer = new Map<string, number>();
 

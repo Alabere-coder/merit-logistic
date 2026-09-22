@@ -8,6 +8,8 @@ import {
 } from "@/components/admin/support-ticket-table";
 import { Card, CardContent } from "@/components/ui/card";
 
+export const instant = false;
+
 export default async function AdminSupportPage() {
   const { supabase } = await requireRole(["admin"]);
 

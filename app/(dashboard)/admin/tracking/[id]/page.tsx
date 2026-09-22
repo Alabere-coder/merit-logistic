@@ -128,6 +128,8 @@ function getLocationFreshness(lastUpdate: string | null) {
   };
 }
 
+export const instant = false;
+
 export default async function AdminTrackingDetailPage({
   params,
 }: {

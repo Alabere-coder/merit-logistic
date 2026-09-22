@@ -6,6 +6,8 @@ import { PricingSettingsForm } from "@/components/admin/pricing-settings-form";
 
 import { Calculator, DollarSign, Info, ShieldCheck } from "lucide-react";
 
+export const instant = false;
+
 export default async function AdminPricingPage() {
   await requireRole(["admin"]);
 
@@ -36,7 +38,7 @@ export default async function AdminPricingPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-8">
       {/* Header */}
-      <div className="rounded-2xl border border-slate-200/80 bg-linear-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 text-white shadow-xl">
+      <div className="rounded-2xl border border-slate-200/80 bg-slate-900 p-6 text-white">
         <div className="flex items-center gap-3.5">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white backdrop-blur-md ring-1 ring-white/20">
             <Calculator className="h-5 w-5" />

@@ -72,6 +72,8 @@ function getPriorityStyles(priority: string) {
   }
 }
 
+export const instant = false;
+
 export default async function AdminSupportTicketPage({ params }: PageProps) {
   const { ticketId } = await params;
 

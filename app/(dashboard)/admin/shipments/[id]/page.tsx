@@ -24,6 +24,8 @@ type PageProps = {
   }>;
 };
 
+export const instant = false;
+
 export default async function AdminShipmentDetailPage({ params }: PageProps) {
   const { id } = await params;
 
