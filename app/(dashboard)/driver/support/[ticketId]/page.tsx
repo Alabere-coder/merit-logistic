@@ -11,6 +11,8 @@ type Props = {
   }>;
 };
 
+export const instant = false;
+
 export default async function DriverSupportTicketPage({ params }: Props) {
   const { user } = await requireRole(["driver"]);
 

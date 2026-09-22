@@ -3,6 +3,8 @@ import { getMySupportTickets } from "@/lib/actions/support";
 import { SupportTicketForm } from "@/components/support/support-ticket-form";
 import { SupportTicketList } from "@/components/support/support-ticket-list";
 
+export const instant = false;
+
 export default async function DriverSupportPage() {
   await requireRole(["driver"]);
 

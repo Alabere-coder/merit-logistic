@@ -6,6 +6,8 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { Truck, CheckCircle2, Wallet, PackageX } from "lucide-react";
 import { ShipmentStatus } from "@/types/app";
 
+export const instant = false;
+
 export default async function DriverOverviewPage() {
   const { user, supabase } = await requireRole(["driver"]);
 

@@ -17,6 +17,8 @@ import { MapPin, Phone, User } from "lucide-react";
 
 import type { ShipmentStatus } from "@/types/app";
 
+export const instant = false;
+
 export default async function DriverDeliveryDetailPage({
   params,
 }: {

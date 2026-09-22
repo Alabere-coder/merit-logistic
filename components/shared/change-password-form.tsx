@@ -152,7 +152,7 @@ export function ChangePasswordForm() {
             <Button
               type="submit"
               disabled={loading}
-              className="h-10 w-full sm:w-full rounded-xl bg-cyan-500 font-semibold text-white shadow-md transition-all hover:bg-cyan-600 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
+              className="h-10 w-full sm:w-full rounded-xl bg-cyan-500 font-semibold text-white  transition-all hover:bg-cyan-600 active:scale-[0.99] disabled:opacity-60"
             >
               {loading ? (
                 <>

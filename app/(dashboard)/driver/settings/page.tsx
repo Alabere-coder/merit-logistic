@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { ChangePasswordForm } from "@/components/shared/change-password-form";
 import { NotificationSettings } from "@/components/notifications/notification-settings";
 
+export const instant = false;
+
 export default async function DriverSettingsPage() {
   const { profile, user, supabase } = await requireRole(["driver"]);
   const { data: driver } = await supabase
