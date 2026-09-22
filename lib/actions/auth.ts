@@ -23,7 +23,7 @@ type ActionState = {
  */
 export async function signUp(
   _prev: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   const parsed = signupSchema.safeParse({
     firstName: formData.get("firstName"),
@@ -40,13 +40,7 @@ export async function signUp(
     };
   }
 
-  const {
-    firstName,
-    lastName,
-    email,
-    phone,
-    password,
-  } = parsed.data;
+  const { firstName, lastName, email, phone, password } = parsed.data;
 
   const supabase = await createClient();
 
@@ -73,8 +67,7 @@ export async function signUp(
   }
 
   return {
-    success:
-      "Account created. Check your email to verify your address.",
+    success: "Account created. Check your email to verify your address.",
   };
 }
 
@@ -83,7 +76,7 @@ export async function signUp(
  */
 export async function logIn(
   _prev: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
@@ -104,8 +97,42 @@ export async function logIn(
   });
 
   if (error) {
+    console.error("LOGIN ERROR:", {
+      message: error.message,
+      name: error.name,
+      status: error.status,
+    });
+
+    const message = error.message.toLowerCase();
+
+    // Actual invalid email/password
+    if (
+      message.includes("invalid login credentials") ||
+      message.includes("invalid credentials")
+    ) {
+      return {
+        error: "Incorrect email or password.",
+      };
+    }
+
+    // Network / connection problems
+    if (
+      message.includes("failed to fetch") ||
+      message.includes("fetch failed") ||
+      message.includes("network") ||
+      message.includes("timeout") ||
+      message.includes("timed out") ||
+      message.includes("connection")
+    ) {
+      return {
+        error:
+          "Unable to connect to the server. Please check your internet connection and try again.",
+      };
+    }
+
+    // Other authentication/server errors
     return {
-      error: "Incorrect email or password.",
+      error: "We couldn't sign you in right now. Please try again in a moment.",
     };
   }
 
@@ -115,7 +142,7 @@ export async function logIn(
 
   if (!user) {
     return {
-      error: "Unable to retrieve your account.",
+      error: "Unable to retrieve your account. Please try again.",
     };
   }
 
@@ -126,13 +153,10 @@ export async function logIn(
     .single();
 
   if (profileError || !profile) {
-    console.error(
-      "Unable to load user profile:",
-      profileError
-    );
+    console.error("Unable to load user profile:", profileError);
 
     return {
-      error: "Unable to load your user profile.",
+      error: "Unable to load your user profile. Please try again.",
     };
   }
 
@@ -202,7 +226,7 @@ export async function requestPasswordReset(
  */
 export async function resetPassword(
   _prev: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   const parsed = resetPasswordSchema.safeParse({
     password: formData.get("password"),
@@ -234,7 +258,7 @@ export async function resetPassword(
  * Resend verification email
  */
 export async function resendVerificationEmail(
-  email: string
+  email: string,
 ): Promise<ActionState> {
   const supabase = await createClient();
 

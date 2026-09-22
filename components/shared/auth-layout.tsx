@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -24,6 +28,12 @@ export function AuthLayout({
   title: string;
   subtitle: string;
 }) {
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
+
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-slate-600 p-12 border-r border-slate-800/60 shadow-2xl">
@@ -82,7 +92,7 @@ export function AuthLayout({
         {/* Footer */}
         <div className="relative flex items-center justify-between border-t border-slate-800/80 pt-6">
           <p className="font-mono text-xs text-slate-500">
-            © {new Date().getFullYear()} Emirate Global Inc.
+            © {currentYear ?? 2026} Emirate Global Inc.
           </p>
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />

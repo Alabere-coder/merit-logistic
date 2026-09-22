@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import Link from "next/link";
 import Image from "next/image";
 
@@ -13,7 +17,7 @@ const columns = [
   {
     title: "Company",
     links: [
-      ["About", "#"],
+      ["About", "/about"],
       ["Careers", "#"],
       ["Contact", "#contact"],
     ],
@@ -21,7 +25,7 @@ const columns = [
   {
     title: "Resources",
     links: [
-      ["FAQ", "#faq"],
+      ["FAQ", "/faq"],
       ["Help center", "#"],
       ["API docs", "#"],
     ],
@@ -37,6 +41,12 @@ const columns = [
 ];
 
 export function Footer() {
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
+
   return (
     <footer className="border-t border-navy-100 bg-white">
       <div className="container-lg py-14">
@@ -89,8 +99,8 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-navy-100 pt-6 sm:flex-row">
-          <p className="text-xs text-cyan-600">
-            © {new Date().getFullYear()} Emirate Global. All rights reserved.
+          <p className="font-mono text-xs text-slate-500">
+            © {currentYear ?? 2026} Emirate Global . All rights reserved.
           </p>
           <p className="font-mono text-xs text-navy-300">SS-HQ · Ilorin, NG</p>
         </div>
