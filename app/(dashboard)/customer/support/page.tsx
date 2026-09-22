@@ -4,6 +4,8 @@ import { SupportTicketForm } from "@/components/support/support-ticket-form";
 import { SupportTicketList } from "@/components/support/support-ticket-list";
 import { Skeleton } from "@/components/ui/skeleton";
 
+export const instant = false;
+
 export default async function CustomerSupportPage() {
   await requireRole(["customer"]);
 

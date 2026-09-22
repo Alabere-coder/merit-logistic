@@ -13,6 +13,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+export const instant = false;
+
 export default async function CustomerHistoryPage() {
   const { user, supabase } = await requireRole(["customer"]);
 

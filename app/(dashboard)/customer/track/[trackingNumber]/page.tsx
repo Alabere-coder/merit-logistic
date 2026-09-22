@@ -60,6 +60,8 @@ function getStatusClasses(status: string) {
   }
 }
 
+export const instant = false;
+
 export default async function CustomerTrackingResultPage({
   params,
 }: {

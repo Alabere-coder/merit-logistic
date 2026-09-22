@@ -27,6 +27,8 @@ type ShipmentPageProps = {
   }>;
 };
 
+export const instant = false;
+
 export default async function ShipmentDetailPage({
   params,
   searchParams,

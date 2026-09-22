@@ -1,5 +1,7 @@
 import { Package, Search, Truck } from "lucide-react";
 
+export const instant = false;
+
 import { TrackingSearchForm } from "@/components/customer/tracking-search-form";
 
 export default function CustomerTrackPage() {

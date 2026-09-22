@@ -16,6 +16,8 @@ const STATUS_VARIANT = {
   refunded: "outline",
 } as const;
 
+export const instant = false;
+
 export default async function CustomerPaymentsPage() {
   const { user, supabase } = await requireRole(["customer"]);
 
@@ -47,7 +49,7 @@ export default async function CustomerPaymentsPage() {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="rounded-2xl border border-slate-200/80 bg-linear-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 text-white shadow-xl">
+      <div className="rounded-2xl border border-slate-200/80 bg-slate-900 p-6 text-white ">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3.5">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white backdrop-blur-md ring-1 ring-white/20">

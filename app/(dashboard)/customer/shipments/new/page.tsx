@@ -3,6 +3,8 @@ import { getLocalizationSettings } from "@/lib/localization/get-localization-set
 
 import NewShipmentForm from "@/components/customer/new-shipment-form";
 
+export const instant = false;
+
 export default async function NewShipmentPage() {
   const [pricingResult, localization] = await Promise.all([
     getPricingSettings(),

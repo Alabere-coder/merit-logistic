@@ -15,6 +15,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+export const instant = false;
+
 export default async function CustomerOverviewPage() {
   const { user, supabase } = await requireRole(["customer"]);
 

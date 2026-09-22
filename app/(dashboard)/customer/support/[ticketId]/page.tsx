@@ -11,6 +11,8 @@ type Props = {
   }>;
 };
 
+export const instant = false;
+
 export default async function CustomerSupportTicketPage({ params }: Props) {
   const { user } = await requireRole(["customer"]);
 
