@@ -1,22 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import Link from "next/link";
 import Image from "next/image";
+
 import {
-  PackageSearch,
   ShieldCheck,
   MapPin,
   Clock,
+  ArrowRight,
+  CheckCircle2,
   type LucideIcon,
 } from "lucide-react";
+
 import CompanyLogo from "../../public/emirate2.jpeg";
 
 const points: [LucideIcon, string][] = [
-  [ShieldCheck, "Every shipment insured and tracked door to door"],
-  [MapPin, "Live driver location on every active delivery"],
-  [Clock, "Same-day pickup available in 120+ cities"],
+  [ShieldCheck, "Secure shipment handling from pickup to delivery"],
+  [MapPin, "Real-time shipment visibility throughout the journey"],
+  [Clock, "Reliable delivery services built around your schedule"],
 ];
 
 export function AuthLayout({
@@ -35,100 +37,174 @@ export function AuthLayout({
   }, []);
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-slate-600 p-12 border-r border-slate-800/60 shadow-2xl">
-        {/* Layered Decorative Background Elements */}
-        <div className="route-dot-grid pointer-events-none absolute inset-0 opacity-20 mask-[radial-gradient(ellipse_at_center,transparent_20%,black)]" />
-        <div className="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full bg-amber-500/10 blur-[120px]" />
-        <div className="pointer-events-none absolute -bottom-32 -left-20 h-125 w-125 rounded-full bg-blue-600/15 blur-[140px]" />
-        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-indigo-500/10 blur-[100px]" />
+    <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
+      {/* =========================================================
+          LEFT — BRAND / LOGISTICS EXPERIENCE
+      ========================================================== */}
+      <div className="relative hidden min-h-screen overflow-hidden lg:flex">
+        {/* Background image */}
+        <Image
+          src="/hero-logistics.jpg"
+          alt=""
+          fill
+          priority
+          sizes="(min-width: 1024px) 52vw, 0vw"
+          className="object-cover"
+        />
 
-        {/* Brand Header */}
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900"
-        >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
-            <Image src={CompanyLogo} alt="Company Logo" />
-          </span>
-          <p className="text-2xl text-white">
-            Emirate<span className="text-cyan-500 pl-1">Global</span>
-          </p>
-        </Link>
+        {/* Image overlays */}
+        <div className="absolute inset-0 bg-slate-950/75" />
 
-        {/* Main Content Area */}
-        <div className="relative my-auto py-12 space-y-8">
-          <div className="space-y-3">
-            <span className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-300 backdrop-blur-md">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Enterprise Global Platform
+        <div className="absolute inset-0 bg-linear-to-br from-slate-950/95 via-slate-950/70 to-slate-900/80" />
+
+        {/* Subtle cyan accent */}
+        <div className="pointer-events-none absolute -right-32 top-1/3 h-96 w-96 rounded-full bg-cyan-500/10 blur-[120px]" />
+
+        {/* Content */}
+        <div className="relative z-10 flex min-h-screen w-full flex-col p-10 xl:p-14">
+          {/* Brand */}
+          <Link href="/" className="group flex w-fit items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-white/20">
+              <Image
+                src={CompanyLogo}
+                alt="Emirate Global"
+                width={44}
+                height={44}
+                className="h-full w-full object-cover"
+                priority
+              />
             </span>
-            <h2 className="max-w-md font-display text-4xl font-extrabold leading-[1.15] text-white tracking-tight text-balance">
-              Global that moves as fast as your{" "}
-              <span className="bg-linear-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-                business.
+
+            <span className="font-display text-2xl font-bold tracking-tight text-white">
+              Emirate
+              <span className="ml-1 text-cyan-400">Global</span>
+            </span>
+          </Link>
+
+          {/* Main content */}
+          <div className="my-auto max-w-xl py-16">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full  px-3.5 py-2 text-xs font-medium text-slate-200 backdrop-blur-md">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              Reliable logistics and delivery
+            </div>
+
+            <h2 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-white xl:text-5xl">
+              Moving your world,
+              <span className="mt-2 block text-cyan-400">
+                one delivery at a time.
               </span>
             </h2>
+
+            <p className="mt-6 max-w-lg text-base leading-8 text-slate-300">
+              Emirate Global gives individuals and businesses a simple, secure
+              way to create shipments, track deliveries, and stay informed from
+              pickup through final delivery.
+            </p>
+
+            {/* Features */}
+            <div className="mt-9 space-y-3">
+              {points.map(([Icon, text]) => (
+                <div
+                  key={text}
+                  className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.07] px-4 py-3.5 backdrop-blur-md"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400 ring-1 ring-cyan-400/20">
+                    <Icon className="h-5 w-5" strokeWidth={1.8} />
+                  </span>
+
+                  <span className="text-sm font-medium leading-6 text-slate-200">
+                    {text}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Operational status */}
+            <div className="mt-8 flex flex-wrap items-center gap-5 text-xs text-slate-400">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
+                <span>Platform operational</span>
+              </div>
+
+              <span className="h-4 w-px bg-white/10" />
+
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-cyan-400" />
+                <span>Secure account access</span>
+              </div>
+            </div>
           </div>
 
-          {/* Feature List */}
-          <ul className="space-y-3.5">
-            {points.map(([Icon, text]) => (
-              <li
-                key={text as string}
-                className="group flex items-center gap-3.5 rounded-xl border border-white/5 bg-white/5 p-3.5 text-sm text-slate-300 backdrop-blur-md transition-all duration-300 hover:border-white/15 hover:bg-white/[0.07] hover:translate-x-1"
-              >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-900/80 border border-white/10 text-amber-400 shadow-inner transition-colors group-hover:border-amber-500/40 group-hover:text-amber-300">
-                  {typeof Icon !== "string" && <Icon className="h-4.5 w-4.5" />}
-                </span>
-                <span className="font-medium text-slate-200 group-hover:text-white transition-colors">
-                  {text}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* Footer */}
+          <div className="flex items-center justify-between border-t border-white/10 pt-6">
+            <p className="text-xs text-slate-500">
+              © {currentYear ?? 2026} Emirate Global
+            </p>
 
-        {/* Footer */}
-        <div className="relative flex items-center justify-between border-t border-slate-800/80 pt-6">
-          <p className="font-mono text-xs text-slate-500">
-            © {currentYear ?? 2026} Emirate Global Inc.
-          </p>
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">
-              Systems Operational
-            </span>
+            <Link
+              href="/"
+              className="group flex items-center gap-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white"
+            >
+              Back to website
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-center px-6 py-16 sm:px-12">
-        <div className="w-full max-w-sm">
+      {/* =========================================================
+          RIGHT — AUTH FORM
+      ========================================================== */}
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-12 sm:px-10 lg:bg-white">
+        <div className="w-full max-w-md">
+          {/* Mobile brand */}
           <Link
             href="/"
-            className="flex items-center gap-2 font-display text-lg font-700 tracking-tight text-navy-900 mb-4"
+            className="mb-10 flex w-fit items-center gap-3 lg:hidden"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg">
-              {/* <PackageSearch className="h-4.5 w-4.5" strokeWidth={2.2} /> */}
-
+            <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl">
               <Image
                 src="/emirate2.jpeg"
-                alt="Company Logo"
-                width={150}
+                alt="Emirate Global"
+                width={40}
                 height={40}
+                className="h-full w-full object-cover"
                 priority
               />
             </span>
-            <p className="text-2xl">
-              Emirate<span className="text-cyan-500 pl-1">Global</span>
-            </p>
+
+            <span className="font-display text-2xl font-bold tracking-tight text-slate-900">
+              Emirate
+              <span className="ml-1 text-cyan-600">Global</span>
+            </span>
           </Link>
-          <h1 className="font-display text-2xl font-700 text-navy-900">
-            {title}
-          </h1>
-          <p className="mt-1.5 text-sm text-navy-500">{subtitle}</p>
+
+          {/* Form heading */}
+          <div>
+            <h1 className="font-display text-3xl font-bold tracking-tight text-slate-950">
+              {title}
+            </h1>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">{subtitle}</p>
+          </div>
+
+          {/* Form */}
           <div className="mt-8">{children}</div>
+
+          {/* Security note */}
+          <div className="mt-8 border-t border-slate-100 pt-5">
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50">
+                <ShieldCheck className="h-4 w-4 text-cyan-700" />
+              </div>
+
+              <p className="text-xs leading-5 text-slate-500">
+                Your account information is protected through our secure
+                authentication system. Never share your password or verification
+                codes with anyone.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

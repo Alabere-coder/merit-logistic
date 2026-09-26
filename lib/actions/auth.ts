@@ -16,6 +16,55 @@ type ActionState = {
 };
 
 /**
+ * Returns true when an error appears to be caused by
+ * a network, connection, timeout, or fetch failure.
+ */
+function isNetworkError(error: unknown): boolean {
+  if (!error) {
+    return false;
+  }
+
+  const message =
+    error instanceof Error
+      ? error.message.toLowerCase()
+      : typeof error === "object" &&
+          error !== null &&
+          "message" in error &&
+          typeof error.message === "string"
+        ? error.message.toLowerCase()
+        : String(error).toLowerCase();
+
+  return (
+    message.includes("failed to fetch") ||
+    message.includes("fetch failed") ||
+    message.includes("network") ||
+    message.includes("timeout") ||
+    message.includes("timed out") ||
+    message.includes("connection") ||
+    message.includes("connection reset") ||
+    message.includes("connection refused") ||
+    message.includes("econn") ||
+    message.includes("socket") ||
+    message.includes("offline")
+  );
+}
+
+/**
+ * Converts unexpected/network errors into a safe
+ * user-facing message.
+ */
+function getAuthErrorMessage(
+  error: unknown,
+  fallback = "Something went wrong. Please try again.",
+): string {
+  if (isNetworkError(error)) {
+    return "Unable to connect to the server. Please check your internet connection and try again.";
+  }
+
+  return fallback;
+}
+
+/**
  * Customer self-signup.
  *
  * Customers can create their own accounts.
@@ -44,31 +93,53 @@ export async function signUp(
 
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/verify-email`,
-      data: {
-        first_name: firstName,
-        last_name: lastName,
-        phone_number: phone,
-        role: "customer",
+  try {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/verify-email`,
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          phone_number: phone,
+          role: "customer",
+        },
       },
-    },
-  });
+    });
 
-  if (error) {
-    console.error("Signup error:", error);
+    if (error) {
+      console.error("SIGNUP ERROR:", {
+        message: error.message,
+        name: error.name,
+        status: error.status,
+      });
+
+      if (isNetworkError(error)) {
+        return {
+          error:
+            "Unable to connect to the server. Please check your internet connection and try again.",
+        };
+      }
+
+      return {
+        error: error.message,
+      };
+    }
 
     return {
-      error: error.message,
+      success: "Account created. Check your email to verify your address.",
+    };
+  } catch (error) {
+    console.error("SIGNUP REQUEST FAILED:", error);
+
+    return {
+      error: getAuthErrorMessage(
+        error,
+        "We couldn't create your account right now. Please try again.",
+      ),
     };
   }
-
-  return {
-    success: "Account created. Check your email to verify your address.",
-  };
 }
 
 /**
@@ -91,86 +162,86 @@ export async function logIn(
 
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: parsed.data.email,
-    password: parsed.data.password,
-  });
-
-  if (error) {
-    console.error("LOGIN ERROR:", {
-      message: error.message,
-      name: error.name,
-      status: error.status,
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: parsed.data.email,
+      password: parsed.data.password,
     });
 
-    const message = error.message.toLowerCase();
+    if (error) {
+      console.error("LOGIN ERROR:", {
+        message: error.message,
+        name: error.name,
+        status: error.status,
+      });
 
-    // Actual invalid email/password
-    if (
-      message.includes("invalid login credentials") ||
-      message.includes("invalid credentials")
-    ) {
-      return {
-        error: "Incorrect email or password.",
-      };
-    }
+      const message = error.message.toLowerCase();
 
-    // Network / connection problems
-    if (
-      message.includes("failed to fetch") ||
-      message.includes("fetch failed") ||
-      message.includes("network") ||
-      message.includes("timeout") ||
-      message.includes("timed out") ||
-      message.includes("connection")
-    ) {
+      if (
+        message.includes("invalid login credentials") ||
+        message.includes("invalid credentials")
+      ) {
+        return {
+          error: "Incorrect email or password.",
+        };
+      }
+
+      if (isNetworkError(error)) {
+        return {
+          error:
+            "Unable to connect to the server. Please check your internet connection and try again.",
+        };
+      }
+
       return {
         error:
-          "Unable to connect to the server. Please check your internet connection and try again.",
+          "We couldn't sign you in right now. Please try again in a moment.",
       };
     }
 
-    // Other authentication/server errors
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return {
+        error: "Unable to retrieve your account. Please try again.",
+      };
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      console.error("Unable to load user profile:", profileError);
+
+      return {
+        error: "Unable to load your user profile. Please try again.",
+      };
+    }
+
+    revalidatePath("/", "layout");
+
+    if (profile.role === "admin") {
+      redirect("/admin");
+    }
+
+    if (profile.role === "driver") {
+      redirect("/driver");
+    }
+
+    redirect("/customer");
+  } catch (error) {
+    console.error("LOGIN REQUEST FAILED:", error);
+
     return {
-      error: "We couldn't sign you in right now. Please try again in a moment.",
+      error:
+        "Unable to connect to the server. Please check your internet connection and try again.",
     };
   }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return {
-      error: "Unable to retrieve your account. Please try again.",
-    };
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profileError || !profile) {
-    console.error("Unable to load user profile:", profileError);
-
-    return {
-      error: "Unable to load your user profile. Please try again.",
-    };
-  }
-
-  revalidatePath("/", "layout");
-
-  if (profile.role === "admin") {
-    redirect("/admin");
-  }
-
-  if (profile.role === "driver") {
-    redirect("/driver");
-  }
-
-  redirect("/customer");
 }
 
 /**
@@ -179,10 +250,17 @@ export async function logIn(
 export async function logOut() {
   const supabase = await createClient();
 
-  await supabase.auth.signOut();
+  try {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("LOGOUT ERROR:", error);
+    }
+  } catch (error) {
+    console.error("LOGOUT REQUEST FAILED:", error);
+  }
 
   revalidatePath("/", "layout");
-
   redirect("/login");
 }
 
@@ -201,24 +279,59 @@ export async function requestPasswordReset(
     };
   }
 
-  const supabase = await createClient();
-
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
+  const parsed = forgotPasswordSchema.safeParse({
+    email,
   });
 
-  if (error) {
-    console.error("PASSWORD RESET ERROR:", error);
-
+  if (!parsed.success) {
     return {
-      error: error.message,
+      error: parsed.error.issues[0]?.message ?? "Invalid email address.",
     };
   }
 
-  return {
-    success:
-      "If an account exists with that email, we've sent a password reset link.",
-  };
+  const supabase = await createClient();
+
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      parsed.data.email,
+      {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
+      },
+    );
+
+    if (error) {
+      console.error("PASSWORD RESET ERROR:", {
+        message: error.message,
+        name: error.name,
+        status: error.status,
+      });
+
+      if (isNetworkError(error)) {
+        return {
+          error:
+            "Unable to connect to the server. Please check your internet connection and try again.",
+        };
+      }
+
+      return {
+        error: "We couldn't process your request right now. Please try again.",
+      };
+    }
+
+    return {
+      success:
+        "If an account exists with that email, we've sent a password reset link.",
+    };
+  } catch (error) {
+    console.error("PASSWORD RESET REQUEST FAILED:", error);
+
+    return {
+      error: getAuthErrorMessage(
+        error,
+        "We couldn't process your request right now. Please try again.",
+      ),
+    };
+  }
 }
 
 /**
@@ -241,17 +354,41 @@ export async function resetPassword(
 
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.updateUser({
-    password: parsed.data.password,
-  });
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: parsed.data.password,
+    });
 
-  if (error) {
+    if (error) {
+      console.error("PASSWORD UPDATE ERROR:", {
+        message: error.message,
+        name: error.name,
+        status: error.status,
+      });
+
+      if (isNetworkError(error)) {
+        return {
+          error:
+            "Unable to connect to the server. Please check your internet connection and try again.",
+        };
+      }
+
+      return {
+        error: "We couldn't update your password right now. Please try again.",
+      };
+    }
+
+    redirect("/login?reset=success");
+  } catch (error) {
+    console.error("PASSWORD RESET UPDATE FAILED:", error);
+
     return {
-      error: error.message,
+      error: getAuthErrorMessage(
+        error,
+        "We couldn't update your password right now. Please try again.",
+      ),
     };
   }
-
-  redirect("/login?reset=success");
 }
 
 /**
@@ -260,28 +397,64 @@ export async function resetPassword(
 export async function resendVerificationEmail(
   email: string,
 ): Promise<ActionState> {
-  const supabase = await createClient();
+  const normalizedEmail = email.trim();
 
-  const { error } = await supabase.auth.resend({
-    type: "signup",
-    email,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/verify-email`,
-    },
-  });
-
-  if (error) {
+  if (!normalizedEmail) {
     return {
-      error: error.message,
+      error: "Please enter your email address.",
     };
   }
 
-  return {
-    success: "Verification email sent.",
-  };
+  const supabase = await createClient();
+
+  try {
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: normalizedEmail,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/verify-email`,
+      },
+    });
+
+    if (error) {
+      console.error("RESEND VERIFICATION ERROR:", {
+        message: error.message,
+        name: error.name,
+        status: error.status,
+      });
+
+      if (isNetworkError(error)) {
+        return {
+          error:
+            "Unable to connect to the server. Please check your internet connection and try again.",
+        };
+      }
+
+      return {
+        error:
+          "We couldn't send the verification email right now. Please try again.",
+      };
+    }
+
+    return {
+      success: "Verification email sent.",
+    };
+  } catch (error) {
+    console.error("RESEND VERIFICATION REQUEST FAILED:", error);
+
+    return {
+      error: getAuthErrorMessage(
+        error,
+        "We couldn't send the verification email right now. Please try again.",
+      ),
+    };
+  }
 }
 
-export async function changePassword(formData: FormData) {
+/**
+ * Change password
+ */
+export async function changePassword(formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
 
   const currentPassword = formData.get("currentPassword");
@@ -316,42 +489,92 @@ export async function changePassword(formData: FormData) {
     };
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user?.email) {
+    if (!user?.email) {
+      return {
+        error: "You must be logged in.",
+      };
+    }
+
+    /**
+     * Verify current password.
+     */
+    const { error: verifyError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
+    });
+
+    if (verifyError) {
+      console.error("CURRENT PASSWORD VERIFICATION ERROR:", {
+        message: verifyError.message,
+        name: verifyError.name,
+        status: verifyError.status,
+      });
+
+      if (isNetworkError(verifyError)) {
+        return {
+          error:
+            "Unable to connect to the server. Please check your internet connection and try again.",
+        };
+      }
+
+      const message = verifyError.message.toLowerCase();
+
+      if (
+        message.includes("invalid login credentials") ||
+        message.includes("invalid credentials")
+      ) {
+        return {
+          error: "Your current password is incorrect.",
+        };
+      }
+
+      return {
+        error: "We couldn't verify your current password. Please try again.",
+      };
+    }
+
+    /**
+     * Update password.
+     */
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) {
+      console.error("PASSWORD UPDATE ERROR:", {
+        message: updateError.message,
+        name: updateError.name,
+        status: updateError.status,
+      });
+
+      if (isNetworkError(updateError)) {
+        return {
+          error:
+            "Unable to connect to the server. Please check your internet connection and try again.",
+        };
+      }
+
+      return {
+        error: "We couldn't update your password right now. Please try again.",
+      };
+    }
+
     return {
-      error: "You must be logged in.",
+      success: "Password changed successfully.",
+    };
+  } catch (error) {
+    console.error("CHANGE PASSWORD REQUEST FAILED:", error);
+
+    return {
+      error: getAuthErrorMessage(
+        error,
+        "We couldn't change your password right now. Please try again.",
+      ),
     };
   }
-
-  // Verify current password
-  const { error: verifyError } = await supabase.auth.signInWithPassword({
-    email: user.email,
-    password: currentPassword,
-  });
-
-  if (verifyError) {
-    return {
-      error: "Your current password is incorrect.",
-    };
-  }
-
-  // Update password
-  const { error: updateError } = await supabase.auth.updateUser({
-    password: newPassword,
-  });
-
-  if (updateError) {
-    console.error("PASSWORD UPDATE ERROR:", updateError);
-
-    return {
-      error: updateError.message,
-    };
-  }
-
-  return {
-    success: "Password changed successfully.",
-  };
 }
