@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AdminActions } from "@/components/admin/admin-actions";
 
+export const instant = false;
+
 export default async function AdminsPage() {
   const { supabase, user } = await requireRole(["admin"]);
 
