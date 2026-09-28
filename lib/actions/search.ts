@@ -175,33 +175,66 @@ export async function globalSearch(
   }
 
   /* =======================================================
-     DRIVERS
-  ======================================================= */
+   DRIVERS
+======================================================= */
 
-  const { data: drivers, error: driversError } = await supabase
-    .from("drivers")
+  /*
+   * Search driver-specific fields.
+   *
+   * No relationship embedding is used.
+   */
+  const { data: driversByDetails, error: driversByDetailsError } =
+    await supabase
+      .from("drivers")
+      .select(
+        `
+      id,
+      user_id,
+      license_number,
+      vehicle_plate,
+      vehicle_type,
+      status
+    `,
+      )
+      .or(
+        [
+          `license_number.ilike.${pattern}`,
+          `vehicle_plate.ilike.${pattern}`,
+          `vehicle_type.ilike.${pattern}`,
+        ].join(","),
+      )
+      .order("created_at", {
+        ascending: false,
+      })
+      .limit(8);
+
+  if (driversByDetailsError) {
+    console.error("GLOBAL SEARCH DRIVERS ERROR:", driversByDetailsError);
+  }
+
+  /*
+   * Search users who have the driver role.
+   *
+   * Again, no drivers relationship is embedded.
+   */
+  const { data: driverUsers, error: driverUsersError } = await supabase
+    .from("users")
     .select(
       `
-          id,
-          user_id,
-          license_number,
-          vehicle_plate,
-          vehicle_type,
-          status,
-          users:user_id (
-            id,
-            first_name,
-            last_name,
-            email,
-            phone_number
-          )
-        `,
+      id,
+      first_name,
+      last_name,
+      email,
+      phone_number
+    `,
     )
+    .eq("role", "driver")
     .or(
       [
-        `license_number.ilike.${pattern}`,
-        `vehicle_plate.ilike.${pattern}`,
-        `vehicle_type.ilike.${pattern}`,
+        `first_name.ilike.${pattern}`,
+        `last_name.ilike.${pattern}`,
+        `email.ilike.${pattern}`,
+        `phone_number.ilike.${pattern}`,
       ].join(","),
     )
     .order("created_at", {
@@ -209,46 +242,104 @@ export async function globalSearch(
     })
     .limit(8);
 
-  if (driversError) {
-    console.error("GLOBAL SEARCH DRIVERS ERROR:", driversError);
+  if (driverUsersError) {
+    console.error("GLOBAL SEARCH DRIVER USERS ERROR:", driverUsersError);
   }
 
-  for (const driver of drivers ?? []) {
-    const user = Array.isArray(driver.users) ? driver.users[0] : driver.users;
+  /*
+   * Collect all driver user IDs that need their driver record.
+   */
+  const driverUserIds = [
+    ...(driversByDetails ?? []).map((driver) => driver.user_id),
+    ...(driverUsers ?? []).map((user) => user.id),
+  ].filter(Boolean);
+
+  /*
+   * Fetch driver records separately.
+   *
+   * This query has no relationship embedding.
+   */
+  const { data: matchingDriverRecords, error: matchingDriversError } =
+    driverUserIds.length > 0
+      ? await supabase
+          .from("drivers")
+          .select(
+            `
+          id,
+          user_id,
+          license_number,
+          vehicle_plate,
+          vehicle_type,
+          status
+        `,
+          )
+          .in("user_id", driverUserIds)
+      : { data: [], error: null };
+
+  if (matchingDriversError) {
+    console.error(
+      "GLOBAL SEARCH MATCHING DRIVER RECORDS ERROR:",
+      matchingDriversError,
+    );
+  }
+
+  /*
+   * Create a map:
+   *
+   * user_id -> driver record
+   */
+  const driverMap = new Map(
+    (matchingDriverRecords ?? []).map((driver) => [driver.user_id, driver]),
+  );
+
+  /*
+   * Create a map:
+   *
+   * user_id -> user
+   */
+  const userMap = new Map((driverUsers ?? []).map((user) => [user.id, user]));
+
+  /*
+   * Add drivers found by driver-specific fields.
+   */
+  for (const driver of driversByDetails ?? []) {
+    let user = userMap.get(driver.user_id);
+
+    /*
+     * If this driver's user was not returned by the
+     * driver-user search, fetch the user directly.
+     */
+    if (!user) {
+      const { data: driverUser, error: driverUserError } = await supabase
+        .from("users")
+        .select(
+          `
+          id,
+          first_name,
+          last_name,
+          email,
+          phone_number
+        `,
+        )
+        .eq("id", driver.user_id)
+        .maybeSingle();
+
+      if (driverUserError) {
+        console.error(
+          "GLOBAL SEARCH DRIVER USER LOOKUP ERROR:",
+          driverUserError,
+        );
+        continue;
+      }
+
+      user = driverUser ?? undefined;
+    }
 
     if (!user) {
       continue;
     }
 
     const fullName = `${user.first_name} ${user.last_name}`.trim();
-
-    /*
-     * The drivers query above searches driver-specific
-     * fields. We also need to match the driver's user
-     * information.
-     */
-    const userSearchable = [
-      user.first_name,
-      user.last_name,
-      user.email,
-      user.phone_number,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-
-    const matchesUser = userSearchable.includes(term.toLowerCase());
-
-    if (
-      !matchesUser &&
-      !driver.license_number.toLowerCase().includes(term.toLowerCase()) &&
-      !(driver.vehicle_plate ?? "")
-        .toLowerCase()
-        .includes(term.toLowerCase()) &&
-      !driver.vehicle_type.toLowerCase().includes(term.toLowerCase())
-    ) {
-      continue;
-    }
 
     results.push({
       id: driver.id,
@@ -261,54 +352,17 @@ export async function globalSearch(
   }
 
   /*
-   * Search drivers again by user information.
-   *
-   * This is separate because the PostgREST relation
-   * filter above only searches fields directly on
-   * the drivers table.
+   * Add drivers found by user information.
    */
-  const { data: driverUsers, error: driverUsersError } = await supabase
-    .from("users")
-    .select(
-      `
-          id,
-          first_name,
-          last_name,
-          email,
-          phone_number,
-          drivers (
-            id,
-            license_number,
-            vehicle_plate,
-            vehicle_type,
-            status
-          )
-        `,
-    )
-    .eq("role", "driver")
-    .or(
-      [
-        `first_name.ilike.${pattern}`,
-        `last_name.ilike.${pattern}`,
-        `email.ilike.${pattern}`,
-        `phone_number.ilike.${pattern}`,
-      ].join(","),
-    )
-    .limit(8);
-
-  if (driverUsersError) {
-    console.error("GLOBAL SEARCH DRIVER USERS ERROR:", driverUsersError);
-  }
-
   for (const user of driverUsers ?? []) {
-    const driver = Array.isArray(user.drivers) ? user.drivers[0] : user.drivers;
+    const driver = driverMap.get(user.id);
 
     if (!driver) {
       continue;
     }
 
     /*
-     * Avoid adding the same driver twice.
+     * Avoid duplicates.
      */
     if (
       results.some(
